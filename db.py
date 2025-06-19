@@ -1,3 +1,4 @@
+# === File: db.py ===
 import sqlite3
 
 def init_db():
