@@ -3,6 +3,7 @@ import streamlit as st
 from generator import generate_post
 from db import init_db, save_post, get_pending_posts
 from publisher import publish_to_bluesky
+from config import Config
 
 init_db()
 
@@ -11,10 +12,11 @@ st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
 prompt = st.text_area("Enter topic / prompt:")
+draft_mode = st.checkbox("Draft Mode", value=False)
 
 if st.button("Generate Post"):
     with st.spinner("Generating..."):
-        post = generate_post(prompt)
+        post = generate_post(prompt, draft_mode)
         st.write("### Suggested Post:")
         st.write(post)
         if st.button("Approve & Save"):
