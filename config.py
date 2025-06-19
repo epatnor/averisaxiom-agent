@@ -11,4 +11,3 @@ class Config:
     MASTODON_BASE_URL = os.getenv("MASTODON_BASE_URL", "https://mstdn.social")
     BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE", "averisaxiom.bsky.social")
     BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD", "5zh3-gqte-qubf-4qpx")
-
