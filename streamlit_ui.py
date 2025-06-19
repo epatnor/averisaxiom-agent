@@ -8,6 +8,7 @@ init_db()
 
 st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
+st.caption("Model: GPT-4o")
 
 prompt = st.text_area("Enter topic / prompt:")
 
