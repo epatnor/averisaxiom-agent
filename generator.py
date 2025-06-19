@@ -1,3 +1,4 @@
+# === File: generator.py ===
 import requests
 from config import Config
 
@@ -20,6 +21,11 @@ def generate_post(prompt: str):
         ],
         "temperature": 0.5
     }
-    response = requests.post(url, headers=headers, json=payload)
-    response.raise_for_status()
-    return response.json()["choices"][0]["message"]["content"]
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()
+        return response.json()["choices"][0]["message"]["content"]
+    except requests.exceptions.HTTPError as http_err:
+        return f"HTTP error occurred: {http_err}"
+    except Exception as err:
+        return f"An error occurred: {err}"
