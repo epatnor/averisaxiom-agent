@@ -1,6 +1,7 @@
+# === File: publisher.py ===
 from atproto import Client
-from app.config import Config
-from app import db
+from config import Config
+import db
 
 client = Client()
 client.login(Config.BLUESKY_HANDLE, Config.BLUESKY_APP_PASSWORD)

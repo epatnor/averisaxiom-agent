@@ -1,7 +1,8 @@
+# === File: streamlit_ui.py ===
 import streamlit as st
-from app.generator import generate_post
-from app.db import init_db, save_post, get_pending_posts
-from app.publisher import publish_to_bluesky
+from generator import generate_post
+from db import init_db, save_post, get_pending_posts
+from publisher import publish_to_bluesky
 
 init_db()
 
