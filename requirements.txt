@@ -1,0 +1,10 @@
+openai
+streamlit
+fastapi
+uvicorn
+requests
+pydantic
+sqlite-utils
+Mastodon.py
+atproto
+python-dotenv
