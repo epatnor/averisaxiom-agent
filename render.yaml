@@ -1,3 +1,4 @@
+# === File: render.yaml ===
 services:
   - type: web
     name: averisaxiom-agent
