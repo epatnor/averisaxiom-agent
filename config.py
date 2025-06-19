@@ -11,3 +11,4 @@ class Config:
     MASTODON_BASE_URL = os.getenv("MASTODON_BASE_URL")
     BLUESKY_HANDLE = os.getenv("BLUESKY_HANDLE")
     BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD")
+    TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
