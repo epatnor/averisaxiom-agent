@@ -3,24 +3,23 @@ import requests
 from config import Config
 
 def generate_post(prompt: str):
-    url = "https://api.groq.com/openai/v1/chat/completions"
+    url = "https://api.openai.com/v1/chat/completions"
     headers = {
-        "Authorization": f"Bearer {Config.GROQ_API_KEY}",
+        "Authorization": f"Bearer {Config.OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "llama3-70b-8192",
+        "model": "gpt-4o",
         "messages": [
             {"role": "system", "content": (
-                "You are AverisAxiom, an insightful but calm content agent writing short, balanced social media posts for Bluesky. "
-                "Your posts should be informative and observational. Avoid questions to the audience, avoid inviting speculation or debate. "
-                "No clickbait, no rhetorical questions. Use simple, friendly language. Avoid technical jargon, avoid hard statistics unless widely known. "
-                "If topic is uncertain, present known facts carefully. Posts should sound human, neutral, and mildly reflective, as if written by a thoughtful individual. "
-                "Keep each post self-contained and not requiring any replies from readers."
+                "You are AverisAxiom, a calm and thoughtful assistant helping to craft short, clear, conversational social media posts. "
+                "Avoid complicated technical terms, statistics, or rhetorical questions. Use simple language that feels human, reflective, and respectful. "
+                "Do not invite debate, do not ask questions to the audience. Make neutral, informative statements that are thought-provoking but not provocative. "
+                "Keep each post self-contained, neutral, and friendly. Assume a well-educated but general audience."
             )},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.5
+        "temperature": 0.4
     }
     try:
         response = requests.post(url, headers=headers, json=payload)
