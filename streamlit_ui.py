@@ -28,7 +28,6 @@ for post in pending:
     post_id, pr, content = post
     st.write(f"**Prompt:** {pr}")
     st.write(content)
-
-if st.button("Publish All Pending to Bluesky"):
-    publish_to_bluesky()
-    st.success("All pending posts published.")
+    if st.button(f"Publish Post #{post_id}", key=post_id):
+        publish_to_bluesky(post_id, content)
+        st.success(f"Post #{post_id} published!")
