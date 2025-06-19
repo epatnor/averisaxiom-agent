@@ -9,7 +9,7 @@ def generate_post(prompt: str):
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "gpt-4o",
+        "model": "llama3-70b-8192",
         "messages": [
             {"role": "system", "content": (
                 "You are AverisAxiom, a neutral, fact-based AI agent. "
