@@ -1,79 +1,63 @@
 # === File: daily_report.py ===
 import sqlite3
-from atproto import Client
-from config import Config
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import os
 
 def update_stats():
-    conn = sqlite3.connect("posts.db")
-    c = conn.cursor()
-    c.execute("SELECT id, bluesky_uri FROM posts WHERE status = 'published' AND bluesky_uri IS NOT NULL")
-    rows = c.fetchall()
-    conn.close()
-
-    client = Client()
-    client.login(Config.BLUESKY_HANDLE, Config.BLUESKY_APP_PASSWORD)
-
-    for post_id, uri in rows:
-        try:
-            post = client.get_post(uri)
-            like_count = post.record.like_count if hasattr(post.record, 'like_count') else 0
-            repost_count = post.record.repost_count if hasattr(post.record, 'repost_count') else 0
-            reply_count = post.record.reply_count if hasattr(post.record, 'reply_count') else 0
-
-            conn = sqlite3.connect("posts.db")
-            c = conn.cursor()
-            c.execute("""
-                UPDATE posts SET like_count = ?, repost_count = ?, reply_count = ? WHERE id = ?
-            """, (like_count, repost_count, reply_count, post_id))
-            conn.commit()
-            conn.close()
-        except Exception as e:
-            print(f"Failed to update stats for post {post_id}: {e}")
-
-def generate_report():
+    print("Updating stats from database...")
     conn = sqlite3.connect("posts.db")
     c = conn.cursor()
     c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
     total_published, total_likes, total_reposts, total_replies = c.fetchone()
-
-    c.execute("""
-        SELECT id, post, like_count, repost_count, reply_count FROM posts 
-        WHERE status = 'published' AND (like_count >= 10 OR repost_count >= 5 OR reply_count >= 5)
-        ORDER BY like_count DESC
-    """)
-    top_posts = c.fetchall()
     conn.close()
+    total_likes = total_likes or 0
+    total_reposts = total_reposts or 0
+    total_replies = total_replies or 0
+    print(f"Stats fetched: Published={total_published}, Likes={total_likes}, Reposts={total_reposts}, Replies={total_replies}")
+    return total_published, total_likes, total_reposts, total_replies
 
-    report = f"AverisAxiom Daily Report:\n\n"
-    report += f"Total Published: {total_published}\n"
-    report += f"Total Likes: {total_likes or 0}\n"
-    report += f"Total Reposts: {total_reposts or 0}\n"
-    report += f"Total Replies: {total_replies or 0}\n\n"
-
-    if top_posts:
-        report += "High Performing Posts:\n"
-        for post_id, content, likes, reposts, replies in top_posts:
-            report += f"- Post #{post_id}: {likes} Likes, {reposts} Reposts, {replies} Replies\n"
-            report += f"  Content: {content[:100]}...\n"
-    else:
-        report += "No exceptional posts today.\n"
-
+def generate_report():
+    total_published, total_likes, total_reposts, total_replies = update_stats()
+    report = (
+        f"AverisAxiom Daily Report\n\n"
+        f"Total Published Posts: {total_published}\n"
+        f"Total Likes: {total_likes}\n"
+        f"Total Reposts: {total_reposts}\n"
+        f"Total Replies: {total_replies}\n"
+    )
     return report
 
-def send_email(body):
-    msg = MIMEText(body)
-    msg["Subject"] = "AverisAxiom Daily Report"
-    msg["From"] = Config.EMAIL_FROM
-    msg["To"] = Config.EMAIL_TO
+def send_email(report):
+    email_from = os.getenv("EMAIL_FROM")
+    email_to = os.getenv("EMAIL_TO")
+    email_host = os.getenv("EMAIL_HOST")
+    email_port = int(os.getenv("EMAIL_PORT"))
+    email_user = os.getenv("EMAIL_USER")
+    email_pass = os.getenv("EMAIL_PASS")
 
-    with smtplib.SMTP_SSL(Config.SMTP_SERVER, Config.SMTP_PORT) as server:
-        server.login(Config.SMTP_USERNAME, Config.SMTP_PASSWORD)
-        server.send_message(msg)
+    msg = MIMEMultipart()
+    msg['From'] = email_from
+    msg['To'] = email_to
+    msg['Subject'] = "AverisAxiom Daily Report"
+
+    msg.attach(MIMEText(report, 'plain'))
+
+    try:
+        print("Connecting to SMTP server...")
+        server = smtplib.SMTP(email_host, email_port)
+        server.starttls()
+        server.login(email_user, email_pass)
+        server.sendmail(email_from, email_to, msg.as_string())
+        server.quit()
+        print("Email successfully sent!")
+    except Exception as e:
+        print(f"Failed to send email: {e}")
 
 if __name__ == "__main__":
-    update_stats()
+    print("Generating daily report...")
     report = generate_report()
+    print("Report generated:\n")
+    print(report)
     send_email(report)
-    print("Daily report sent!")
