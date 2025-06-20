@@ -9,7 +9,11 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prompt TEXT,
             post TEXT,
-            status TEXT
+            status TEXT,
+            bluesky_uri TEXT,
+            like_count INTEGER DEFAULT 0,
+            repost_count INTEGER DEFAULT 0,
+            reply_count INTEGER DEFAULT 0
         )
     """)
     c.execute("""
@@ -36,10 +40,21 @@ def get_pending_posts():
     conn.close()
     return rows
 
-def mark_as_published(post_id):
+def mark_as_published(post_id, bluesky_uri):
     conn = sqlite3.connect("posts.db")
     c = conn.cursor()
-    c.execute("UPDATE posts SET status = 'published' WHERE id = ?", (post_id,))
+    c.execute("UPDATE posts SET status = 'published', bluesky_uri = ? WHERE id = ?", (bluesky_uri, post_id))
+    conn.commit()
+    conn.close()
+
+def update_stats(post_id, like_count, repost_count, reply_count):
+    conn = sqlite3.connect("posts.db")
+    c = conn.cursor()
+    c.execute("""
+        UPDATE posts 
+        SET like_count = ?, repost_count = ?, reply_count = ? 
+        WHERE id = ?
+    """, (like_count, repost_count, reply_count, post_id))
     conn.commit()
     conn.close()
 
