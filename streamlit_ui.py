@@ -22,9 +22,8 @@ st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
-# Display build version info
+# Get build version info
 BUILD_COMMIT = os.getenv("RENDER_GIT_COMMIT", "dev-local")
-st.sidebar.info(f"Build: `{BUILD_COMMIT[:7]}`")
 
 # --- SETTINGS ---
 st.header("Settings")
@@ -159,3 +158,6 @@ for row in rows:
             publish_to_bluesky(post_id, content)
             st.success(f"Post #{post_id} published!")
     st.divider()
+
+# --- BUILD INFO AT BOTTOM ---
+st.markdown("<div style='font-size:10px; text-align:center; color:gray;'>Build Version: {} </div>".format(BUILD_COMMIT[:7]), unsafe_allow_html=True)
