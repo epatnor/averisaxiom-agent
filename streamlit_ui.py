@@ -22,9 +22,6 @@ st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
-# Get build version info
-BUILD_COMMIT = os.getenv("RENDER_GIT_COMMIT", "dev-local")
-
 # --- SETTINGS ---
 st.header("Settings")
 
@@ -44,7 +41,7 @@ with st.expander("Advanced Settings"):
 
 if st.button("Update Stats from Bluesky"):
     with st.spinner("Fetching stats from Bluesky..."):
-        conn = sqlite3.connect("posts.db")
+        conn = sqlite3.connect("/mnt/data/posts.db")
         c = conn.cursor()
         c.execute("SELECT id, bluesky_uri FROM posts WHERE status = 'published' AND bluesky_uri IS NOT NULL")
         rows = c.fetchall()
@@ -60,7 +57,7 @@ if st.button("Update Stats from Bluesky"):
                 repost_count = post.record.repost_count if hasattr(post.record, 'repost_count') else 0
                 reply_count = post.record.reply_count if hasattr(post.record, 'reply_count') else 0
 
-                conn = sqlite3.connect("posts.db")
+                conn = sqlite3.connect("/mnt/data/posts.db")
                 c = conn.cursor()
                 c.execute("""
                     UPDATE posts SET like_count = ?, repost_count = ?, reply_count = ? WHERE id = ?
@@ -82,7 +79,7 @@ if st.button("Send Daily Report Email"):
 st.divider()
 st.header("Overview Dashboard")
 
-conn = sqlite3.connect("posts.db")
+conn = sqlite3.connect("/mnt/data/posts.db")
 c = conn.cursor()
 c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
 total_published, total_likes, total_reposts, total_replies = c.fetchone()
@@ -103,7 +100,7 @@ st.markdown(
 st.divider()
 with st.expander("Advanced Statistics"):
     st.subheader("Top Performing Posts")
-    conn = sqlite3.connect("posts.db")
+    conn = sqlite3.connect("/mnt/data/posts.db")
     c = conn.cursor()
     c.execute("""
         SELECT id, prompt, post, like_count, repost_count, reply_count 
@@ -140,7 +137,7 @@ if st.button("Generate Post"):
 st.divider()
 st.header("Publishing Queue")
 
-conn = sqlite3.connect("posts.db")
+conn = sqlite3.connect("/mnt/data/posts.db")
 c = conn.cursor()
 c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
 rows = c.fetchall()
@@ -158,6 +155,3 @@ for row in rows:
             publish_to_bluesky(post_id, content)
             st.success(f"Post #{post_id} published!")
     st.divider()
-
-# --- BUILD INFO AT BOTTOM ---
-st.markdown("<div style='font-size:10px; text-align:center; color:gray;'>Build Version: {} </div>".format(BUILD_COMMIT[:7]), unsafe_allow_html=True)
