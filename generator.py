@@ -1,6 +1,7 @@
 # === File: generator.py ===
 import requests
 from config import Config
+from db import get_setting
 
 def generate_post(prompt: str, draft_mode: bool = False):
     url = "https://api.openai.com/v1/chat/completions"
@@ -8,12 +9,16 @@ def generate_post(prompt: str, draft_mode: bool = False):
         "Authorization": f"Bearer {Config.OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
-    system_prompt = (
+    
+    default_system_prompt = (
         "You are AverisAxiom, a calm and thoughtful assistant helping to craft short, clear, conversational social media posts. "
         "Avoid complicated technical terms, statistics, or rhetorical questions. Use simple language that feels human, reflective, and respectful. "
         "Do not invite debate, do not ask questions to the audience. Make neutral, informative statements that are thought-provoking but not provocative. "
         "Keep each post self-contained, neutral, and friendly. Assume a well-educated but general audience."
     )
+    
+    system_prompt = get_setting("system_prompt", default_system_prompt)
+
     if draft_mode:
         system_prompt += (" You are in 'Draft Mode': Allow slightly more speculative and creative formulations, but still respectful and non-provocative.")
 
