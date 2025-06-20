@@ -6,10 +6,11 @@ from publisher import publish_to_bluesky
 from config import Config
 import sqlite3
 from atproto import Client
+from daily_report import update_stats, generate_report, send_email
 
 init_db()
 
-st.image("assets/logo/averisaxiom-logo.png", width=200)
+st.image("assets/logo/averisaxiom-logo.png", width=100)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
@@ -58,6 +59,13 @@ if st.button("Update Stats from Bluesky"):
             except Exception as e:
                 st.error(f"Failed to update stats for post {post_id}: {e}")
         st.success("All stats updated!")
+
+if st.button("Send Daily Report Email"):
+    with st.spinner("Generating and sending daily report..."):
+        update_stats()
+        report = generate_report()
+        send_email(report)
+        st.success("Daily report email sent!")
 
 # --- DASHBOARD ---
 st.divider()
