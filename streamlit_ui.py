@@ -13,7 +13,9 @@ st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
+# --- SETTINGS ---
 st.header("Settings")
+
 def_prompt = (
     "You are AverisAxiom, a calm and thoughtful assistant helping to craft short, clear, conversational social media posts. "
     "Avoid complicated technical terms, statistics, or rhetorical questions. Use simple language that feels human, reflective, and respectful. "
@@ -22,10 +24,11 @@ def_prompt = (
 )
 current_prompt = get_setting("system_prompt", def_prompt)
 
-new_prompt = st.text_area("System Prompt:", value=current_prompt, height=250)
-if st.button("Save System Prompt"):
-    set_setting("system_prompt", new_prompt)
-    st.success("System Prompt saved!")
+with st.expander("Advanced Settings"):
+    new_prompt = st.text_area("System Prompt:", value=current_prompt, height=250)
+    if st.button("Save System Prompt"):
+        set_setting("system_prompt", new_prompt)
+        st.success("System Prompt saved!")
 
 if st.button("Update Stats from Bluesky"):
     with st.spinner("Fetching stats from Bluesky..."):
@@ -56,7 +59,47 @@ if st.button("Update Stats from Bluesky"):
                 st.error(f"Failed to update stats for post {post_id}: {e}")
         st.success("All stats updated!")
 
+# --- DASHBOARD ---
 st.divider()
+st.header("Overview Dashboard")
+
+conn = sqlite3.connect("posts.db")
+c = conn.cursor()
+c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
+total_published, total_likes, total_reposts, total_replies = c.fetchone()
+conn.close()
+
+total_likes = total_likes or 0
+total_reposts = total_reposts or 0
+total_replies = total_replies or 0
+\st.write(f"✅ **Total Published:** {total_published}")
+st.write(f"❤️ **Total Likes:** {total_likes}")
+st.write(f"🔄 **Total Reposts:** {total_reposts}")
+st.write(f"💬 **Total Replies:** {total_replies}")
+
+# --- TOP POSTS ---
+st.divider()
+with st.expander("Advanced Statistics"):
+    st.subheader("Top Performing Posts")
+    conn = sqlite3.connect("posts.db")
+    c = conn.cursor()
+    c.execute("""
+        SELECT id, prompt, post, like_count, repost_count, reply_count 
+        FROM posts 
+        WHERE status = 'published' 
+        ORDER BY like_count DESC, repost_count DESC, reply_count DESC
+        LIMIT 10
+    """)
+    top_posts = c.fetchall()
+    conn.close()
+
+    for post in top_posts:
+        post_id, pr, content, likes, reposts, replies = post
+        st.write(f"**Post #{post_id}:** {content}")
+        st.write(f"❤️ Likes: {likes}   🔄 Reposts: {reposts}   💬 Replies: {replies}")
+        st.divider()
+
+# --- POST GENERATION ---
 st.header("Post Generation")
 
 prompt = st.text_area("Enter topic / prompt:")
@@ -71,10 +114,10 @@ if st.button("Generate Post"):
             save_post(prompt, post)
             st.success("Post saved for publishing queue.")
 
+# --- PUBLISHING QUEUE ---
 st.divider()
 st.header("Publishing Queue")
 
-# Load all posts (pending + published)
 conn = sqlite3.connect("posts.db")
 c = conn.cursor()
 c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
