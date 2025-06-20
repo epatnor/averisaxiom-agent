@@ -7,6 +7,7 @@ from config import Config
 import sqlite3
 from atproto import Client
 from daily_report import update_stats, generate_report, send_email
+import os
 
 # Set page config for nicer title and icon
 st.set_page_config(
@@ -20,6 +21,10 @@ init_db()
 st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
+
+# Display build version info
+BUILD_COMMIT = os.getenv("RENDER_GIT_COMMIT", "dev-local")
+st.sidebar.info(f"Build: `{BUILD_COMMIT[:7]}`")
 
 # --- SETTINGS ---
 st.header("Settings")
@@ -88,10 +93,12 @@ total_likes = total_likes or 0
 total_reposts = total_reposts or 0
 total_replies = total_replies or 0
 
-st.write(f"✅ **Total Published:** {total_published}")
-st.write(f"❤️ **Total Likes:** {total_likes}")
-st.write(f"🔄 **Total Reposts:** {total_reposts}")
-st.write(f"💬 **Total Replies:** {total_replies}")
+st.markdown(
+    f"✅ **Total Published:** {total_published} &nbsp;&nbsp; "
+    f"❤️ **Likes:** {total_likes} &nbsp;&nbsp; "
+    f"🔄 **Reposts:** {total_reposts} &nbsp;&nbsp; "
+    f"💬 **Replies:** {total_replies}"
+)
 
 # --- TOP POSTS ---
 st.divider()
