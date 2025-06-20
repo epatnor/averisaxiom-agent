@@ -12,6 +12,12 @@ def init_db():
             status TEXT
         )
     """)
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -34,5 +40,20 @@ def mark_as_published(post_id):
     conn = sqlite3.connect("posts.db")
     c = conn.cursor()
     c.execute("UPDATE posts SET status = 'published' WHERE id = ?", (post_id,))
+    conn.commit()
+    conn.close()
+
+def get_setting(key, default_value=None):
+    conn = sqlite3.connect("posts.db")
+    c = conn.cursor()
+    c.execute("SELECT value FROM settings WHERE key = ?", (key,))
+    row = c.fetchone()
+    conn.close()
+    return row[0] if row else default_value
+
+def set_setting(key, value):
+    conn = sqlite3.connect("posts.db")
+    c = conn.cursor()
+    c.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
     conn.commit()
     conn.close()
