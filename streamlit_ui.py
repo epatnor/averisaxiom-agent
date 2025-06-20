@@ -4,6 +4,8 @@ from generator import generate_post
 from db import init_db, save_post, get_pending_posts, get_setting, set_setting
 from publisher import publish_to_bluesky
 from config import Config
+import sqlite3
+from atproto import Client
 
 init_db()
 
@@ -25,6 +27,35 @@ if st.button("Save System Prompt"):
     set_setting("system_prompt", new_prompt)
     st.success("System Prompt saved!")
 
+if st.button("Update Stats from Bluesky"):
+    with st.spinner("Fetching stats from Bluesky..."):
+        conn = sqlite3.connect("posts.db")
+        c = conn.cursor()
+        c.execute("SELECT id, bluesky_uri FROM posts WHERE status = 'published' AND bluesky_uri IS NOT NULL")
+        rows = c.fetchall()
+        conn.close()
+
+        client = Client()
+        client.login(Config.BLUESKY_HANDLE, Config.BLUESKY_APP_PASSWORD)
+
+        for post_id, uri in rows:
+            try:
+                post = client.get_post(uri)
+                like_count = post.record.like_count if hasattr(post.record, 'like_count') else 0
+                repost_count = post.record.repost_count if hasattr(post.record, 'repost_count') else 0
+                reply_count = post.record.reply_count if hasattr(post.record, 'reply_count') else 0
+
+                conn = sqlite3.connect("posts.db")
+                c = conn.cursor()
+                c.execute("""
+                    UPDATE posts SET like_count = ?, repost_count = ?, reply_count = ? WHERE id = ?
+                """, (like_count, repost_count, reply_count, post_id))
+                conn.commit()
+                conn.close()
+            except Exception as e:
+                st.error(f"Failed to update stats for post {post_id}: {e}")
+        st.success("All stats updated!")
+
 st.divider()
 st.header("Post Generation")
 
@@ -43,11 +74,22 @@ if st.button("Generate Post"):
 st.divider()
 st.header("Publishing Queue")
 
-pending = get_pending_posts()
-for post in pending:
-    post_id, pr, content = post
+# Load all posts (pending + published)
+conn = sqlite3.connect("posts.db")
+c = conn.cursor()
+c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
+rows = c.fetchall()
+conn.close()
+
+for row in rows:
+    post_id, pr, content, status, likes, reposts, replies = row
     st.write(f"**Prompt:** {pr}")
     st.write(content)
-    if st.button(f"Publish Post #{post_id}", key=post_id):
-        publish_to_bluesky(post_id, content)
-        st.success(f"Post #{post_id} published!")
+    st.write(f"**Status:** {status}")
+    if status == "published":
+        st.write(f"❤️ Likes: {likes}   🔄 Reposts: {reposts}   💬 Replies: {replies}")
+    if status == "pending":
+        if st.button(f"Publish Post #{post_id}", key=post_id):
+            publish_to_bluesky(post_id, content)
+            st.success(f"Post #{post_id} published!")
+    st.divider()
