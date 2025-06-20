@@ -10,7 +10,7 @@ from daily_report import update_stats, generate_report, send_email
 
 init_db()
 
-st.image("assets/logo/averisaxiom-logo.png", width=100)
+st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
@@ -80,7 +80,8 @@ conn.close()
 total_likes = total_likes or 0
 total_reposts = total_reposts or 0
 total_replies = total_replies or 0
-\st.write(f"✅ **Total Published:** {total_published}")
+
+st.write(f"✅ **Total Published:** {total_published}")
 st.write(f"❤️ **Total Likes:** {total_likes}")
 st.write(f"🔄 **Total Reposts:** {total_reposts}")
 st.write(f"💬 **Total Replies:** {total_replies}")
