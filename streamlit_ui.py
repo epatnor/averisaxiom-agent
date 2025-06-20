@@ -8,6 +8,13 @@ import sqlite3
 from atproto import Client
 from daily_report import update_stats, generate_report, send_email
 
+# Set page config for nicer title and icon
+st.set_page_config(
+    page_title="AverisAxiom Agent",
+    page_icon="🤖",
+    layout="wide"
+)
+
 init_db()
 
 st.image("assets/logo/averisaxiom-logo.png", width=200)
