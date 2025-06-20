@@ -1,51 +1,60 @@
+# === File: daily_report.py ===
 import sqlite3
 import smtplib
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 import os
 
-DB_PATH = "/mnt/data/posts.db"
-
 def update_stats():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect("posts.db")
     c = conn.cursor()
     c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
     total_published, total_likes, total_reposts, total_replies = c.fetchone()
     conn.close()
-    return total_published or 0, total_likes or 0, total_reposts or 0, total_replies or 0
+
+    total_likes = total_likes or 0
+    total_reposts = total_reposts or 0
+    total_replies = total_replies or 0
+
+    return total_published, total_likes, total_reposts, total_replies
 
 def generate_report():
+    print("Generating daily report...")
+    print("Updating stats from database...")
     total_published, total_likes, total_reposts, total_replies = update_stats()
-    report = f"""
-AverisAxiom Daily Report:
 
-Total Published Posts: {total_published}
-Total Likes: {total_likes}
-Total Reposts: {total_reposts}
-Total Replies: {total_replies}
-"""
+    report = (
+        f"AverisAxiom Daily Report\n\n"
+        f"Total Published Posts: {total_published}\n"
+        f"Total Likes: {total_likes}\n"
+        f"Total Reposts: {total_reposts}\n"
+        f"Total Replies: {total_replies}\n"
+    )
     return report
 
-def send_email(body):
-    email_from = os.getenv("EMAIL_FROM")
+def send_email(report_text):
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USERNAME")
+    smtp_password = os.getenv("SMTP_PASSWORD")
+    email_from = os.getenv("EMAIL_FROM", smtp_user)
     email_to = os.getenv("EMAIL_TO")
-    email_host = os.getenv("EMAIL_HOST")
-    email_port = int(os.getenv("EMAIL_PORT", 587))
-    email_user = os.getenv("EMAIL_USER")
-    email_pass = os.getenv("EMAIL_PASS")
 
-    msg = MIMEText(body)
-    msg["Subject"] = "AverisAxiom Daily Report"
-    msg["From"] = email_from
-    msg["To"] = email_to
+    msg = MIMEMultipart()
+    msg['From'] = email_from
+    msg['To'] = email_to
+    msg['Subject'] = "AverisAxiom Daily Report"
 
-    with smtplib.SMTP(email_host, email_port) as server:
-        server.starttls()
-        server.login(email_user, email_pass)
-        server.send_message(msg)
+    msg.attach(MIMEText(report_text, 'plain'))
+
+    server = smtplib.SMTP()
+    server.connect(smtp_server, smtp_port)
+    server.starttls()
+    server.login(smtp_user, smtp_password)
+    server.send_message(msg)
+    server.quit()
 
 if __name__ == "__main__":
-    print("Generating daily report...")
     report = generate_report()
-    print(report)
     send_email(report)
-    print("Report sent!")
+    print("Daily report email sent.")
