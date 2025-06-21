@@ -1,10 +1,10 @@
-# === File: db.py ===
 import sqlite3
 import os
 
-DB_PATH = "/data/posts.db"
+DB_PATH = os.path.join(os.path.dirname(__file__), "data/posts.db")
 
 def init_db():
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
