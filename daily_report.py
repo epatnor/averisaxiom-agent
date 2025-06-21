@@ -1,5 +1,6 @@
 # === File: daily_report.py ===
 import sqlite3
+from config import Config
 import smtplib
 import os
 from email.mime.text import MIMEText
@@ -11,7 +12,7 @@ def update_stats():
     if not os.path.exists(db_path):
         db_path = os.path.join(BASE_DIR, 'backend', 'posts.db')
 
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
     total_published, total_likes, total_reposts, total_replies = c.fetchone()
