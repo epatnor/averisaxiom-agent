@@ -1,4 +1,4 @@
-# === File: render.yaml ===
+blueprintVersion: 1
 
 services:
   - type: web
@@ -7,9 +7,9 @@ services:
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "streamlit run streamlit_ui.py --server.port $PORT --server.address 0.0.0.0"
-    disk:
-      name: averisaxiom-disk
-      mountPath: /mnt/data
+    mounts:
+      - name: averisaxiom-disk
+        path: /mnt/data
 
   - type: cron
     name: averisaxiom-dailyreport
@@ -18,11 +18,10 @@ services:
     buildCommand: "pip install -r requirements.txt"
     schedule: "0 7 * * *"
     startCommand: "python daily_report.py"
-    disk:
-      name: averisaxiom-disk
-      mountPath: /mnt/data
+    mounts:
+      - name: averisaxiom-disk
+        path: /mnt/data
 
-disks:
+volumes:
   - name: averisaxiom-disk
-    mountPath: /mnt/data
     sizeGB: 1
