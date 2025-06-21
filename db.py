@@ -2,7 +2,7 @@
 import sqlite3
 import os
 
-DB_PATH = "/mnt/data/posts.db"
+DB_PATH = "/data/posts.db"
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
