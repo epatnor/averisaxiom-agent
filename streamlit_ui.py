@@ -41,11 +41,7 @@ with st.expander("Advanced Settings"):
 
 if st.button("Update Stats from Bluesky"):
     with st.spinner("Fetching stats from Bluesky..."):
-<<<<<<< HEAD
-        conn = sqlite3.connect("/data/posts.db")
-=======
         conn = sqlite3.connect(DB_PATH)
->>>>>>> d8d3814 (Sync local changes before switching to GitHub edit)
         c = conn.cursor()
         c.execute("SELECT id, bluesky_uri FROM posts WHERE status = 'published' AND bluesky_uri IS NOT NULL")
         rows = c.fetchall()
@@ -61,11 +57,7 @@ if st.button("Update Stats from Bluesky"):
                 repost_count = post.record.repost_count if hasattr(post.record, 'repost_count') else 0
                 reply_count = post.record.reply_count if hasattr(post.record, 'reply_count') else 0
 
-<<<<<<< HEAD
-                conn = sqlite3.connect("/data/posts.db")
-=======
                 conn = sqlite3.connect(DB_PATH)
->>>>>>> d8d3814 (Sync local changes before switching to GitHub edit)
                 c = conn.cursor()
                 c.execute("""
                     UPDATE posts SET like_count = ?, repost_count = ?, reply_count = ? WHERE id = ?
@@ -87,11 +79,7 @@ if st.button("Send Daily Report Email"):
 st.divider()
 st.header("Overview Dashboard")
 
-<<<<<<< HEAD
-conn = sqlite3.connect("/data/posts.db")
-=======
 conn = sqlite3.connect(DB_PATH)
->>>>>>> d8d3814 (Sync local changes before switching to GitHub edit)
 c = conn.cursor()
 c.execute("SELECT COUNT(*), SUM(like_count), SUM(repost_count), SUM(reply_count) FROM posts WHERE status = 'published'")
 total_published, total_likes, total_reposts, total_replies = c.fetchone()
@@ -113,9 +101,7 @@ st.divider()
 with st.expander("Advanced Statistics"):
     st.subheader("Top Performing Posts")
 
-    conn = sqlite3.connect("/data/posts.db")
     conn = sqlite3.connect(DB_PATH)
-    
     c = conn.cursor()
     c.execute("""
         SELECT id, prompt, post, like_count, repost_count, reply_count 
@@ -152,9 +138,7 @@ if st.button("Generate Post"):
 st.divider()
 st.header("Publishing Queue")
 
-conn = sqlite3.connect("/data/posts.db")
 conn = sqlite3.connect(DB_PATH)
-
 c = conn.cursor()
 c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
 rows = c.fetchall()
