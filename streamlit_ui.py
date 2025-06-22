@@ -126,7 +126,7 @@ if st.button("Generate Post"):
             detected_mood = mood
 
         post = generate_post(prompt, False, detected_mood)
-    st.write("### Suggested Post:")
+    st.write(f"### Suggested Post (Mood: {detected_mood}):")
     st.write(post)
     if st.button("Approve & Save"):
         save_post(prompt, post, detected_mood)
