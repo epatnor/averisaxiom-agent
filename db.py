@@ -1,4 +1,5 @@
 # === File: db.py ===
+
 import sqlite3
 from config import Config
 import os
@@ -23,7 +24,8 @@ def init_db():
             bluesky_uri TEXT,
             like_count INTEGER DEFAULT 0,
             repost_count INTEGER DEFAULT 0,
-            reply_count INTEGER DEFAULT 0
+            reply_count INTEGER DEFAULT 0,
+            mood TEXT DEFAULT 'news'
         )
     """)
 
@@ -38,13 +40,13 @@ def init_db():
     conn.commit()
     conn.close()
 
-def save_post(prompt, post):
+def save_post(prompt, post, mood="news"):
     """
-    Save a new post with status 'pending'.
+    Save a new post with status 'pending' and given mood.
     """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("INSERT INTO posts (prompt, post, status) VALUES (?, ?, 'pending')", (prompt, post))
+    c.execute("INSERT INTO posts (prompt, post, status, mood) VALUES (?, ?, 'pending', ?)", (prompt, post, mood))
     conn.commit()
     conn.close()
 
