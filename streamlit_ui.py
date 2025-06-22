@@ -164,7 +164,7 @@ st.divider()
 st.header("Publishing Queue")
 
 if st.button("Refresh Publishing Queue"):
-    st.experimental_rerun()
+    st.rerun()
 
 conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
