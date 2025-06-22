@@ -1,7 +1,9 @@
+# === File: db.py ===
 import sqlite3
+from config import Config
 import os
 
-DB_PATH = os.path.join(os.path.dirname(__file__), "data/posts.db")
+DB_PATH = Config.DB_PATH
 
 def init_db():
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
