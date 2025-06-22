@@ -12,6 +12,10 @@ def init_db():
     - Always validates schema
     - If DB file missing or corrupt: recreate full DB schema
     """
+
+    # <-- Detta måste alltid köras först:
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    
     if not os.path.exists(DB_PATH):
         print("Database file missing. Creating new database...")
         recreate_db()
