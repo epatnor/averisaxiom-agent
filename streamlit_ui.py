@@ -154,12 +154,28 @@ if st.button("Generate Post"):
             detected_mood = mood
 
         post = generate_post(prompt, False, detected_mood)
-    st.write(f"### Suggested Post (Mood: {detected_mood}):")
-    st.write(post)
+        # Spara resultatet i session_state
+        st.session_state['generated_post'] = post
+        st.session_state['generated_prompt'] = prompt
+        st.session_state['generated_mood'] = detected_mood
+
+# Visa genererat inlägg om det finns
+if 'generated_post' in st.session_state:
+    st.write(f"### Suggested Post (Mood: {st.session_state['generated_mood']}):")
+    st.write(st.session_state['generated_post'])
     if st.button("Approve & Save"):
-        save_post(prompt, post, detected_mood)
+        save_post(
+            st.session_state['generated_prompt'],
+            st.session_state['generated_post'],
+            st.session_state['generated_mood']
+        )
         st.success("Post saved for publishing queue.")
-        log_action(f"Post saved for prompt: '{prompt}'")
+        log_action(f"Post saved for prompt: '{st.session_state['generated_prompt']}'")
+        # Rensa state efter sparat
+        del st.session_state['generated_post']
+        del st.session_state['generated_prompt']
+        del st.session_state['generated_mood']
+        st.rerun()
 
 # --- Publishing Queue ---
 st.divider()
