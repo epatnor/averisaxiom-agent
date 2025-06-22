@@ -122,16 +122,16 @@ with st.expander("Advanced Statistics"):
 st.header("Post Generation")
 
 prompt = st.text_area("Enter topic / prompt:")
-draft_mode = st.checkbox("Draft Mode", value=False)
 
-if st.button("Generate Post"):
+generate_clicked = st.button("Generate Post")
+if generate_clicked:
     with st.spinner("Generating..."):
-        post = generate_post(prompt, draft_mode)
-        st.write("### Suggested Post:")
-        st.write(post)
-        if st.button("Approve & Save"):
-            save_post(prompt, post)
-            st.success("Post saved for publishing queue.")
+        post = generate_post(prompt, False)
+    st.write("### Suggested Post:")
+    st.write(post)
+    if st.button("Approve & Save"):
+        save_post(prompt, post)
+        st.success("Post saved for publishing queue.")
 
 # --- PUBLISHING QUEUE ---
 st.divider()
