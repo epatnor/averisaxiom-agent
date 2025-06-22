@@ -1,7 +1,7 @@
 # === File: streamlit_ui.py ===
 
 import streamlit as st
-from generator import generate_post
+from generator import generate_post, autodetect_mood
 from db import init_db, save_post, get_setting, set_setting, DB_PATH
 from publisher import publish_to_bluesky
 from config import Config
@@ -115,15 +115,21 @@ st.header("Post Generation")
 
 prompt = st.text_area("Enter topic / prompt:")
 
-mood = st.radio("Select Post Style:", ["news", "thoughts", "questions", "raw"], index=0, horizontal=True)
+mood = st.radio("Select Post Style:", ["auto", "news", "thoughts", "questions", "raw"], index=0, horizontal=True)
 
 if st.button("Generate Post"):
     with st.spinner("Generating..."):
-        post = generate_post(prompt, False, mood)
+        if mood == "auto":
+            detected_mood = autodetect_mood(prompt)
+            log_action(f"Auto-detected mood: {detected_mood}")
+        else:
+            detected_mood = mood
+
+        post = generate_post(prompt, False, detected_mood)
     st.write("### Suggested Post:")
     st.write(post)
     if st.button("Approve & Save"):
-        save_post(prompt, post, mood)
+        save_post(prompt, post, detected_mood)
         st.success("Post saved for publishing queue.")
         log_action(f"Post saved for prompt: '{prompt}'")
 
