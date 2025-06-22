@@ -1,9 +1,7 @@
+# === File: streamlit_ui.py ===
 import streamlit as st
 from generator import generate_post
-from db import (
-    init_db, save_post, get_pending_posts, get_setting, set_setting, DB_PATH,
-    publish_post, delete_post, get_published_posts
-)
+from db import init_db, save_post, get_pending_posts, get_setting, set_setting, DB_PATH
 from publisher import publish_to_bluesky
 from config import Config
 import sqlite3
@@ -18,6 +16,11 @@ st.set_page_config(
 )
 
 init_db()
+
+params = st.experimental_get_query_params()
+if "saved" in params:
+    st.success("Post saved for publishing queue.")
+    st.experimental_set_query_params(saved=None)  # Rensa parametern
 
 st.image("assets/logo/averisaxiom-logo.png", width=200)
 st.title("AverisAxiom Content Agent")
@@ -133,37 +136,27 @@ if generate_clicked:
     st.write(post)
     if st.button("Approve & Save"):
         save_post(prompt, post)
-        st.success("Post saved for publishing queue.")
+        st.experimental_set_query_params(saved="true")
 
 # --- PUBLISHING QUEUE ---
 st.divider()
 st.header("Publishing Queue")
 
-# Pending posts (status = 'pending')
-st.subheader("Pending Posts")
-pending_posts = get_pending_posts()
-for post_id, pr, content in pending_posts:
-    st.write(f"**Prompt:** {pr}")
-    st.write(content)
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button(f"Publish Post #{post_id}", key=f"publish-{post_id}"):
-            # Publish post: update DB and push to Bluesky
-            publish_to_bluesky(post_id, content)
-            publish_post(post_id)
-            st.experimental_rerun()
-    with col2:
-        if st.button(f"Delete Post #{post_id}", key=f"delete-{post_id}"):
-            delete_post(post_id)
-            st.experimental_rerun()
-    st.divider()
+conn = sqlite3.connect(DB_PATH)
+c = conn.cursor()
+c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
+rows = c.fetchall()
+conn.close()
 
-# Published posts (status = 'published')
-st.subheader("Published Posts")
-published_posts = get_published_posts()
-for post_id, pr, content, likes, reposts, replies, published_at in published_posts:
+for row in rows:
+    post_id, pr, content, status, likes, reposts, replies = row
     st.write(f"**Prompt:** {pr}")
     st.write(content)
-    st.write(f"❤️ Likes: {likes}   🔄 Reposts: {reposts}   💬 Replies: {replies}")
-    st.write(f"Published at: {published_at}")
+    st.write(f"**Status:** {status}")
+    if status == "published":
+        st.write(f"❤️ Likes: {likes}   🔄 Reposts: {reposts}   💬 Replies: {replies}")
+    if status == "pending":
+        if st.button(f"Publish Post #{post_id}", key=post_id):
+            publish_to_bluesky(post_id, content)
+            st.success(f"Post #{post_id} published!")
     st.divider()
