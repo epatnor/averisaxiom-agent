@@ -10,6 +10,8 @@ import pandas as pd
 from atproto import Client
 from daily_report import update_stats, generate_report, send_email
 
+init_db()
+
 # Globala loggar för sessionen
 if 'action_logs' not in st.session_state:
     st.session_state['action_logs'] = []
@@ -20,8 +22,6 @@ def log_action(msg):
         st.session_state['action_logs'].pop(0)
 
 st.set_page_config(page_title="AverisAxiom Agent", page_icon="🤖", layout="wide")
-
-init_db()
 
 st.image("assets/logo/averisaxiom-logo.png", width=100)
 
