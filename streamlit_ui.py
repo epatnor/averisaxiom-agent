@@ -17,12 +17,11 @@ st.set_page_config(
 
 init_db()
 
-params = st.experimental_get_query_params()
-if "saved" in params:
-    st.success("Post saved for publishing queue.")
-    st.experimental_set_query_params(saved=None)  # Rensa parametern
+# Använd nya query_params
+params = st.query_params
 
-st.image("assets/logo/averisaxiom-logo.png", width=200)
+st.image("assets/logo/averisaxiom-logo.png", width=100)  # Halverad storlek från 200
+
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
@@ -136,7 +135,7 @@ if generate_clicked:
     st.write(post)
     if st.button("Approve & Save"):
         save_post(prompt, post)
-        st.experimental_set_query_params(saved="true")
+        st.success("Post saved for publishing queue.")
 
 # --- PUBLISHING QUEUE ---
 st.divider()
@@ -160,3 +159,6 @@ for row in rows:
             publish_to_bluesky(post_id, content)
             st.success(f"Post #{post_id} published!")
     st.divider()
+
+# Rensa query params på avslut
+st.query_params = {}
