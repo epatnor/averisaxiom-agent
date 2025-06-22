@@ -1,4 +1,3 @@
-# === File: streamlit_ui.py ===
 import streamlit as st
 from generator import generate_post
 from db import init_db, save_post, get_setting, set_setting, DB_PATH
@@ -14,7 +13,6 @@ if 'action_logs' not in st.session_state:
 
 def log_action(msg):
     st.session_state['action_logs'].append(msg)
-    # Behåll max 10 senaste loggar
     if len(st.session_state['action_logs']) > 10:
         st.session_state['action_logs'].pop(0)
 
@@ -115,9 +113,11 @@ st.header("Post Generation")
 
 prompt = st.text_area("Enter topic / prompt:")
 
+mood = st.radio("Select Post Style:", ["news", "thoughts", "questions", "raw"], index=0, horizontal=True)
+
 if st.button("Generate Post"):
     with st.spinner("Generating..."):
-        post = generate_post(prompt, False)
+        post = generate_post(prompt, False, mood)
     st.write("### Suggested Post:")
     st.write(post)
     if st.button("Approve & Save"):
