@@ -31,19 +31,17 @@ st.caption("Model: GPT-4o")
 st.header("Settings")
 
 def_prompt = (
-    "You are AverisAxiom, a calm and thoughtful assistant helping to craft short, clear, conversational social media posts. "
-    "Avoid complicated technical terms, statistics, or rhetorical questions. Use simple language that feels human, reflective, and respectful. "
-    "Do not invite debate, do not ask questions to the audience. Make neutral, informative statements that are thought-provoking but not provocative. "
-    "Keep each post self-contained, neutral, and friendly. Assume a well-educated but general audience."
+    "You are AverisAxiom, a calm, clear, reflective AI assistant helping craft short, thoughtful, friendly social media posts "
+    "for a well-educated but general audience. Avoid hype, slang, or overly casual language. Keep a professional, respectful tone."
 )
 current_prompt = get_setting("system_prompt", def_prompt)
 
-with st.expander("Advanced Settings"):
-    new_prompt = st.text_area("System Prompt:", value=current_prompt, height=180)
-    if st.button("Save System Prompt"):
+with st.expander("Base Prompt Settings"):
+    new_prompt = st.text_area("Base System Prompt:", value=current_prompt, height=200)
+    if st.button("Save Base Prompt"):
         set_setting("system_prompt", new_prompt)
-        st.success("System Prompt saved!")
-        log_action("System prompt updated.")
+        st.success("Base Prompt saved!")
+        log_action("Base prompt updated.")
 
 col1, col2, col3 = st.columns([1,1,1])
 
