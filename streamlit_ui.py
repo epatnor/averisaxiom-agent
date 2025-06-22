@@ -9,7 +9,6 @@ from atproto import Client
 from daily_report import update_stats, generate_report, send_email
 import os
 
-# Set page config for nicer title and icon
 st.set_page_config(
     page_title="AverisAxiom Agent",
     page_icon="🤖",
@@ -53,9 +52,9 @@ if st.button("Update Stats from Bluesky"):
         for post_id, uri in rows:
             try:
                 post = client.get_post(uri)
-                like_count = post.record.like_count if hasattr(post.record, 'like_count') else 0
-                repost_count = post.record.repost_count if hasattr(post.record, 'repost_count') else 0
-                reply_count = post.record.reply_count if hasattr(post.record, 'reply_count') else 0
+                like_count = getattr(post.record, 'like_count', 0)
+                repost_count = getattr(post.record, 'repost_count', 0)
+                reply_count = getattr(post.record, 'reply_count', 0)
 
                 conn = sqlite3.connect(DB_PATH)
                 c = conn.cursor()
