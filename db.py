@@ -81,14 +81,20 @@ def recreate_db():
     print("Database initialized successfully.")
 
 def save_post(prompt, post, mood):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""
-        INSERT INTO posts (prompt, post, status, mood, created_at, word_count)
-        VALUES (?, ?, 'pending', ?, datetime('now'), ?)
-    """, (prompt, post, mood, len(post.split())))
-    conn.commit()
-    conn.close()
+    try:
+        print("Saving post...")
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""
+            INSERT INTO posts (prompt, post, status, mood, created_at, word_count)
+            VALUES (?, ?, 'pending', ?, datetime('now'), ?)
+        """, (prompt, post, mood, len(post.split())))
+        conn.commit()
+        conn.close()
+        print("Post saved successfully!")
+    except Exception as e:
+        print(f"Error while saving post: {e}")
+
 
 def get_pending_posts():
     conn = sqlite3.connect(DB_PATH)
