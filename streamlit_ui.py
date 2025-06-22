@@ -3,9 +3,10 @@
 import streamlit as st
 from generator import generate_post, autodetect_mood
 from db import init_db, save_post, get_setting, set_setting, DB_PATH
-from publisher import publish_to_bluesky
+from publisher import publish_to_bluesky, update_account_stats
 from config import Config
 import sqlite3
+import pandas as pd
 from atproto import Client
 from daily_report import update_stats, generate_report, send_email
 
@@ -73,8 +74,8 @@ with col1:
                         conn.close()
                     except Exception as e:
                         log_action(f"Error updating post #{post_id}: {e}")
-                st.success("All stats updated!")
-                log_action("Stats updated from Bluesky.")
+                st.success("All post stats updated!")
+                log_action("Post stats updated from Bluesky.")
             except Exception as e:
                 st.error(f"Failed to update stats: {e}")
                 log_action(f"Failed to update stats: {e}")
@@ -92,6 +93,17 @@ with col2:
                 st.error(f"Failed to send daily report email: {e}")
                 log_action(f"Failed to send daily report email: {e}")
 
+with col3:
+    if st.button("Update Account Stats"):
+        with st.spinner("Fetching account stats from Bluesky..."):
+            try:
+                update_account_stats()
+                st.success("Account stats updated!")
+                log_action("Account stats updated.")
+            except Exception as e:
+                st.error(f"Failed to update account stats: {e}")
+                log_action(f"Failed to update account stats: {e}")
+
 # --- Overview ---
 st.divider()
 conn = sqlite3.connect(DB_PATH)
@@ -106,6 +118,22 @@ st.markdown(
     f"🔄 **Reposts:** {total_reposts or 0} &nbsp;&nbsp; "
     f"💬 **Replies:** {total_replies or 0}"
 )
+
+# --- Account Statistics ---
+st.divider()
+st.header("Account Statistics")
+
+conn = sqlite3.connect(DB_PATH)
+c = conn.cursor()
+c.execute("SELECT timestamp, followers, following, posts FROM account_stats ORDER BY timestamp ASC")
+rows = c.fetchall()
+conn.close()
+
+if rows:
+    df = pd.DataFrame(rows, columns=["timestamp", "followers", "following", "posts"])
+    st.line_chart(df.set_index("timestamp"))
+else:
+    st.write("No account stats recorded yet.")
 
 # --- Post Generation ---
 st.divider()
@@ -181,7 +209,7 @@ for post_id, prompt, content, status, mood_value, likes, reposts, replies in pos
     else:
         cols[7].write("")
 
-# --- Action log panel ---
+# --- Action Log Panel ---
 st.divider()
 st.header("Action Log (Last 10)")
 
