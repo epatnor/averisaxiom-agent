@@ -4,6 +4,11 @@ import sqlite3
 from config import Config
 import os
 
+import logging
+
+logging.basicConfig(filename="db_debug.log", level=logging.DEBUG, format="%(asctime)s %(levelname)s %(message)s")
+
+
 DB_PATH = Config.DB_PATH
 
 def init_db():
@@ -82,7 +87,7 @@ def recreate_db():
 
 def save_post(prompt, post, mood):
     try:
-        print("Saving post...")
+        logging.debug(f"Saving post: mood={mood}, prompt length={len(prompt)}, post length={len(post)}")
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute("""
@@ -91,9 +96,10 @@ def save_post(prompt, post, mood):
         """, (prompt, post, mood, len(post.split())))
         conn.commit()
         conn.close()
-        print("Post saved successfully!")
+        logging.debug("Post saved successfully!")
     except Exception as e:
-        print(f"Error while saving post: {e}")
+        logging.error(f"Error while saving post: {e}")
+
 
 
 def get_pending_posts():
