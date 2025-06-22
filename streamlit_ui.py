@@ -136,21 +136,22 @@ if st.button("Refresh Publishing Queue"):
 
 conn = sqlite3.connect(DB_PATH)
 c = conn.cursor()
-c.execute("SELECT id, prompt, post, status, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
+c.execute("SELECT id, prompt, post, status, mood, like_count, repost_count, reply_count FROM posts ORDER BY id DESC")
 posts = c.fetchall()
 conn.close()
 
-for post_id, prompt, content, status, likes, reposts, replies in posts:
-    cols = st.columns([1.2, 3.5, 1, 1, 1, 1, 1])
+for post_id, prompt, content, status, mood_value, likes, reposts, replies in posts:
+    cols = st.columns([1.2, 3.5, 1, 1, 1, 1, 1, 1])
     cols[0].write(f"#{post_id}")
     cols[1].write(f"**Prompt:** {prompt}\n\n{content}")
     cols[2].write(f"**Status:** {status}")
-    cols[3].write(f"❤️ {likes}")
-    cols[4].write(f"🔄 {reposts}")
-    cols[5].write(f"💬 {replies}")
+    cols[3].write(f"**Mood:** {mood_value}")
+    cols[4].write(f"❤️ {likes}")
+    cols[5].write(f"🔄 {reposts}")
+    cols[6].write(f"💬 {replies}")
 
     if status == "pending":
-        if cols[6].button(f"Publish", key=f"pub_{post_id}"):
+        if cols[7].button(f"Publish", key=f"pub_{post_id}"):
             try:
                 publish_to_bluesky(post_id, content)
                 st.success(f"Post #{post_id} published!")
@@ -160,7 +161,7 @@ for post_id, prompt, content, status, likes, reposts, replies in posts:
                 st.error(f"Failed to publish post #{post_id}: {e}")
                 log_action(f"Failed to publish post #{post_id}: {e}")
 
-        if cols[6].button(f"Delete", key=f"del_{post_id}"):
+        if cols[7].button(f"Delete", key=f"del_{post_id}"):
             try:
                 conn = sqlite3.connect(DB_PATH)
                 c = conn.cursor()
@@ -174,7 +175,7 @@ for post_id, prompt, content, status, likes, reposts, replies in posts:
                 st.error(f"Failed to delete post #{post_id}: {e}")
                 log_action(f"Failed to delete post #{post_id}: {e}")
     else:
-        cols[6].write("")
+        cols[7].write("")
 
 # --- Action log panel ---
 st.divider()
