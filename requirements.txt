@@ -8,3 +8,4 @@ sqlite-utils
 Mastodon.py
 atproto
 python-dotenv
+openai>=1.10.0
