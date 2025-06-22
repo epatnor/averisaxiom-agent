@@ -14,18 +14,23 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Posts table with status: pending, published, deleted
+    # Posts table with extended fields
     c.execute("""
         CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prompt TEXT,
             post TEXT,
             status TEXT,
+            mood TEXT DEFAULT 'news',
             bluesky_uri TEXT,
             like_count INTEGER DEFAULT 0,
             repost_count INTEGER DEFAULT 0,
             reply_count INTEGER DEFAULT 0,
-            mood TEXT DEFAULT 'news'
+            created_at TEXT DEFAULT (datetime('now')),
+            published_at TEXT,
+            word_count INTEGER DEFAULT 0,
+            auto_mood_confidence REAL DEFAULT 0.0,
+            notes TEXT
         )
     """)
 
@@ -37,16 +42,27 @@ def init_db():
         )
     """)
 
+    # Account stats table for tracking Bluesky account growth
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS account_stats (
+            timestamp TEXT PRIMARY KEY,
+            followers INTEGER,
+            following INTEGER,
+            posts INTEGER,
+            likes INTEGER
+        )
+    """)
+
     conn.commit()
     conn.close()
 
-def save_post(prompt, post, mood="news"):
+def save_post(prompt, post, mood="news", word_count=0):
     """
     Save a new post with status 'pending' and given mood.
     """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("INSERT INTO posts (prompt, post, status, mood) VALUES (?, ?, 'pending', ?)", (prompt, post, mood))
+    c.execute("INSERT INTO posts (prompt, post, status, mood, word_count) VALUES (?, ?, 'pending', ?, ?)", (prompt, post, mood, word_count))
     conn.commit()
     conn.close()
 
@@ -78,7 +94,7 @@ def mark_as_published(post_id, bluesky_uri):
     """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("UPDATE posts SET status = 'published', bluesky_uri = ? WHERE id = ?", (bluesky_uri, post_id))
+    c.execute("UPDATE posts SET status = 'published', bluesky_uri = ?, published_at = datetime('now') WHERE id = ?", (bluesky_uri, post_id))
     conn.commit()
     conn.close()
 
@@ -110,5 +126,15 @@ def set_setting(key, value):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
+    conn.commit()
+    conn.close()
+
+def save_account_stats(followers, following, posts, likes):
+    """
+    Save snapshot of account stats.
+    """
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("INSERT INTO account_stats (timestamp, followers, following, posts, likes) VALUES (datetime('now'), ?, ?, ?, ?)", (followers, following, posts, likes))
     conn.commit()
     conn.close()
