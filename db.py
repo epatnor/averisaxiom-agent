@@ -10,11 +10,14 @@ def init_db():
     """
     Initialize the SQLite database and create tables if they don't exist.
     """
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    if not os.path.exists(DB_PATH):
+        print("Creating new database...")
+        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Posts table with all future-proof fields
+    # Posts table with all fields
     c.execute("""
         CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -34,7 +37,7 @@ def init_db():
         )
     """)
 
-    # Settings table for base system prompt
+    # Settings table
     c.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
@@ -42,7 +45,7 @@ def init_db():
         )
     """)
 
-    # Account stats table for tracking Bluesky growth
+    # Account stats table
     c.execute("""
         CREATE TABLE IF NOT EXISTS account_stats (
             timestamp TEXT PRIMARY KEY,
@@ -70,9 +73,6 @@ def save_post(prompt, post, mood):
     conn.close()
 
 def get_pending_posts():
-    """
-    Retrieve posts with status 'pending'.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT id, prompt, post FROM posts WHERE status = 'pending'")
@@ -81,9 +81,6 @@ def get_pending_posts():
     return rows
 
 def get_published_posts():
-    """
-    Retrieve posts with status 'published'.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -96,9 +93,6 @@ def get_published_posts():
     return rows
 
 def mark_as_published(post_id, bluesky_uri):
-    """
-    Update a post status to 'published' and store the Bluesky URI and publish timestamp.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -110,9 +104,6 @@ def mark_as_published(post_id, bluesky_uri):
     conn.close()
 
 def delete_post(post_id):
-    """
-    Mark a post as 'deleted'.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("UPDATE posts SET status = 'deleted' WHERE id = ?", (post_id,))
@@ -120,9 +111,6 @@ def delete_post(post_id):
     conn.close()
 
 def get_setting(key, default=None):
-    """
-    Retrieve a setting value by key.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
@@ -131,9 +119,6 @@ def get_setting(key, default=None):
     return row[0] if row else default
 
 def set_setting(key, value):
-    """
-    Insert or update a setting key-value pair.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
