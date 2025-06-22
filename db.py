@@ -8,36 +8,32 @@ DB_PATH = Config.DB_PATH
 
 def init_db():
     """
-    Fully robust DB initializer: 
-    - If DB file missing: create full DB from scratch.
-    - If DB file exists but posts table missing or incomplete: recreate DB from scratch.
+    Fully robust DB initializer:
+    - Always validates schema
+    - If DB file missing or corrupt: recreate full DB schema
     """
     if not os.path.exists(DB_PATH):
         print("Database file missing. Creating new database...")
         recreate_db()
-    else:
-        # Check if posts table exists and has expected columns
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        try:
-            c.execute("SELECT mood FROM posts LIMIT 1")
-        except sqlite3.OperationalError:
-            print("Existing DB is incomplete. Recreating database...")
-            conn.close()
-            os.remove(DB_PATH)
-            recreate_db()
-            return
+        return
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    try:
+        c.execute("SELECT id, prompt, mood FROM posts LIMIT 1")
         conn.close()
+    except sqlite3.OperationalError:
+        print("Existing DB schema invalid. Recreating...")
+        conn.close()
+        os.remove(DB_PATH)
+        recreate_db()
 
 def recreate_db():
-    """
-    Actually creates the full DB schema.
-    """
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Posts table
+    # Create posts table
     c.execute("""
         CREATE TABLE posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -57,7 +53,7 @@ def recreate_db():
         )
     """)
 
-    # Settings table
+    # Create settings table
     c.execute("""
         CREATE TABLE settings (
             key TEXT PRIMARY KEY,
@@ -65,7 +61,7 @@ def recreate_db():
         )
     """)
 
-    # Account stats table
+    # Create account stats table
     c.execute("""
         CREATE TABLE account_stats (
             timestamp TEXT PRIMARY KEY,
@@ -78,7 +74,7 @@ def recreate_db():
 
     conn.commit()
     conn.close()
-    print("Database fully initialized.")
+    print("Database initialized successfully.")
 
 def save_post(prompt, post, mood):
     conn = sqlite3.connect(DB_PATH)
