@@ -3,6 +3,31 @@
 import openai
 from config import Config
 
+def autodetect_mood(prompt):
+    client = openai.OpenAI(api_key=Config.OPENAI_API_KEY)
+
+    system_prompt = (
+        "You are a content assistant. Based on the user's input, select the most suitable post style. "
+        "Your options are strictly: news, thoughts, questions, or raw. "
+        "Respond with only one of these words."
+    )
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Prompt: {prompt}"}
+        ],
+        temperature=0,
+        max_tokens=5,
+        n=1
+    )
+
+    mood = response.choices[0].message.content.strip().lower()
+    if mood not in ["news", "thoughts", "questions", "raw"]:
+        mood = "news"  # fallback default
+    return mood
+
 def generate_post(prompt, dry_run=False, mood="news"):
     if dry_run:
         return "[DRY RUN] Generated post would appear here."
