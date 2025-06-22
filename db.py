@@ -8,18 +8,38 @@ DB_PATH = Config.DB_PATH
 
 def init_db():
     """
-    Initialize the SQLite database and create tables if they don't exist.
+    Fully robust DB initializer: 
+    - If DB file missing: create full DB from scratch.
+    - If DB file exists but posts table missing or incomplete: recreate DB from scratch.
     """
     if not os.path.exists(DB_PATH):
-        print("Creating new database...")
-        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+        print("Database file missing. Creating new database...")
+        recreate_db()
+    else:
+        # Check if posts table exists and has expected columns
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        try:
+            c.execute("SELECT mood FROM posts LIMIT 1")
+        except sqlite3.OperationalError:
+            print("Existing DB is incomplete. Recreating database...")
+            conn.close()
+            os.remove(DB_PATH)
+            recreate_db()
+            return
+        conn.close()
 
+def recreate_db():
+    """
+    Actually creates the full DB schema.
+    """
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Posts table with all fields
+    # Posts table
     c.execute("""
-        CREATE TABLE IF NOT EXISTS posts (
+        CREATE TABLE posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             prompt TEXT,
             post TEXT,
@@ -39,7 +59,7 @@ def init_db():
 
     # Settings table
     c.execute("""
-        CREATE TABLE IF NOT EXISTS settings (
+        CREATE TABLE settings (
             key TEXT PRIMARY KEY,
             value TEXT
         )
@@ -47,7 +67,7 @@ def init_db():
 
     # Account stats table
     c.execute("""
-        CREATE TABLE IF NOT EXISTS account_stats (
+        CREATE TABLE account_stats (
             timestamp TEXT PRIMARY KEY,
             followers INTEGER,
             following INTEGER,
@@ -58,11 +78,9 @@ def init_db():
 
     conn.commit()
     conn.close()
+    print("Database fully initialized.")
 
 def save_post(prompt, post, mood):
-    """
-    Save a new post with status 'pending' and store mood.
-    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
