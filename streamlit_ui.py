@@ -1,3 +1,5 @@
+# === File: streamlit_ui.py ===
+
 import streamlit as st
 from generator import generate_post
 from db import init_db, save_post, get_setting, set_setting, DB_PATH
@@ -121,7 +123,7 @@ if st.button("Generate Post"):
     st.write("### Suggested Post:")
     st.write(post)
     if st.button("Approve & Save"):
-        save_post(prompt, post)
+        save_post(prompt, post, mood)
         st.success("Post saved for publishing queue.")
         log_action(f"Post saved for prompt: '{prompt}'")
 
