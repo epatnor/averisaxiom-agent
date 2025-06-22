@@ -13,5 +13,6 @@ class Config:
     BLUESKY_APP_PASSWORD = os.getenv("BLUESKY_APP_PASSWORD")
     TEST_MODE = os.getenv("TEST_MODE", "false").lower() == "true"
 
-    DB_PATH = os.getenv("DB_PATH", "/data/posts.db")
+    DB_PATH = os.getenv("DB_PATH", "/home/epatnor/averisaxiom-agent/data/posts.db")
+
 
