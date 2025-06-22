@@ -10,9 +10,12 @@ import pandas as pd
 from atproto import Client
 from daily_report import update_stats, generate_report, send_email
 
-init_db()
+# === Safe DB init: only run once per session
+if 'db_initialized' not in st.session_state:
+    init_db()
+    st.session_state['db_initialized'] = True
 
-# Globala loggar för sessionen
+# === Action log init
 if 'action_logs' not in st.session_state:
     st.session_state['action_logs'] = []
 
@@ -22,9 +25,7 @@ def log_action(msg):
         st.session_state['action_logs'].pop(0)
 
 st.set_page_config(page_title="AverisAxiom Agent", page_icon="🤖", layout="wide")
-
 st.image("assets/logo/averisaxiom-logo.png", width=100)
-
 st.title("AverisAxiom Content Agent")
 st.caption("Model: GPT-4o")
 
@@ -46,6 +47,7 @@ with st.expander("Base Prompt Settings"):
 
 col1, col2, col3 = st.columns([1,1,1])
 
+# === Update buttons
 with col1:
     if st.button("Update Stats from Bluesky"):
         with st.spinner("Fetching stats from Bluesky..."):
@@ -188,7 +190,7 @@ for post_id, prompt, content, status, mood_value, likes, reposts, replies in pos
                 publish_to_bluesky(post_id, content)
                 st.success(f"Post #{post_id} published!")
                 log_action(f"Published post #{post_id}")
-                st.experimental_rerun()
+                st.rerun()
             except Exception as e:
                 st.error(f"Failed to publish post #{post_id}: {e}")
                 log_action(f"Failed to publish post #{post_id}: {e}")
@@ -202,7 +204,7 @@ for post_id, prompt, content, status, mood_value, likes, reposts, replies in pos
                 conn.close()
                 st.success(f"Post #{post_id} deleted!")
                 log_action(f"Deleted post #{post_id}")
-                st.experimental_rerun()
+                st.rerun()
             except Exception as e:
                 st.error(f"Failed to delete post #{post_id}: {e}")
                 log_action(f"Failed to delete post #{post_id}: {e}")
