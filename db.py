@@ -3,28 +3,16 @@
 import sqlite3
 from config import Config
 import os
-import logging
-
-# Setup logging to file (outside of repo directory to avoid file watch loops)
-logging.basicConfig(
-    filename="/tmp/averis_db_debug.log",
-    level=logging.DEBUG,
-    format="%(asctime)s %(levelname)s %(message)s"
-)
 
 DB_PATH = Config.DB_PATH
 
 def init_db():
     """
-    Fully robust DB initializer:
+    Robust DB init: skapar databasen om den inte finns, annars validerar schema.
     """
-    try:
-        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    except Exception as e:
-        logging.error(f"Failed to create DB directory: {e}")
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
     if not os.path.exists(DB_PATH):
-        logging.info("Database file missing. Creating new database...")
         recreate_db()
         return
 
@@ -33,78 +21,67 @@ def init_db():
         c = conn.cursor()
         c.execute("SELECT id, prompt, mood FROM posts LIMIT 1")
         conn.close()
-        logging.info("Database schema verified.")
     except sqlite3.OperationalError:
-        logging.warning("Existing DB schema invalid or incomplete. Recreating...")
         conn.close()
         os.remove(DB_PATH)
         recreate_db()
 
 def recreate_db():
-    try:
-        os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
 
-        # Create posts table
-        c.execute("""
-            CREATE TABLE posts (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                prompt TEXT,
-                post TEXT,
-                status TEXT,
-                mood TEXT,
-                bluesky_uri TEXT,
-                created_at TEXT DEFAULT (datetime('now')),
-                published_at TEXT,
-                word_count INTEGER DEFAULT 0,
-                auto_mood_confidence REAL DEFAULT 0.0,
-                notes TEXT,
-                like_count INTEGER DEFAULT 0,
-                repost_count INTEGER DEFAULT 0,
-                reply_count INTEGER DEFAULT 0
-            )
-        """)
+    # Create posts table
+    c.execute("""
+        CREATE TABLE posts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            prompt TEXT,
+            post TEXT,
+            status TEXT,
+            mood TEXT,
+            bluesky_uri TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
+            published_at TEXT,
+            word_count INTEGER DEFAULT 0,
+            auto_mood_confidence REAL DEFAULT 0.0,
+            notes TEXT,
+            like_count INTEGER DEFAULT 0,
+            repost_count INTEGER DEFAULT 0,
+            reply_count INTEGER DEFAULT 0
+        )
+    """)
 
-        # Create settings table
-        c.execute("""
-            CREATE TABLE settings (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        """)
+    # Create settings table
+    c.execute("""
+        CREATE TABLE settings (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    """)
 
-        # Create account stats table
-        c.execute("""
-            CREATE TABLE account_stats (
-                timestamp TEXT PRIMARY KEY,
-                followers INTEGER,
-                following INTEGER,
-                posts INTEGER,
-                likes INTEGER
-            )
-        """)
+    # Create account stats table
+    c.execute("""
+        CREATE TABLE account_stats (
+            timestamp TEXT PRIMARY KEY,
+            followers INTEGER,
+            following INTEGER,
+            posts INTEGER,
+            likes INTEGER
+        )
+    """)
 
-        conn.commit()
-        conn.close()
-        logging.info("Database initialized successfully.")
-    except Exception as e:
-        logging.error(f"Failed to recreate database: {e}")
+    conn.commit()
+    conn.close()
 
 def save_post(prompt, post, mood):
-    try:
-        logging.debug(f"Saving post: mood={mood}, prompt length={len(prompt)}, post length={len(post)}")
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("""
-            INSERT INTO posts (prompt, post, status, mood, created_at, word_count)
-            VALUES (?, ?, 'pending', ?, datetime('now'), ?)
-        """, (prompt, post, mood, len(post.split())))
-        conn.commit()
-        conn.close()
-        logging.debug("Post saved successfully!")
-    except Exception as e:
-        logging.error(f"Error while saving post: {e}")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO posts (prompt, post, status, mood, created_at, word_count)
+        VALUES (?, ?, 'pending', ?, datetime('now'), ?)
+    """, (prompt, post, mood, len(post.split())))
+    conn.commit()
+    conn.close()
 
 def get_pending_posts():
     conn = sqlite3.connect(DB_PATH)
