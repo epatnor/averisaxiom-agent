@@ -5,9 +5,9 @@ from config import Config
 import os
 import logging
 
-# Setup logging to file
+# Setup logging to file (outside of repo directory to avoid file watch loops)
 logging.basicConfig(
-    filename="db_debug.log",
+    filename="/tmp/averis_db_debug.log",
     level=logging.DEBUG,
     format="%(asctime)s %(levelname)s %(message)s"
 )
