@@ -6,10 +6,14 @@ import os
 DB_PATH = Config.DB_PATH
 
 def init_db():
+    """
+    Initialize the SQLite database and create tables if they don't exist.
+    """
     os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # Tabell för inlägg i kö (pending) och publicerade (published)
+
+    # Posts table with status: pending, published, deleted
     c.execute("""
         CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,26 +26,22 @@ def init_db():
             reply_count INTEGER DEFAULT 0
         )
     """)
-    # Ny tabell för publicerade inlägg med publiceringsdatum
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS published_posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            post_id INTEGER UNIQUE,
-            published_at TEXT,
-            FOREIGN KEY(post_id) REFERENCES posts(id)
-        )
-    """)
-    # Inställningar
+
+    # Settings table for key-value pairs
     c.execute("""
         CREATE TABLE IF NOT EXISTS settings (
             key TEXT PRIMARY KEY,
             value TEXT
         )
     """)
+
     conn.commit()
     conn.close()
 
 def save_post(prompt, post):
+    """
+    Save a new post with status 'pending'.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("INSERT INTO posts (prompt, post, status) VALUES (?, ?, 'pending')", (prompt, post))
@@ -49,48 +49,51 @@ def save_post(prompt, post):
     conn.close()
 
 def get_pending_posts():
+    """
+    Retrieve posts with status 'pending'.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("SELECT id, prompt, post FROM posts WHERE status = 'pending' ORDER BY id DESC")
+    c.execute("SELECT id, prompt, post FROM posts WHERE status = 'pending'")
     rows = c.fetchall()
     conn.close()
     return rows
 
 def get_published_posts():
+    """
+    Retrieve posts with status 'published'.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
-        SELECT p.id, p.prompt, p.post, p.like_count, p.repost_count, p.reply_count, pub.published_at 
-        FROM posts p
-        JOIN published_posts pub ON p.id = pub.post_id
-        ORDER BY pub.published_at DESC
-    """)
+    c.execute("SELECT id, prompt, post, bluesky_uri, like_count, repost_count, reply_count FROM posts WHERE status = 'published'")
     rows = c.fetchall()
     conn.close()
     return rows
 
-def publish_post(post_id):
-    import datetime
-    published_at = datetime.datetime.utcnow().isoformat()
+def mark_as_published(post_id, bluesky_uri):
+    """
+    Update a post status to 'published' and store the Bluesky URI.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # Markera posten som publicerad i posts-tabellen
-    c.execute("UPDATE posts SET status = 'published' WHERE id = ?", (post_id,))
-    # Lägg till i published_posts-tabellen med datum
-    c.execute("INSERT OR IGNORE INTO published_posts (post_id, published_at) VALUES (?, ?)", (post_id, published_at))
+    c.execute("UPDATE posts SET status = 'published', bluesky_uri = ? WHERE id = ?", (bluesky_uri, post_id))
     conn.commit()
     conn.close()
 
 def delete_post(post_id):
+    """
+    Mark a post as 'deleted'.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    # Ta bort posten från posts och published_posts (ifall publicerad)
-    c.execute("DELETE FROM posts WHERE id = ?", (post_id,))
-    c.execute("DELETE FROM published_posts WHERE post_id = ?", (post_id,))
+    c.execute("UPDATE posts SET status = 'deleted' WHERE id = ?", (post_id,))
     conn.commit()
     conn.close()
 
 def get_setting(key, default=None):
+    """
+    Retrieve a setting value by key.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
@@ -99,6 +102,9 @@ def get_setting(key, default=None):
     return row[0] if row else default
 
 def set_setting(key, value):
+    """
+    Insert or update a setting key-value pair.
+    """
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
