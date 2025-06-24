@@ -7,8 +7,8 @@ import sqlite3
 
 from db import DB_PATH
 import scraper
-import essence  # <-- ny!
-import generator  # <-- redan existerande din gamla LLM generator
+import essence
+import generator
 
 app = FastAPI()
 
@@ -69,23 +69,34 @@ def generate_draft(topic: str):
 
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
-    # Steg 1: Scrape
-    google_news = scraper.get_google_news()
-    youtube_videos = scraper.get_youtube_videos("world news")
-    combined = google_news + youtube_videos
+    print("==> Starting automatic pipeline...")
 
-    # Extrahera headlines för AI clustering
+    # Steg 1: Scraping
+    print("Fetching Google News RSS...")
+    google_news = scraper.fetch_google_news()
+    print(f"Google News found {len(google_news)} items")
+
+    print("Fetching YouTube videos...")
+    youtube_videos = scraper.fetch_youtube_videos("world news")
+    print(f"YouTube found {len(youtube_videos)} items")
+
+    combined = google_news + youtube_videos
+    print(f"Total items fetched: {len(combined)}")
+
+    # Extrahera headlines
     headlines = [item['title'] for item in combined]
 
-    # Steg 2: AI clustering & summarizing
+    # Steg 2: Clustering
+    print("Running AI clustering & summarization...")
     storylines = essence.cluster_and_summarize(headlines)
+    print(f"Condensed into {len(storylines)} major storylines")
 
-    # Steg 3: Generera draft posts
+    # Steg 3: Generera drafts
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     for story in storylines:
-        print("Generating post for:", story['title'])
+        print(f"Generating post for cluster: {story['title']}")
         draft = generator.generate_post(story['title'], story['summary'], style="News")
 
         c.execute("""
@@ -96,7 +107,7 @@ def run_automatic_pipeline():
     conn.commit()
     conn.close()
 
-    return {"message": f"{len(storylines)} condensed storylines generated"}
+    return {"message": f"{len(storylines)} AI-generated drafts created"}
 
 @app.post("/delete")
 def delete_post(post_id: int):
