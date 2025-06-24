@@ -119,4 +119,7 @@ app = FastAPI()
 app.mount("/api", api)
 
 # Serve frontend statiskt från mappen "frontend"
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+# Dynamisk path så det funkar både lokalt och på server
+frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
+app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
+
