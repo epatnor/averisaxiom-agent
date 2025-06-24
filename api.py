@@ -6,14 +6,11 @@ from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
 
-# Anta att vi har en databasmodul vi redan har (db.py, generator.py osv)
-import db
-import generator
-import publisher
+# Import scraper module
+import scraper
 
 app = FastAPI()
 
-# För CORS så vi kan köra frontend separat
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,8 +18,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# ===== MODELLER =====
 
 class PostItem(BaseModel):
     id: int
@@ -36,8 +31,6 @@ class SettingsModel(BaseModel):
     style: str
     model: str
     temperature: float
-
-# ===== MOCKDATA FÖR NU =====
 
 pipeline_mock = [
     {"id": 1, "title": "US strikes Iranian nuclear facility", "status": "new", "type": "auto", "metrics": None},
@@ -62,8 +55,6 @@ accounts_mock = {
     "Bluesky": {"followers": "3.8K", "posts": 95},
     "Mastodon": {"followers": "--", "posts": "--"}
 }
-
-# ===== API ENDPOINTS =====
 
 @app.get("/pipeline", response_model=List[PostItem])
 def get_pipeline():
@@ -106,3 +97,13 @@ def save_settings(settings: SettingsModel):
 @app.get("/stats")
 def get_account_stats():
     return accounts_mock
+
+@app.post("/run_automatic_pipeline")
+def run_automatic_pipeline():
+    google_results = scraper.fetch_google_news()
+    youtube_results = scraper.fetch_youtube_videos()
+    print("Scraping completed.")
+    return {
+        "google_news": google_results,
+        "youtube": youtube_results
+    }
