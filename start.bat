@@ -1,10 +1,10 @@
 @echo off
 setlocal enabledelayedexpansion
 
-:: Go to repo folder
+:: Gå till repo-foldern (oavsett varifrån bat-filen körs)
 cd /d %~dp0
 
-:: Update repository
+:: Uppdatera repository
 echo.
 echo ================================
 echo Updating repository...
@@ -12,7 +12,7 @@ git pull
 git status
 echo ================================
 
-:: Check for venv
+:: Kontrollera om venv finns
 if not exist ".venv\" (
     echo Creating virtual environment...
     python -m venv .venv
@@ -24,13 +24,13 @@ if not exist ".venv\" (
     echo Virtual environment created.
 )
 
-:: Activate venv
+:: Aktivera venv
 call .venv\Scripts\activate
 
-:: Install requirements
+:: Installera requirements
 echo.
 echo ================================
-echo Installing requirements...
+echo Installing/updating Python packages...
 pip install --upgrade pip
 pip install -r requirements.txt
 if %ERRORLEVEL% neq 0 (
@@ -40,12 +40,12 @@ if %ERRORLEVEL% neq 0 (
 )
 echo ================================
 
-:: Start backend server in new window
+:: Starta backend server i nytt fönster
 echo Starting backend server...
-start "Backend Server" cmd /k uvicorn api:app --reload --log-level debug
+start "Backend Server" cmd /k ".venv\Scripts\activate && uvicorn api:app --reload --log-level debug"
 
-:: Open frontend
-echo Opening frontend...
-start "" http://localhost:8000
+:: Öppna frontend (index.html i frontend-mappen)
+echo Opening frontend in browser...
+start "" "%cd%\frontend\index.html"
 
 endlocal
