@@ -4,62 +4,74 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 import db
 import generator
 import publisher
 import scraper
 import essence
 
-app = FastAPI()
+# Skapa separat API-app
+api = FastAPI()
 
-# Tillåt CORS för utveckling (kan stramas åt sen)
-app.add_middleware(
+# Tillåt CORS (för utveckling, kan stramas åt sen)
+api.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Utveckling: tillåt allt
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Serve frontend statiskt från mappen "frontend"
-app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+# === MODELLER ===
+class DraftRequest(BaseModel):
+    title: str
+    summary: str = ""
+    style: str = "News"
 
-@app.get("/pipeline")
+class SettingsModel(BaseModel):
+    base_prompt: str
+    style: str
+    model: str
+    temperature: float
+
+# === API ENDPOINTS ===
+
+@api.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@app.post("/generate_draft")
-def generate_draft(request: Request):
-    data = request.json()
+@api.post("/generate_draft")
+def generate_draft(request: DraftRequest):
     draft = generator.generate_post(
-        data['title'],
-        data.get('summary', ''),
-        style=data.get('style', 'News')
+        request.title,
+        request.summary,
+        style=request.style
     )
     db.insert_draft(draft)
     return {"status": "ok"}
 
-@app.post("/publish/{post_id}")
+@api.post("/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
-@app.get("/settings")
+@api.get("/settings")
 def get_settings():
     return db.get_settings()
 
-@app.post("/settings")
-def update_settings(settings: dict):
-    db.save_settings(settings)
+@api.post("/settings")
+def update_settings(settings: SettingsModel):
+    db.save_settings(settings.dict())
     return {"status": "saved"}
 
-@app.get("/stats")
+@api.get("/stats")
 def get_stats():
     return db.get_account_stats()
 
-@app.post("/run_automatic_pipeline")
+@api.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
 
@@ -80,10 +92,10 @@ def run_automatic_pipeline():
 
     # Generera utkast från storylines
     for story in storylines:
-        print(f"Generating post for cluster: {story['title']}")
+        print(f"Generating post for cluster: {story.get('title', 'N/A')}")
         draft = generator.generate_post(
-            story['title'],
-            story['summary'],
+            story.get('title', ''),
+            story.get('summary', ''),
             style="News"
         )
         db.insert_draft(draft)
@@ -94,8 +106,16 @@ def run_automatic_pipeline():
 
     return {"status": "completed"}
 
-# En enkel fallback på root, bara för test
-@app.get("/api/health")
+# Hälsokontroll
+@api.get("/health")
 def health():
     return {"status": "ok"}
 
+# === HUVUDAPP ===
+app = FastAPI()
+
+# Montera API på /api (snyggare separation)
+app.mount("/api", api)
+
+# Serve frontend statiskt från mappen "frontend"
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
