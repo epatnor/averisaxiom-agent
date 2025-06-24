@@ -1,30 +1,51 @@
 @echo off
-setlocal
+setlocal enabledelayedexpansion
 
-:: Gå till repo-mappen
+:: Go to repo folder
 cd /d %~dp0
 
-:: Visa repo status
+:: Update repository
+echo.
 echo ================================
 echo Updating repository...
 git pull
 git status
 echo ================================
 
-:: Kolla om venv finns
-if exist ".venv\Scripts\activate" (
-    echo Activating virtual environment...
-    call .venv\Scripts\activate
-) else (
-    echo WARNING: Ingen venv hittades. Kör pip install först!
+:: Check for venv
+if not exist ".venv\" (
+    echo Creating virtual environment...
+    python -m venv .venv
+    if %ERRORLEVEL% neq 0 (
+        echo Failed to create virtual environment!
+        pause
+        exit /b 1
+    )
+    echo Virtual environment created.
 )
 
-:: Kör uvicorn med mer loggning
-echo Starting backend server...
-uvicorn api:app --reload --log-level debug
+:: Activate venv
+call .venv\Scripts\activate
 
-:: Öppna browsern (om frontend ligger lokalt)
+:: Install requirements
+echo.
+echo ================================
+echo Installing requirements...
+pip install --upgrade pip
+pip install -r requirements.txt
+if %ERRORLEVEL% neq 0 (
+    echo Failed to install requirements!
+    pause
+    exit /b 1
+)
+echo ================================
+
+:: Start backend server in new window
+echo Starting backend server...
+start "Backend Server" cmd /k uvicorn api:app --reload --log-level debug
+
+:: Open frontend
+echo Opening frontend...
 start "" http://localhost:8000
 
-pause
 endlocal
