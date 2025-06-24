@@ -1,14 +1,16 @@
 # === File: requirements.txt ===
+
 fastapi
 uvicorn
 requests
 pydantic
 sqlite-utils
 python-dotenv
+feedparser
 
 # För framtida aktivering när vi vill köra Bluesky live
-# Mastodon.py  (om vi ska lägga till Mastodon framöver)
-# atproto      (Bluesky SDK)
-# openai>=1.10.0 (om vi ska använda LLM-generering)
+# Mastodon.py
+# atproto
+# openai>=1.10.0
 
-# Frontend (html/js/css) kör vi helt utanför denna backend-dependency lista
+# Frontend (html/js/css) kör vi separat
