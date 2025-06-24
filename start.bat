@@ -12,7 +12,7 @@ start cmd /k "uvicorn api:app --reload"
 
 echo.
 echo === Starting frontend (index.html) ===
-start "" "file:///C:/Users/epatn/Desktop/averis_repo/averisaxiom-agent/index.html"
+# start "" "file:///C:/Users/epatn/Desktop/averis_repo/averisaxiom-agent/index.html"
 
 echo.
 echo === ALL SYSTEMS GO ===
