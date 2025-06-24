@@ -13,7 +13,6 @@ import publisher
 
 app = FastAPI()
 
-# Tillåt CORS så vi kan köra frontend separat
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,8 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# === MODELLER ===
 
 class PostItem(BaseModel):
     id: int
@@ -36,8 +33,6 @@ class SettingsModel(BaseModel):
     style: str
     model: str
     temperature: float
-
-# === API ENDPOINTS ===
 
 @app.get("/pipeline", response_model=List[PostItem])
 def get_pipeline():
@@ -63,7 +58,6 @@ def get_pipeline():
 
 @app.post("/generate_draft")
 def generate_draft(topic: str):
-    # Här skulle vi normalt använda generator.py
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -76,7 +70,6 @@ def generate_draft(topic: str):
 
 @app.post("/publish")
 def publish_post(post_id: int):
-    # MOCK PUBLISHING
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -88,7 +81,6 @@ def publish_post(post_id: int):
 
 @app.post("/post")
 def post_pending(post_id: int):
-    # MOCK POSTING
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -121,7 +113,6 @@ def edit_post(post_id: int, new_title: str):
 
 @app.get("/settings", response_model=SettingsModel)
 def get_settings():
-    # Mock settings (kan senare läsas från db eller config-fil)
     return {
         "base_prompt": "Current system prompt",
         "style": "News",
@@ -131,13 +122,11 @@ def get_settings():
 
 @app.post("/settings")
 def save_settings(settings: SettingsModel):
-    # TODO: spara till config eller db i framtiden
     print(f"Settings saved: {settings}")
     return {"message": "Settings saved"}
 
 @app.get("/stats")
 def get_account_stats():
-    # Mock stats (här kan vi senare anropa publisher.update_account_stats)
     return {
         "X": {"followers": "15.2K", "posts": 314},
         "Bluesky": {"followers": "3.8K", "posts": 95},
@@ -146,14 +135,21 @@ def get_account_stats():
 
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
+    print("==> Running automatic pipeline scraping...")
+
     google_news = scraper.get_google_news()
+    print(f"Google News found {len(google_news)} items")
+
     youtube_videos = scraper.get_youtube_videos("world news")
+    print(f"YouTube found {len(youtube_videos)} items")
 
     combined = google_news + youtube_videos
+    print(f"Total items to insert: {len(combined)}")
 
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     for item in combined:
+        print(f"Inserting: {item['title']}")
         c.execute("""
             INSERT INTO posts (title, status, type, created_at)
             VALUES (?, ?, ?, ?)
