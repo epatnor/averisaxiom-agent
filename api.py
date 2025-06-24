@@ -5,78 +5,68 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 import db
 import generator
 import publisher
 import scraper
 import essence
 
-# Skapa separat API-app
-api = FastAPI()
+app = FastAPI()
 
-# Tillåt CORS (för utveckling, kan stramas åt sen)
-api.add_middleware(
+# Tillåt CORS för utveckling (kan stramas åt sen)
+app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Utveckling: tillåt allt
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# === MODELLER ===
-class DraftRequest(BaseModel):
-    title: str
-    summary: str = ""
-    style: str = "News"
+# Dynamisk sökväg till frontend
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
-class SettingsModel(BaseModel):
-    base_prompt: str
-    style: str
-    model: str
-    temperature: float
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
-# === API ENDPOINTS ===
-
-@api.get("/pipeline")
+@app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@api.post("/generate_draft")
-def generate_draft(request: DraftRequest):
+@app.post("/generate_draft")
+async def generate_draft(request: Request):
+    data = await request.json()
     draft = generator.generate_post(
-        request.title,
-        request.summary,
-        style=request.style
+        data['title'],
+        data.get('summary', ''),
+        style=data.get('style', 'News')
     )
     db.insert_draft(draft)
     return {"status": "ok"}
 
-@api.post("/publish/{post_id}")
+@app.post("/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
-@api.get("/settings")
+@app.get("/settings")
 def get_settings():
     return db.get_settings()
 
-@api.post("/settings")
-def update_settings(settings: SettingsModel):
-    db.save_settings(settings.dict())
+@app.post("/settings")
+def update_settings(settings: dict):
+    db.save_settings(settings)
     return {"status": "saved"}
 
-@api.get("/stats")
+@app.get("/stats")
 def get_stats():
     return db.get_account_stats()
 
-@api.post("/run_automatic_pipeline")
+@app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
 
-    # Hämta ny data
     google_news = scraper.fetch_google_news()
     youtube_videos = scraper.fetch_youtube()
 
@@ -86,40 +76,24 @@ def run_automatic_pipeline():
     all_items = google_news + youtube_videos
     print(f"Total items fetched: {len(all_items)}")
 
-    # Sammanfatta och klustra via AI
     headlines = [item['title'] for item in all_items]
     storylines = essence.cluster_and_summarize(headlines)
     print(f"Condensed into {len(storylines)} major storylines")
 
-    # Generera utkast från storylines
     for story in storylines:
-        print(f"Generating post for cluster: {story.get('title', 'N/A')}")
+        print(f"Generating post for cluster: {story['title']}")
         draft = generator.generate_post(
-            story.get('title', ''),
-            story.get('summary', ''),
+            story['title'],
+            story['summary'],
             style="News"
         )
         db.insert_draft(draft)
 
-    # Lägg in källmaterialet också som "Auto"
     for item in all_items:
         db.insert_scraped_item(item)
 
     return {"status": "completed"}
 
-# Hälsokontroll
-@api.get("/health")
+@app.get("/api/health")
 def health():
     return {"status": "ok"}
-
-# === HUVUDAPP ===
-app = FastAPI()
-
-# Montera API på /api (snyggare separation)
-app.mount("/api", api)
-
-# Serve frontend statiskt från mappen "frontend"
-# Dynamisk path så det funkar både lokalt och på server
-frontend_dir = os.path.join(os.path.dirname(__file__), "frontend")
-app.mount("/", StaticFiles(directory=frontend_dir, html=True), name="frontend")
-
