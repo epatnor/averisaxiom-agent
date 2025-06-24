@@ -1,2 +1,9 @@
+# Ignore venv and caches
 venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Ignore local database
+posts.db
 .env
