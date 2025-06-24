@@ -149,13 +149,15 @@ def run_automatic_pipeline():
     conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     for item in combined:
-        post_type = item.get('type', 'auto')  # Default to 'auto' if type missing
-        print(f"Inserting: {item['title']} (type={post_type})")
+        post_type = item.get('type', 'auto')
+        source = item.get('source', 'Unknown')
+        print(f"Inserting: {item['title']} (type={post_type}, source={source})")
         c.execute("""
-            INSERT INTO posts (title, status, type, created_at)
-            VALUES (?, ?, ?, ?)
-        """, (item['title'], "new", post_type, datetime.utcnow().isoformat()))
+            INSERT INTO posts (title, status, type, source, created_at)
+            VALUES (?, ?, ?, ?, ?)
+        """, (item['title'], "new", post_type, source, datetime.utcnow().isoformat()))
     conn.commit()
     conn.close()
 
     return {"message": f"{len(combined)} new items injected into pipeline"}
+
