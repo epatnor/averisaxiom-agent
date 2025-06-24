@@ -137,10 +137,10 @@ def get_account_stats():
 def run_automatic_pipeline():
     print("==> Running automatic pipeline scraping...")
 
-    google_news = scraper.get_google_news()
+    google_news = scraper.fetch_google_news()
     print(f"Google News found {len(google_news)} items")
 
-    youtube_videos = scraper.get_youtube_videos("world news")
+    youtube_videos = scraper.fetch_youtube_videos("world news")
     print(f"YouTube found {len(youtube_videos)} items")
 
     combined = google_news + youtube_videos
