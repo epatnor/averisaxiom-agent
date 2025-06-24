@@ -7,7 +7,7 @@ from typing import List, Optional
 from datetime import datetime
 import sqlite3
 
-from db import DB_PATH
+from config import Config
 import scraper
 import publisher
 
@@ -36,7 +36,7 @@ class SettingsModel(BaseModel):
 
 @app.get("/pipeline", response_model=List[PostItem])
 def get_pipeline():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("SELECT id, title, status, type, comments, likes, shares FROM posts ORDER BY id DESC")
     rows = c.fetchall()
@@ -58,7 +58,7 @@ def get_pipeline():
 
 @app.post("/generate_draft")
 def generate_draft(topic: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("""
         INSERT INTO posts (title, status, type, created_at)
@@ -70,7 +70,7 @@ def generate_draft(topic: str):
 
 @app.post("/publish")
 def publish_post(post_id: int):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("""
         UPDATE posts SET status = 'pending' WHERE id = ?
@@ -81,7 +81,7 @@ def publish_post(post_id: int):
 
 @app.post("/post")
 def post_pending(post_id: int):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("""
         UPDATE posts SET status = 'published', comments = ?, likes = ?, shares = ?, published_at = ?
@@ -93,7 +93,7 @@ def post_pending(post_id: int):
 
 @app.post("/delete")
 def delete_post(post_id: int):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("DELETE FROM posts WHERE id = ?", (post_id,))
     conn.commit()
@@ -102,7 +102,7 @@ def delete_post(post_id: int):
 
 @app.post("/edit")
 def edit_post(post_id: int, new_title: str):
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     c.execute("""
         UPDATE posts SET title = ? WHERE id = ?
@@ -146,14 +146,15 @@ def run_automatic_pipeline():
     combined = google_news + youtube_videos
     print(f"Total items to insert: {len(combined)}")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect(Config.DB_PATH)
     c = conn.cursor()
     for item in combined:
-        print(f"Inserting: {item['title']}")
+        post_type = item.get('type', 'auto')  # Default to 'auto' if type missing
+        print(f"Inserting: {item['title']} (type={post_type})")
         c.execute("""
             INSERT INTO posts (title, status, type, created_at)
             VALUES (?, ?, ?, ?)
-        """, (item['title'], "new", item['type'], datetime.utcnow().isoformat()))
+        """, (item['title'], "new", post_type, datetime.utcnow().isoformat()))
     conn.commit()
     conn.close()
 
