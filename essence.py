@@ -33,4 +33,4 @@ def cluster_and_summarize(headlines: list) -> list:
 
     # Enkelt: splitta på rad för varje storyline
     storylines = [line.strip("- ").strip() for line in output.split("\n") if line.strip()]
-    return storylines
+    return [{"title": s} for s in storylines]
