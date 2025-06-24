@@ -1,6 +1,4 @@
-// app.js
-
-const API_URL = "http://localhost:8000"; // Anpassa om du kör på annan port
+const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
@@ -11,7 +9,18 @@ document.addEventListener("DOMContentLoaded", () => {
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
-        .then(data => renderPipeline(data));
+        .then(data => renderPipeline(data.concat(dummyPosts())));
+}
+
+function dummyPosts() {
+    return [
+        { id: 1001, title: "AI Conference 2025 creative preview...", status: "pending", type: "creative", metrics: null },
+        { id: 1002, title: "Global leaders debate carbon tax at COP30 summit...", status: "pending", type: "creative", metrics: null },
+        { id: 1003, title: "How will oil markets react to Iran strike?", status: "draft", type: "semi", metrics: null },
+        { id: 1004, title: "Tesla announces breakthrough in solid-state battery...", status: "draft", type: "semi", metrics: null },
+        { id: 1005, title: "US strikes Iran's nuclear facility fully confirmed...", status: "published", type: "auto", metrics: { comments: 245, likes: 3200, shares: 780 }},
+        { id: 1006, title: "NASA's Artemis mission lands crew on Moon...", status: "published", type: "auto", metrics: { comments: 312, likes: 5100, shares: 980 }}
+    ];
 }
 
 function renderPipeline(data) {
@@ -22,13 +31,12 @@ function renderPipeline(data) {
         div.className = "list-item";
 
         const metrics = item.metrics 
-            ? `💬${item.metrics.comments} ❤️${item.metrics.likes} 🔁${item.metrics.shares}` 
+            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}` 
             : "-";
 
         div.innerHTML = `
             <div class="title-snippet">${item.title}</div>
-            <div class="status-${item.status}"> ${statusEmoji(item.status)} ${capitalize(item.status)} </div>
-            <div class="source">${item.source || "-"}</div>
+            <div class="status-${item.status}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
             <div class="type-${item.type}">${capitalize(item.type)}</div>
             <div class="metrics">${metrics}</div>
             <div class="action-buttons">${actionButtons(item)}</div>
@@ -37,25 +45,22 @@ function renderPipeline(data) {
     });
 }
 
-
 function actionButtons(item) {
     switch(item.status) {
         case "new":
             return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
         case "draft":
             return `
-                <button class='small-button' onclick='publish(${item.id})'>Publish</button>
-                <button class='small-button' onclick='edit(${item.id})'>Edit</button>
-                <button class='small-button' onclick='deletePost(${item.id})'>Delete</button>
-            `;
+                <button class='small-button'>Publish</button>
+                <button class='small-button'>Edit</button>
+                <button class='small-button'>Delete</button>`;
         case "pending":
             return `
-                <button class='small-button' onclick='post(${item.id})'>Post</button>
-                <button class='small-button' onclick='edit(${item.id})'>Edit</button>
-                <button class='small-button' onclick='deletePost(${item.id})'>Delete</button>
-            `;
+                <button class='small-button'>Post</button>
+                <button class='small-button'>Edit</button>
+                <button class='small-button'>Delete</button>`;
         case "published":
-            return `<button class='small-button'>View</button>`;
+            return `<button class='small-button'>View</button><button class='small-button disabled'>Update Stats</button>`;
         default:
             return "";
     }
@@ -71,6 +76,13 @@ function statusEmoji(status) {
     }
 }
 
+function formatLikes(likes) {
+    if (likes > 1000) {
+        return (likes / 1000).toFixed(1) + "K";
+    }
+    return likes;
+}
+
 function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
 }
@@ -83,31 +95,8 @@ function generateDraft() {
 }
 
 function generateDraftFromNews(id) {
-    console.log("Would generate draft from scraped news ID:", id);
-    alert("Draft generation from news not implemented yet");
-}
-
-function publish(id) {
-    fetch(`${API_URL}/publish?post_id=${id}`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-function post(id) {
-    fetch(`${API_URL}/post?post_id=${id}`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-function deletePost(id) {
-    if (!confirm("Delete this post?")) return;
-    fetch(`${API_URL}/delete?post_id=${id}`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-function edit(id) {
-    const newTitle = prompt("Enter new title:");
-    if (!newTitle) return;
-    fetch(`${API_URL}/edit?post_id=${id}&new_title=${encodeURIComponent(newTitle)}`, { method: "POST" })
-        .then(() => loadPipeline());
+    console.log("Generate draft from news ID:", id);
+    alert("Not implemented yet!");
 }
 
 function saveSettings() {
@@ -152,17 +141,5 @@ function loadStats() {
 
 function runAutomatic() {
     fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Automatic scraping results:", data);
-            let message = "\nGoogle News:\n";
-            data.google_news.forEach(item => {
-                message += `- ${item.title}\n`;
-            });
-            message += "\nYouTube:\n";
-            data.youtube.forEach(item => {
-                message += `- ${item.title}\n`;
-            });
-            alert(message);
-        });
+        .then(() => loadPipeline());
 }
