@@ -7,11 +7,10 @@ pydantic
 sqlite-utils
 python-dotenv
 feedparser
-openai
+openai>=1.10.0
 
 # För framtida aktivering när vi vill köra Bluesky live
 # Mastodon.py
 # atproto
-# openai>=1.10.0
 
 # Frontend (html/js/css) kör vi separat
