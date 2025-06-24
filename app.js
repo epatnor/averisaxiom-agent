@@ -82,7 +82,6 @@ function generateDraft() {
 
 function generateDraftFromNews(id) {
     console.log("Would generate draft from scraped news ID:", id);
-    // Här kan vi koppla faktisk logik senare
     alert("Draft generation from news not implemented yet");
 }
 
@@ -150,6 +149,18 @@ function loadStats() {
 }
 
 function runAutomatic() {
-    alert("Automatic pipeline run not yet implemented");
-    // Här kopplar vi scraping + auto-generation i nästa steg
+    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+            console.log("Automatic scraping results:", data);
+            let message = "\nGoogle News:\n";
+            data.google_news.forEach(item => {
+                message += `- ${item.title}\n`;
+            });
+            message += "\nYouTube:\n";
+            data.youtube.forEach(item => {
+                message += `- ${item.title}\n`;
+            });
+            alert(message);
+        });
 }
