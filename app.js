@@ -28,6 +28,7 @@ function renderPipeline(data) {
         div.innerHTML = `
             <div class="title-snippet">${item.title}</div>
             <div class="status-${item.status}"> ${statusEmoji(item.status)} ${capitalize(item.status)} </div>
+            <div class="source">${item.source || "-"}</div>
             <div class="type-${item.type}">${capitalize(item.type)}</div>
             <div class="metrics">${metrics}</div>
             <div class="action-buttons">${actionButtons(item)}</div>
@@ -35,6 +36,7 @@ function renderPipeline(data) {
         list.appendChild(div);
     });
 }
+
 
 function actionButtons(item) {
     switch(item.status) {
