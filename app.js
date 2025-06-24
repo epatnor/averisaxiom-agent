@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:8000";
+const API_URL = "/api";  // <-- rekommenderad ren variant
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
@@ -11,6 +11,7 @@ function loadPipeline() {
         .then(res => res.json())
         .then(data => renderPipeline(data.concat(dummyPosts())));
 }
+
 
 function dummyPosts() {
     return [
