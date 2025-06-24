@@ -1,58 +1,36 @@
-# === essence.py ===
+# === File: essence.py (modern OpenAI SDK) ===
 
-import openai
+from openai import OpenAI
 from config import Config
 
-openai.api_key = Config.OPENAI_API_KEY
+client = OpenAI(api_key=Config.OPENAI_API_KEY)
 
-def cluster_and_summarize(headlines: list, max_groups: int = 5):
+def cluster_and_summarize(headlines: list) -> list:
     """
-    Take list of headlines, return grouped storylines with summaries.
+    Takes a list of headlines, asks GPT-4o to extract main storylines and summarize them.
     """
-
-    headlines_text = "\n".join(f"- {h}" for h in headlines)
-
+    # Skapa input prompt
     system_prompt = (
-        "You are an expert news analyst. "
-        "Group these headlines into maximum {max_groups} key storylines. "
-        "For each group, provide:\n"
-        "1) A short 1-sentence title.\n"
-        "2) A 1-2 sentence summary of the key situation.\n"
-        "Focus on world news, technology, politics, economy, and science."
-    ).format(max_groups=max_groups)
-
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": headlines_text}
-    ]
-
-    response = openai.ChatCompletion.create(
-        model="gpt-4o",
-        messages=messages,
-        temperature=0.5,
-        max_tokens=1000
+        "You are an expert journalist and analyst. "
+        "Given a list of raw news headlines, you will cluster similar stories together "
+        "and generate 3-5 clear and concise storylines that summarize the major events. "
+        "Be short, non-redundant, and focus on relevance."
     )
 
-    result = response.choices[0].message.content
-    return parse_output(result)
+    user_prompt = "Here are today's headlines:\n\n" + "\n".join(f"- {h}" for h in headlines)
 
-def parse_output(output: str):
-    """
-    Very simple parser for GPT output. Assumes it returns numbered storylines.
-    """
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.5
+    )
 
-    storylines = []
-    current = {}
-    for line in output.splitlines():
-        line = line.strip()
-        if line.startswith(tuple("1234567890")) and '.' in line:
-            if current:
-                storylines.append(current)
-                current = {}
-            parts = line.split('.', 1)
-            current['title'] = parts[1].strip()
-        elif line:
-            current['summary'] = line
-    if current:
-        storylines.append(current)
+    # Extrahera resultatet
+    output = response.choices[0].message.content
+
+    # Enkelt: splitta på rad för varje storyline
+    storylines = [line.strip("- ").strip() for line in output.split("\n") if line.strip()]
     return storylines
