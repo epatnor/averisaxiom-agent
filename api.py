@@ -13,10 +13,10 @@ import essence
 
 app = FastAPI()
 
-# Tillåt CORS för utveckling (kan stramas åt sen)
+# Tillåt CORS för utveckling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Utveckling: tillåt allt
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,13 +26,16 @@ app.add_middleware(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
+# Mount frontend statiskt
 app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
-@app.get("/pipeline")
+
+# API endpoints flyttas under /api/
+@app.get("/api/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@app.post("/generate_draft")
+@app.post("/api/generate_draft")
 async def generate_draft(request: Request):
     data = await request.json()
     draft = generator.generate_post(
@@ -43,27 +46,27 @@ async def generate_draft(request: Request):
     db.insert_draft(draft)
     return {"status": "ok"}
 
-@app.post("/publish/{post_id}")
+@app.post("/api/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
-@app.get("/settings")
+@app.get("/api/settings")
 def get_settings():
     return db.get_settings()
 
-@app.post("/settings")
+@app.post("/api/settings")
 def update_settings(settings: dict):
     db.save_settings(settings)
     return {"status": "saved"}
 
-@app.get("/stats")
+@app.get("/api/stats")
 def get_stats():
     return db.get_account_stats()
 
-@app.post("/run_automatic_pipeline")
+@app.post("/api/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
 
