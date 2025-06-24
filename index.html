@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AverisAxiom Control Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>AverisAxiom Control Panel - Unified Pipeline View</header>
+<div class="container">
+
+    <!-- Creative Studio -->
+    <div class="section">
+        <h3>Creative Studio</h3>
+        <div class="compact-group">
+            <input type="text" id="creative-topic" placeholder="Enter new creative topic...">
+            <button class="small-button" onclick="generateDraft()">Generate Draft</button>
+        </div>
+    </div>
+
+    <!-- Automatic Studio -->
+    <div class="section">
+        <h3>Automatic Feed Generation</h3>
+        <div class="compact-group">
+            <button class="small-button" onclick="runAutomatic()">Run Automatic Pipeline</button>
+            <span class="helper-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <div class="section">
+        <h3>Settings</h3>
+        <div class="compact-group">
+            <input type="text" id="base-prompt" placeholder="Base Prompt">
+            <select id="style"><option>News</option><option>Thoughts</option></select>
+            <select id="model"><option>OpenAI GPT</option></select>
+            <input type="number" id="temperature" value="0.7" step="0.1" min="0" max="1">
+            <button class="small-button" onclick="saveSettings()">Save</button>
+        </div>
+    </div>
+
+    <!-- Account Stats -->
+    <div class="section">
+        <h3>Account Stats</h3>
+        <div class="compact-group" id="account-stats"></div>
+    </div>
+
+    <!-- Unified List -->
+    <div class="list-header">
+        <div>Post</div>
+        <div>Status</div>
+        <div>Type</div>
+        <div>Metrics</div>
+        <div>Actions</div>
+    </div>
+
+    <div id="pipeline-list"></div>
+
+</div>
+<script src="app.js"></script>
+</body>
+</html>
