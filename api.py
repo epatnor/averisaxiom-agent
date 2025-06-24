@@ -1,5 +1,3 @@
-# === File: api.py ===
-
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -7,9 +5,10 @@ from typing import List, Optional
 from datetime import datetime
 import sqlite3
 
-from config import Config
+from db import DB_PATH
 import scraper
-import publisher
+import essence  # <-- ny!
+import generator  # <-- redan existerande din gamla LLM generator
 
 app = FastAPI()
 
@@ -36,7 +35,7 @@ class SettingsModel(BaseModel):
 
 @app.get("/pipeline", response_model=List[PostItem])
 def get_pipeline():
-    conn = sqlite3.connect(Config.DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT id, title, status, type, comments, likes, shares FROM posts ORDER BY id DESC")
     rows = c.fetchall()
@@ -58,7 +57,7 @@ def get_pipeline():
 
 @app.post("/generate_draft")
 def generate_draft(topic: str):
-    conn = sqlite3.connect(Config.DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
         INSERT INTO posts (title, status, type, created_at)
@@ -68,48 +67,45 @@ def generate_draft(topic: str):
     conn.close()
     return {"message": "Draft generated"}
 
-@app.post("/publish")
-def publish_post(post_id: int):
-    conn = sqlite3.connect(Config.DB_PATH)
-    c = conn.cursor()
-    c.execute("""
-        UPDATE posts SET status = 'pending' WHERE id = ?
-    """, (post_id,))
-    conn.commit()
-    conn.close()
-    return {"message": "Post moved to pending"}
+@app.post("/run_automatic_pipeline")
+def run_automatic_pipeline():
+    # Steg 1: Scrape
+    google_news = scraper.get_google_news()
+    youtube_videos = scraper.get_youtube_videos("world news")
+    combined = google_news + youtube_videos
 
-@app.post("/post")
-def post_pending(post_id: int):
-    conn = sqlite3.connect(Config.DB_PATH)
+    # Extrahera headlines för AI clustering
+    headlines = [item['title'] for item in combined]
+
+    # Steg 2: AI clustering & summarizing
+    storylines = essence.cluster_and_summarize(headlines)
+
+    # Steg 3: Generera draft posts
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    c.execute("""
-        UPDATE posts SET status = 'published', comments = ?, likes = ?, shares = ?, published_at = ?
-        WHERE id = ?
-    """, (123, 456, 78, datetime.utcnow().isoformat(), post_id))
+
+    for story in storylines:
+        print("Generating post for:", story['title'])
+        draft = generator.generate_post(story['title'], story['summary'], style="News")
+
+        c.execute("""
+            INSERT INTO posts (title, status, type, created_at)
+            VALUES (?, ?, ?, ?)
+        """, (draft, "draft", "semi", datetime.utcnow().isoformat()))
+    
     conn.commit()
     conn.close()
-    return {"message": "Post published"}
+
+    return {"message": f"{len(storylines)} condensed storylines generated"}
 
 @app.post("/delete")
 def delete_post(post_id: int):
-    conn = sqlite3.connect(Config.DB_PATH)
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("DELETE FROM posts WHERE id = ?", (post_id,))
     conn.commit()
     conn.close()
     return {"message": "Post deleted"}
-
-@app.post("/edit")
-def edit_post(post_id: int, new_title: str):
-    conn = sqlite3.connect(Config.DB_PATH)
-    c = conn.cursor()
-    c.execute("""
-        UPDATE posts SET title = ? WHERE id = ?
-    """, (new_title, post_id))
-    conn.commit()
-    conn.close()
-    return {"message": "Post updated"}
 
 @app.get("/settings", response_model=SettingsModel)
 def get_settings():
@@ -132,32 +128,3 @@ def get_account_stats():
         "Bluesky": {"followers": "3.8K", "posts": 95},
         "Mastodon": {"followers": "--", "posts": "--"}
     }
-
-@app.post("/run_automatic_pipeline")
-def run_automatic_pipeline():
-    print("==> Running automatic pipeline scraping...")
-
-    google_news = scraper.fetch_google_news()
-    print(f"Google News found {len(google_news)} items")
-
-    youtube_videos = scraper.fetch_youtube_videos("world news")
-    print(f"YouTube found {len(youtube_videos)} items")
-
-    combined = google_news + youtube_videos
-    print(f"Total items to insert: {len(combined)}")
-
-    conn = sqlite3.connect(Config.DB_PATH)
-    c = conn.cursor()
-    for item in combined:
-        post_type = item.get('type', 'auto')
-        source = item.get('source', 'Unknown')
-        print(f"Inserting: {item['title']} (type={post_type}, source={source})")
-        c.execute("""
-            INSERT INTO posts (title, status, type, source, created_at)
-            VALUES (?, ?, ?, ?, ?)
-        """, (item['title'], "new", post_type, source, datetime.utcnow().isoformat()))
-    conn.commit()
-    conn.close()
-
-    return {"message": f"{len(combined)} new items injected into pipeline"}
-
