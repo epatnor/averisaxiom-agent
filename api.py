@@ -1,5 +1,8 @@
+# === File: api.py ===
+
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
@@ -7,11 +10,16 @@ import sqlite3
 
 from db import DB_PATH
 import scraper
-import essence
+import publisher
 import generator
+import essence
 
 app = FastAPI()
 
+# Mount frontend static files
+app.mount("/", StaticFiles(directory="frontend", html=True), name="frontend")
+
+# Tillåt CORS så vi kan köra frontend separat (behövs knappt längre, men kvar)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -67,47 +75,26 @@ def generate_draft(topic: str):
     conn.close()
     return {"message": "Draft generated"}
 
-@app.post("/run_automatic_pipeline")
-def run_automatic_pipeline():
-    print("==> Starting automatic pipeline...")
-
-    # Steg 1: Scraping
-    print("Fetching Google News RSS...")
-    google_news = scraper.fetch_google_news()
-    print(f"Google News found {len(google_news)} items")
-
-    print("Fetching YouTube videos...")
-    youtube_videos = scraper.fetch_youtube_videos("world news")
-    print(f"YouTube found {len(youtube_videos)} items")
-
-    combined = google_news + youtube_videos
-    print(f"Total items fetched: {len(combined)}")
-
-    # Extrahera headlines
-    headlines = [item['title'] for item in combined]
-
-    # Steg 2: Clustering
-    print("Running AI clustering & summarization...")
-    storylines = essence.cluster_and_summarize(headlines)
-    print(f"Condensed into {len(storylines)} major storylines")
-
-    # Steg 3: Generera drafts
+@app.post("/publish")
+def publish_post(post_id: int):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-
-    for story in storylines:
-        print(f"Generating post for cluster: {story['title']}")
-        draft = generator.generate_post(story['title'], story['summary'], style="News")
-
-        c.execute("""
-            INSERT INTO posts (title, status, type, created_at)
-            VALUES (?, ?, ?, ?)
-        """, (draft, "draft", "semi", datetime.utcnow().isoformat()))
-    
+    c.execute("UPDATE posts SET status = 'pending' WHERE id = ?", (post_id,))
     conn.commit()
     conn.close()
+    return {"message": "Post moved to pending"}
 
-    return {"message": f"{len(storylines)} AI-generated drafts created"}
+@app.post("/post")
+def post_pending(post_id: int):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        UPDATE posts SET status = 'published', comments = ?, likes = ?, shares = ?, published_at = ?
+        WHERE id = ?
+    """, (123, 456, 78, datetime.utcnow().isoformat(), post_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Post published"}
 
 @app.post("/delete")
 def delete_post(post_id: int):
@@ -117,6 +104,15 @@ def delete_post(post_id: int):
     conn.commit()
     conn.close()
     return {"message": "Post deleted"}
+
+@app.post("/edit")
+def edit_post(post_id: int, new_title: str):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("UPDATE posts SET title = ? WHERE id = ?", (new_title, post_id))
+    conn.commit()
+    conn.close()
+    return {"message": "Post updated"}
 
 @app.get("/settings", response_model=SettingsModel)
 def get_settings():
@@ -139,3 +135,29 @@ def get_account_stats():
         "Bluesky": {"followers": "3.8K", "posts": 95},
         "Mastodon": {"followers": "--", "posts": "--"}
     }
+
+@app.post("/run_automatic_pipeline")
+def run_automatic_pipeline():
+    print("==> Starting automatic pipeline...")
+    google_news = scraper.fetch_google_news()
+    youtube_videos = scraper.fetch_youtube_videos("world news")
+
+    combined = google_news + youtube_videos
+    print(f"Total items fetched: {len(combined)}")
+
+    headlines = [item['title'] for item in combined]
+    storylines = essence.cluster_and_summarize(headlines)
+    print(f"Condensed into {len(storylines)} major storylines")
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    for story in storylines:
+        print(f"Generating post for cluster: {story}")
+        draft = generator.generate_post(story, "", style="News")
+        c.execute("""
+            INSERT INTO posts (title, status, type, created_at)
+            VALUES (?, ?, ?, ?)
+        """, (draft, "new", "auto", datetime.utcnow().isoformat()))
+    conn.commit()
+    conn.close()
+    return {"message": f"{len(storylines)} new summaries injected"}
