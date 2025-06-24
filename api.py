@@ -4,7 +4,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import FileResponse
 import db
 import generator
 import publisher
@@ -13,27 +13,28 @@ import essence
 
 app = FastAPI()
 
-# Tillåt CORS för utveckling (kan stramas åt sen)
+# Tillåt CORS under utveckling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Utveckling: tillåt allt
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Dynamisk sökväg till frontend
+# Dynamisk basdir
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
-# Serve static assets (JS, CSS etc) under /static
-app.mount("/static", StaticFiles(directory=FRONTEND_DIR, html=False), name="static")
+# Mount static files på /static
+app.mount("/static", StaticFiles(directory=FRONTEND_DIR), name="static")
 
-# Serve index.html on root
+# Serve index.html på roten
 @app.get("/")
-def serve_frontend():
+def serve_index():
     return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
 
+# API endpoints
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
