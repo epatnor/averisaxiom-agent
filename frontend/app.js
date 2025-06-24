@@ -1,5 +1,4 @@
-const API_URL = window.location.origin;
-
+const API_URL = "/api";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
