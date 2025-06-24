@@ -1,19 +1,30 @@
 @echo off
-echo === Pulling latest code from GitHub ===
+setlocal
+
+:: Gå till repo-mappen
+cd /d %~dp0
+
+:: Visa repo status
+echo ================================
+echo Updating repository...
 git pull
+git status
+echo ================================
 
-echo.
-echo === Installing/Updating Python dependencies ===
-pip install -r requirements.txt
+:: Kolla om venv finns
+if exist ".venv\Scripts\activate" (
+    echo Activating virtual environment...
+    call .venv\Scripts\activate
+) else (
+    echo WARNING: Ingen venv hittades. Kör pip install först!
+)
 
-echo.
-echo === Starting backend API ===
-start cmd /k "uvicorn api:app --reload"
+:: Kör uvicorn med mer loggning
+echo Starting backend server...
+uvicorn api:app --reload --log-level debug
 
-echo.
-echo === Starting frontend (index.html) ===
-# start "" "file:///C:/Users/epatn/Desktop/averis_repo/averisaxiom-agent/index.html"
+:: Öppna browsern (om frontend ligger lokalt)
+start "" http://localhost:8000
 
-echo.
-echo === ALL SYSTEMS GO ===
 pause
+endlocal
