@@ -1,47 +1,49 @@
-# === File: essence.py (nu med summary) ===
+# === File: essence.py ===
 
-from openai import OpenAI
+import openai
+import json
 from config import Config
 
-client = OpenAI(api_key=Config.OPENAI_API_KEY)
+openai.api_key = Config.OPENAI_API_KEY
 
-def cluster_and_summarize(headlines: list) -> list:
-    """
-    Takes a list of headlines, asks GPT-4o to extract major storylines, cluster them,
-    and produce both a title and short summary for each storyline.
-    """
-    system_prompt = (
-        "You are a professional news editor. Given a list of news headlines, "
-        "cluster them into 3-5 main storylines. For each storyline, output:\n"
-        "- A short title summarizing the topic\n"
-        "- A short 2-3 sentence summary of the storyline\n\n"
-        "Format exactly as:\n\n"
-        "Title: ...\nSummary: ...\n\n"
-        "Be concise and avoid redundancy."
-    )
+def cluster_and_summarize(headlines):
+    print("Running AI clustering & summarization...")
 
-    user_prompt = "Here are today's headlines:\n\n" + "\n".join(f"- {h}" for h in headlines)
+    prompt = f"""
+You are an expert news analyst. Given the following list of headlines, group them into major storylines and summarize each storyline concisely.
 
-    response = client.chat.completions.create(
+Return the output strictly as a JSON list where each item contains:
+
+- "title": a very short title for the storyline (max 10 words)
+- "summary": a 2-3 sentence summary of that storyline
+
+Headlines:
+{headlines}
+
+Output:
+"""
+
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt}
+            {"role": "system", "content": "You are a news clustering and summarization expert."},
+            {"role": "user", "content": prompt}
         ],
-        temperature=0.5
+        temperature=0.3
     )
 
-    output = response.choices[0].message.content
-    storylines = []
+    raw_output = response.choices[0].message.content.strip()
 
-    for block in output.strip().split("\n\n"):
-        lines = block.strip().split("\n")
-        title_line = next((l for l in lines if l.startswith("Title: ")), None)
-        summary_line = next((l for l in lines if l.startswith("Summary: ")), None)
-        if title_line and summary_line:
-            storylines.append({
-                "title": title_line.replace("Title: ", "").strip(),
-                "summary": summary_line.replace("Summary: ", "").strip()
-            })
+    # Try to extract JSON even if GPT adds extra text
+    try:
+        first_brace = raw_output.find('[')
+        last_brace = raw_output.rfind(']')
+        json_str = raw_output[first_brace:last_brace+1]
+        parsed = json.loads(json_str)
+    except Exception as e:
+        print("Failed to parse GPT output:", e)
+        print("Raw GPT output was:\n", raw_output)
+        raise e
 
-    return storylines
+    print(f"Condensed into {len(parsed)} major storylines")
+    return parsed
