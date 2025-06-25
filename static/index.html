@@ -1,10 +1,29 @@
 
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>AverisAxiom</title><link rel="stylesheet" href="styles.css"></head>
+<head>
+    <meta charset="UTF-8">
+    <title>AverisAxiom Control Panel</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
 <body>
-<h1>AverisAxiom Unified Pipeline</h1>
-<button onclick="runPipeline()">Run Automatic Pipeline</button>
-<div id="list"></div>
+<header>AverisAxiom Control Panel - Unified Pipeline View</header>
+<div class="container">
+    <div class="section"><h3>Creative Studio</h3>
+        <div class="compact-group">
+            <input type="text" id="creative-topic" placeholder="Enter new creative topic...">
+            <button onclick="generateDraft()">Generate Draft</button>
+        </div>
+    </div>
+    <div class="section"><h3>Automatic Feed Generation</h3>
+        <button onclick="runAutomatic()">Run Automatic Pipeline</button>
+    </div>
+    <div class="section"><h3>Settings</h3>
+        <input type="text" id="base-prompt" placeholder="Base Prompt">
+        <button onclick="saveSettings()">Save</button>
+    </div>
+    <div class="section"><h3>Pipeline</h3><div id="pipeline-list"></div></div>
+</div>
 <script src="app.js"></script>
-</body></html>
+</body>
+</html>

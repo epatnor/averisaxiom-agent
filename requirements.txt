@@ -1,16 +1,8 @@
-# === File: requirements.txt ===
 
 fastapi
 uvicorn
 requests
-pydantic
-sqlite-utils
-python-dotenv
 feedparser
-openai>=1.10.0
-
-# För framtida aktivering när vi vill köra Bluesky live
-# Mastodon.py
-# atproto
-
-# Frontend (html/js/css) kör vi separat
+sqlite3
+openai
+python-dotenv

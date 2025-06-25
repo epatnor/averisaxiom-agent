@@ -1,9 +1,16 @@
 
 import os
+import sqlite3
+import json
+import requests
+import feedparser
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import db, scraper
+import db
+import scraper
+import essence
+import generator
 
 app = FastAPI()
 
@@ -16,22 +23,44 @@ app.add_middleware(
 )
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
-
-@app.get("/")
-async def serve_index():
-    with open(os.path.join(BASE_DIR, "static/index.html"), "r", encoding="utf-8") as f:
-        return f.read()
+STATIC_DIR = os.path.join(BASE_DIR, "static")
+app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
+@app.get("/settings")
+def get_settings():
+    return db.get_settings()
+
+@app.post("/settings")
+async def update_settings(request: Request):
+    settings = await request.json()
+    db.save_settings(settings)
+    return {"status": "saved"}
+
+@app.post("/generate_draft")
+async def generate_draft(request: Request):
+    data = await request.json()
+    draft = generator.generate_post(data['title'], data.get('summary', ''), data.get('style', 'News'))
+    db.insert_draft(draft)
+    return {"status": "ok"}
+
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
-    news = scraper.fetch_google_news()
+    google_news = scraper.fetch_google_news()
     youtube = scraper.fetch_youtube_videos()
-    all_items = news + youtube
+    all_items = google_news + youtube
+
+    headlines = [item['title'] for item in all_items]
+    clusters = essence.cluster_and_summarize(headlines)
+
+    for story in clusters:
+        draft = generator.generate_post(story['title'], story['summary'], "News")
+        db.insert_draft(draft)
+
     for item in all_items:
         db.insert_scraped_item(item)
-    return {"inserted": len(all_items)}
+
+    return {"status": "completed"}

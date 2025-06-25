@@ -1,32 +1,46 @@
 
 import sqlite3
-import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "posts.db")
+def get_conn():
+    return sqlite3.connect("posts.db")
 
 def init_db():
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_conn() as conn:
         c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            type TEXT,
-            source TEXT,
-            status TEXT DEFAULT 'new'
-        )''')
+        c.execute('''CREATE TABLE IF NOT EXISTS drafts (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT, summary TEXT, content TEXT, style TEXT, status TEXT DEFAULT 'draft')''')
+        c.execute('''CREATE TABLE IF NOT EXISTS settings (
+                        key TEXT PRIMARY KEY, value TEXT)''')
         conn.commit()
 
-def insert_scraped_item(item):
-    with sqlite3.connect(DB_PATH) as conn:
+def insert_draft(draft):
+    with get_conn() as conn:
         c = conn.cursor()
-        c.execute("INSERT INTO posts (title, type, source) VALUES (?, ?, ?)", 
-                  (item['title'], item['type'], item['source']))
+        c.execute("INSERT INTO drafts (title, summary, content, style) VALUES (?, ?, ?, ?)", 
+                  (draft['title'], draft['summary'], draft['content'], draft['style']))
         conn.commit()
 
 def get_pipeline():
-    with sqlite3.connect(DB_PATH) as conn:
+    with get_conn() as conn:
         c = conn.cursor()
-        c.execute("SELECT id, title, type, source, status FROM posts ORDER BY id DESC")
-        rows = c.fetchall()
-        return [{"id": r[0], "title": r[1], "type": r[2], "source": r[3], "status": r[4]} for r in rows]
+        rows = c.execute("SELECT id, title, status, style FROM drafts").fetchall()
+        return [{
+            "id": row[0], "title": row[1], "status": row[2], "type": row[3], "metrics": None
+        } for row in rows]
+
+def get_settings():
+    with get_conn() as conn:
+        c = conn.cursor()
+        rows = c.execute("SELECT key, value FROM settings").fetchall()
+        return {row[0]: row[1] for row in rows}
+
+def save_settings(settings):
+    with get_conn() as conn:
+        c = conn.cursor()
+        for key, value in settings.items():
+            c.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, str(value)))
+        conn.commit()
+
+def insert_scraped_item(item):
+    pass  # Placeholder for now
