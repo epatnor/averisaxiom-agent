@@ -1,22 +1,34 @@
 # === File: api.py ===
 
+import os
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import db
 import generator
 import publisher
 import scraper
 import essence
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+# Tillåt CORS bara för utveckling (kan tas bort helt när frontend servas av samma backend)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # För enkelhet i utveckling
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Dynamisk sökväg till frontend
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+# Här mountar vi frontend direkt på root /
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+
+# API endpoints börjar nedan:
 
 @app.get("/pipeline")
 def get_pipeline():
@@ -45,8 +57,7 @@ def get_settings():
     return db.get_settings()
 
 @app.post("/settings")
-async def update_settings(request: Request):
-    settings = await request.json()
+def update_settings(settings: dict):
     db.save_settings(settings)
     return {"status": "saved"}
 
@@ -84,3 +95,7 @@ def run_automatic_pipeline():
         db.insert_scraped_item(item)
 
     return {"status": "completed"}
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok"}
