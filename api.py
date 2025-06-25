@@ -4,6 +4,7 @@ import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+
 import db
 import generator
 import publisher
@@ -12,7 +13,7 @@ import essence
 
 app = FastAPI()
 
-# Tillåt CORS bara för utveckling (kan tas bort helt när frontend servas av samma backend)
+# CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,15 +22,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dynamisk sökväg till frontend
+# Frontend directory
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
-# Här mountar vi frontend direkt på root /
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
+# Montera frontend statiskt på /frontend
+app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
 
-# API endpoints börjar nedan:
+# En liten redirect från / -> /frontend/index.html
+@app.get("/")
+async def root():
+    return StaticFiles(directory=FRONTEND_DIR, html=True).lookup_path("index.html")[1]
 
+# Resten av dina API routes nedan (oförändrade)
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
