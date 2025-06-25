@@ -42,11 +42,11 @@ echo ================================
 
 :: Starta backend server i nytt fönster
 echo Startar backend server...
-start "Backend Server" cmd /k uvicorn api:app --reload
+start "Backend Server" cmd /k ".venv\Scripts\activate & uvicorn api:app --reload"
 
-:: Starta frontend (lokal static server i frontend-mappen)
+:: Starta frontend server separat
 echo Startar frontend server...
-start "Frontend Server" cmd /k cd frontend && python -m http.server 8080
+start "Frontend Server" cmd /k "cd frontend && python -m http.server 8080"
 
 echo.
 echo Backend server körs på: http://127.0.0.1:8000
