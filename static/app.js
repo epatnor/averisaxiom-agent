@@ -1,47 +1,36 @@
-// app.js
-
 const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
-    loadStats();
 });
 
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
         .then(data => renderPipeline(data.concat(dummyPosts())))
-        .catch(() => renderPipeline(dummyPosts()));  // fallback om API inte svarar
+        .catch(() => renderPipeline(dummyPosts()));
 }
 
 function dummyPosts() {
     return [
-        { id: 1, title: "BREAKING: US strikes Iranian nuclear facility...", status: "new", type: "auto", metrics: null },
-        { id: 2, title: "EU unveils ambitious green energy plan...", status: "new", type: "auto", metrics: null },
-        { id: 3, title: "How will oil markets react to Iran strike?", status: "draft", type: "semi", metrics: null },
-        { id: 4, title: "Tesla announces breakthrough...", status: "draft", type: "semi", metrics: null },
-        { id: 5, title: "AI Conference 2025 creative preview...", status: "pending", type: "creative", metrics: null },
-        { id: 6, title: "Global leaders debate carbon tax...", status: "pending", type: "creative", metrics: null },
-        { id: 7, title: "US strikes Iran's nuclear facility fully confirmed...", status: "published", type: "auto", metrics: { comments: 245, likes: 3200, shares: 780 }},
-        { id: 8, title: "NASA's Artemis mission lands crew on Moon...", status: "published", type: "auto", metrics: { comments: 312, likes: 5100, shares: 980 }}
+        { id: 1, title: "BREAKING: US strikes Iranian nuclear facility...", summary: "Short summary", status: "New", type: "Auto", comments: 0, likes: 0, shares: 0 },
+        { id: 2, title: "AI Conference 2025 creative preview...", summary: "Short summary", status: "Draft", type: "Creative", comments: 0, likes: 0, shares: 0 },
+        { id: 3, title: "NASA's Artemis mission lands crew on Moon...", summary: "Summary text", status: "Published", type: "Auto", comments: 312, likes: 5100, shares: 980 }
     ];
 }
 
 function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
     list.innerHTML = "";
+
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
-        const metrics = item.metrics 
-            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}` 
-            : "-";
-
         div.innerHTML = `
             <div class="title-snippet">${item.title}</div>
-            <div class="status-${item.status}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="type-${item.type}">${capitalize(item.type)}</div>
-            <div class="metrics">${metrics}</div>
+            <div class="status-${item.status.toLowerCase()}">${statusEmoji(item.status)} ${item.status}</div>
+            <div class="type-${item.type.toLowerCase()}">${item.type}</div>
+            <div class="metrics">${formatMetrics(item)}</div>
             <div class="action-buttons">${actionButtons(item)}</div>
         `;
         list.appendChild(div);
@@ -49,57 +38,77 @@ function renderPipeline(data) {
 }
 
 function actionButtons(item) {
-    if (item.status === "new") {
-        return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
-    } else if (item.status === "draft") {
-        return `<button class='small-button'>Publish</button>
-                <button class='small-button'>Edit</button>
-                <button class='small-button'>Delete</button>`;
-    } else if (item.status === "pending") {
-        return `<button class='small-button'>Post</button>
-                <button class='small-button'>Edit</button>
-                <button class='small-button'>Delete</button>`;
-    } else if (item.status === "published") {
-        return `<button class='small-button'>View</button><button class='small-button disabled'>Update Stats</button>`;
-    } else {
-        return "";
+    if (item.status === "New") {
+        return `<button class='small-button'>Generate Draft</button>`;
+    } else if (item.status === "Draft" || item.status === "Pending") {
+        return `
+            <button class='small-button'>Publish</button>
+            <button class='small-button' onclick="expandRow(${item.id})">Edit</button>
+            <button class='small-button'>Delete</button>
+        `;
+    } else if (item.status === "Published") {
+        return `
+            <button class='small-button'>View</button>
+            <button class='small-button disabled'>Update Stats</button>
+        `;
+    }
+    return "";
+}
+
+function expandRow(id) {
+    const list = document.getElementById("pipeline-list");
+    const allItems = list.getElementsByClassName("list-item");
+
+    Array.from(allItems).forEach(div => {
+        if (div.dataset.expanded === "true") {
+            div.classList.remove("expanded");
+            div.dataset.expanded = "false";
+            const existing = div.querySelector(".expanded-content");
+            if (existing) existing.remove();
+        }
+    });
+
+    const row = Array.from(allItems).find(div => div.innerHTML.includes(`onclick="expandRow(${id})"`));
+    if (row) {
+        row.dataset.expanded = "true";
+        const expanded = document.createElement("div");
+        expanded.className = "expanded-content";
+        expanded.style.marginTop = "10px";
+        expanded.style.padding = "10px";
+        expanded.style.backgroundColor = "#1a1a1a";
+        expanded.innerHTML = `
+            <label>Title:</label><br>
+            <input type="text" style="width: 100%;" value="${row.querySelector('.title-snippet').textContent}"><br><br>
+            <label>Summary:</label><br>
+            <textarea style="width: 100%; height: 80px;">[Summary placeholder]</textarea><br><br>
+            <button class="small-button">Save</button>
+            <button class="small-button">Cancel</button>
+        `;
+        row.appendChild(expanded);
+        row.classList.add("expanded");
     }
 }
 
-function statusEmoji(status) {
-    switch(status) {
-        case "new": return "🟡";
-        case "draft": return "🟠";
-        case "pending": return "🟣";
-        case "published": return "🟢";
-        default: return "";
-    }
+function formatMetrics(item) {
+    if (item.status !== "Published") return "-";
+    return `💬${item.comments} ❤️${formatLikes(item.likes)} 🔁${item.shares}`;
 }
 
 function formatLikes(likes) {
     return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
 }
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+function statusEmoji(status) {
+    switch(status) {
+        case "New": return "🟡";
+        case "Draft": return "🟠";
+        case "Pending": return "🟣";
+        case "Published": return "🟢";
+        default: return "";
+    }
 }
 
 function runAutomatic() {
     fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
         .then(() => loadPipeline());
-}
-
-function generateDraft() {
-    const topic = document.getElementById("creative-topic").value;
-    if (!topic) return alert("Enter topic first");
-    fetch(`${API_URL}/generate_draft?topic=${encodeURIComponent(topic)}`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-function generateDraftFromNews(id) {
-    alert("Draft generation from news not yet implemented.");
-}
-
-function loadStats() {
-    // För framtiden, placeholder
 }
