@@ -1,36 +1,26 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: Gå till repo-mappen
 cd /d %~dp0
 
-echo.
-echo ================================
-echo Updating repository...
+:: Uppdatera repo
 git pull
-git status
-echo ================================
 
+:: Skapa venv om den inte finns
 if not exist ".venv\" (
-    echo Creating virtual environment...
     python -m venv .venv
-    if %ERRORLEVEL% neq 0 (
-        echo Failed creating venv!
-        pause
-        exit /b 1
-    )
 )
 
+:: Aktivera venv
 call .venv\Scripts\activate
 
-echo.
-echo ================================
-echo Installing requirements...
+:: Installera requirements
 pip install --upgrade pip
 pip install -r requirements.txt
-echo ================================
 
-echo.
-echo Starting backend server...
-uvicorn api:app --reload
+:: Starta server
+echo Starting backend...
+uvicorn api:app --reload --host 127.0.0.1 --port 8000
 
 endlocal
