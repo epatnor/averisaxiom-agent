@@ -3,7 +3,8 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse, JSONResponse
 import db
 import generator
 import publisher
@@ -12,14 +13,25 @@ import essence
 
 app = FastAPI()
 
-# Tillåt CORS från frontend på annan port (8080)
+# Tillåt CORS för utveckling (kan stramas åt sen)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Dynamisk sökväg
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Montera statiska filer från root
+app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
+
+# Servera index.html på root
+@app.get("/")
+async def serve_index():
+    return FileResponse(os.path.join(BASE_DIR, "index.html"))
 
 @app.get("/pipeline")
 def get_pipeline():
@@ -48,8 +60,7 @@ def get_settings():
     return db.get_settings()
 
 @app.post("/settings")
-async def update_settings(request: Request):
-    settings = await request.json()
+def update_settings(settings: dict):
     db.save_settings(settings)
     return {"status": "saved"}
 
