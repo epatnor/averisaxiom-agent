@@ -1,34 +1,37 @@
-# === File: api.py ===
-
-import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+import os
 import db
 import generator
 import publisher
 import scraper
 import essence
 
+# Initiera FastAPI
 app = FastAPI()
 
-# CORS för utveckling
+# CORS för frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Dynamiskt path till static-folder
+# Statiska filer från ./static/
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
-print(f"==> Serving static files from: {STATIC_DIR}")
-app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-# API Endpoints
+# Serve index.html på root
+@app.get("/")
+async def serve_index():
+    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+
+# API endpoints
+
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
@@ -56,7 +59,8 @@ def get_settings():
     return db.get_settings()
 
 @app.post("/settings")
-def update_settings(settings: dict):
+async def update_settings(request: Request):
+    settings = await request.json()
     db.save_settings(settings)
     return {"status": "saved"}
 
@@ -66,24 +70,19 @@ def get_stats():
 
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
-    print("==> Running automatic pipeline...")
-
+    print("==> Starting automatic pipeline...")
     google_news = scraper.fetch_google_news()
     youtube_videos = scraper.fetch_youtube()
-
     all_items = google_news + youtube_videos
-    print(f"Total items fetched: {len(all_items)}")
-
     headlines = [item['title'] for item in all_items]
     storylines = essence.cluster_and_summarize(headlines)
-    print(f"Generated {len(storylines)} condensed storylines")
-
     for story in storylines:
-        print(f"Generating draft for: {story['title']}")
         draft = generator.generate_post(story['title'], story['summary'], style="News")
         db.insert_draft(draft)
-
     for item in all_items:
         db.insert_scraped_item(item)
-
     return {"status": "completed"}
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}
