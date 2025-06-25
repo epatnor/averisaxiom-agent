@@ -1,4 +1,5 @@
-const API_URL = window.location.hostname.includes("localhost") ? "http://127.0.0.1:8000" : "...";
+const API_URL = "http://localhost:8000/api";
+
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
