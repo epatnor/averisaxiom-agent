@@ -16,38 +16,39 @@ function loadPipeline() {
 }
 
 function renderPipeline(data) {
-    // Vi renderar listan på befintliga statiska list-element
-    const rows = document.querySelectorAll(".list-item");
+    const list = document.getElementById("pipeline-list");
+    list.innerHTML = "";  // Rensar listan
 
-    rows.forEach((row, index) => {
-        if (index >= data.length) {
-            row.style.display = "none";  // döljer överflödiga dummy-rader
-            return;
-        }
-        const item = data[index];
-        row.querySelector(".title-snippet").textContent = item.title;
-        row.querySelector(".status").textContent = getStatusText(item.status);
-        row.querySelector(".status").className = `status status-${item.status}`;
-        row.querySelector(".type").textContent = capitalize(item.type);
-        row.querySelector(".type").className = `type-${item.type}`;
+    data.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "list-item";
 
-        const metrics = item.comments != null 
-            ? `💬${item.comments} ❤️${formatLikes(item.likes)} 🔁${item.shares}` 
+        const metrics = (item.comments !== null)
+            ? `💬${item.comments} ❤️${formatLikes(item.likes)} 🔁${item.shares}`
             : "-";
-        row.querySelector(".metrics").textContent = metrics;
 
-        const buttonsContainer = row.querySelector(".action-buttons");
-        buttonsContainer.innerHTML = generateActionButtons(item);
+        row.innerHTML = `
+            <div class="title-snippet">${item.title}</div>
+            <div class="status ${statusClass(item.status)}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="type-${item.type}">${capitalize(item.type)}</div>
+            <div class="metrics">${metrics}</div>
+            <div class="action-buttons">${generateActionButtons(item)}</div>
+        `;
+        list.appendChild(row);
     });
 }
 
-function getStatusText(status) {
+function statusClass(status) {
+    return `status-${status}`;
+}
+
+function statusEmoji(status) {
     switch (status) {
-        case "new": return "🟡 New";
-        case "draft": return "🟠 Draft";
-        case "pending": return "🟣 Pending";
-        case "published": return "🟢 Published";
-        default: return status;
+        case "new": return "🟡";
+        case "draft": return "🟠";
+        case "pending": return "🟣";
+        case "published": return "🟢";
+        default: return "";
     }
 }
 
@@ -75,7 +76,7 @@ function capitalize(str) {
 }
 
 function formatLikes(likes) {
-    return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
+    return (likes > 1000) ? (likes / 1000).toFixed(1) + "K" : likes;
 }
 
 function runAutomaticPipeline() {
