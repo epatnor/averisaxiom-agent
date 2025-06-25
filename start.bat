@@ -44,8 +44,12 @@ echo ================================
 echo Startar backend server...
 start "Backend Server" cmd /k uvicorn api:app --reload
 
+:: Starta frontend (lokal static server i frontend-mappen)
+echo Startar frontend server...
+start "Frontend Server" cmd /k cd frontend && python -m http.server 8080
+
 echo.
 echo Backend server körs på: http://127.0.0.1:8000
-echo Frontend körs separat med: python -m http.server 8080 i frontend-mappen
+echo Frontend körs på: http://localhost:8080
 
 endlocal
