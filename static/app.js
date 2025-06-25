@@ -1,4 +1,4 @@
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "";  // Tom betyder samma server
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function loadPipeline() {
-    fetch(`${API_URL}/pipeline`)
+    fetch(`/pipeline`)
         .then(res => res.json())
         .then(data => renderPipeline(data.concat(dummyPosts())));
 }
@@ -15,7 +15,11 @@ function loadPipeline() {
 function dummyPosts() {
     return [
         { id: 1001, title: "AI Conference 2025 creative preview...", status: "pending", type: "creative", metrics: null },
-        { id: 1002, title: "Global leaders debate carbon tax at COP30 summit...", status: "pending", type: "creative", metrics: null }
+        { id: 1002, title: "Global leaders debate carbon tax at COP30 summit...", status: "pending", type: "creative", metrics: null },
+        { id: 1003, title: "How will oil markets react to Iran strike?", status: "draft", type: "semi", metrics: null },
+        { id: 1004, title: "Tesla announces breakthrough in solid-state battery...", status: "draft", type: "semi", metrics: null },
+        { id: 1005, title: "US strikes Iran's nuclear facility fully confirmed...", status: "published", type: "auto", metrics: { comments: 245, likes: 3200, shares: 780 }},
+        { id: 1006, title: "NASA's Artemis mission lands crew on Moon...", status: "published", type: "auto", metrics: { comments: 312, likes: 5100, shares: 980 }}
     ];
 }
 
@@ -25,9 +29,11 @@ function renderPipeline(data) {
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
+
         const metrics = item.metrics 
             ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}` 
             : "-";
+
         div.innerHTML = `
             <div class="title-snippet">${item.title}</div>
             <div class="status-${item.status}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
@@ -42,11 +48,19 @@ function renderPipeline(data) {
 function actionButtons(item) {
     switch(item.status) {
         case "new":
-            return `<button class='small-button'>Generate Draft</button>`;
+            return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
         case "draft":
-            return `<button class='small-button'>Publish</button>`;
+            return `
+                <button class='small-button'>Publish</button>
+                <button class='small-button'>Edit</button>
+                <button class='small-button'>Delete</button>`;
+        case "pending":
+            return `
+                <button class='small-button'>Post</button>
+                <button class='small-button'>Edit</button>
+                <button class='small-button'>Delete</button>`;
         case "published":
-            return `<button class='small-button'>View</button>`;
+            return `<button class='small-button'>View</button><button class='small-button disabled'>Update Stats</button>`;
         default:
             return "";
     }
@@ -63,7 +77,10 @@ function statusEmoji(status) {
 }
 
 function formatLikes(likes) {
-    return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
+    if (likes > 1000) {
+        return (likes / 1000).toFixed(1) + "K";
+    }
+    return likes;
 }
 
 function capitalize(str) {
@@ -73,16 +90,13 @@ function capitalize(str) {
 function generateDraft() {
     const topic = document.getElementById("creative-topic").value;
     if (!topic) return alert("Enter topic first");
-    fetch(`${API_URL}/generate_draft`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ title: topic })
-    }).then(() => loadPipeline());
+    fetch(`/generate_draft?topic=${encodeURIComponent(topic)}`, { method: "POST" })
+        .then(() => loadPipeline());
 }
 
-function runAutomatic() {
-    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
-        .then(() => loadPipeline());
+function generateDraftFromNews(id) {
+    console.log("Generate draft from news ID:", id);
+    alert("Not implemented yet!");
 }
 
 function saveSettings() {
@@ -92,7 +106,7 @@ function saveSettings() {
         model: document.getElementById("model").value,
         temperature: parseFloat(document.getElementById("temperature").value)
     };
-    fetch(`${API_URL}/settings`, {
+    fetch(`/settings`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(settings)
@@ -100,7 +114,7 @@ function saveSettings() {
 }
 
 function loadSettings() {
-    fetch(`${API_URL}/settings`)
+    fetch(`/settings`)
         .then(res => res.json())
         .then(settings => {
             document.getElementById("base-prompt").value = settings.base_prompt;
@@ -111,7 +125,7 @@ function loadSettings() {
 }
 
 function loadStats() {
-    fetch(`${API_URL}/stats`)
+    fetch(`/stats`)
         .then(res => res.json())
         .then(stats => {
             const container = document.getElementById("account-stats");
@@ -123,4 +137,9 @@ function loadStats() {
                 container.appendChild(div);
             });
         });
+}
+
+function runAutomatic() {
+    fetch(`/run_automatic_pipeline`, { method: "POST" })
+        .then(() => loadPipeline());
 }
