@@ -1,9 +1,8 @@
-
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import db
 import generator
 import publisher
@@ -24,9 +23,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+@app.on_event("startup")
+def startup_event():
+    print("==> Starting AverisAxiom Backend...")
+    db.init_db()
+
 @app.get("/")
 async def serve_frontend():
-    from fastapi.responses import FileResponse
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 @app.get("/pipeline")
