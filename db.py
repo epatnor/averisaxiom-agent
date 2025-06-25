@@ -1,137 +1,108 @@
-# === File: db.py ===
-
 import sqlite3
-from config import Config
 import os
 
-DB_PATH = Config.DB_PATH
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, "posts.db")
 
-def init_db():
-    """
-    Robust DB init: skapar databasen om den inte finns, annars validerar schema.
-    """
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+def get_connection():
+    return sqlite3.connect(DB_PATH)
 
-    if not os.path.exists(DB_PATH):
-        recreate_db()
-        return
-
-    try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("SELECT id, prompt, mood FROM posts LIMIT 1")
-        conn.close()
-    except sqlite3.OperationalError:
-        conn.close()
-        os.remove(DB_PATH)
-        recreate_db()
-
-def recreate_db():
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
+def setup_database():
+    conn = get_connection()
     c = conn.cursor()
-
-    # Create posts table
     c.execute("""
-        CREATE TABLE posts (
+        CREATE TABLE IF NOT EXISTS posts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            prompt TEXT,
-            post TEXT,
+            title TEXT,
+            summary TEXT,
+            type TEXT,
             status TEXT,
-            mood TEXT,
-            bluesky_uri TEXT,
-            created_at TEXT DEFAULT (datetime('now')),
-            published_at TEXT,
-            word_count INTEGER DEFAULT 0,
-            auto_mood_confidence REAL DEFAULT 0.0,
-            notes TEXT,
-            like_count INTEGER DEFAULT 0,
-            repost_count INTEGER DEFAULT 0,
-            reply_count INTEGER DEFAULT 0
+            metrics TEXT
         )
     """)
-
-    # Create settings table
-    c.execute("""
-        CREATE TABLE settings (
-            key TEXT PRIMARY KEY,
-            value TEXT
-        )
-    """)
-
-    # Create account stats table
-    c.execute("""
-        CREATE TABLE account_stats (
-            timestamp TEXT PRIMARY KEY,
-            followers INTEGER,
-            following INTEGER,
-            posts INTEGER,
-            likes INTEGER
-        )
-    """)
-
     conn.commit()
     conn.close()
 
-def save_post(prompt, post, mood):
-    conn = sqlite3.connect(DB_PATH)
+def insert_scraped_item(item):
+    conn = get_connection()
     c = conn.cursor()
     c.execute("""
-        INSERT INTO posts (prompt, post, status, mood, created_at, word_count)
-        VALUES (?, ?, 'pending', ?, datetime('now'), ?)
-    """, (prompt, post, mood, len(post.split())))
+        INSERT INTO posts (title, type, status) VALUES (?, ?, ?)
+    """, (item['title'], item['type'], 'new'))
     conn.commit()
     conn.close()
 
-def get_pending_posts():
-    conn = sqlite3.connect(DB_PATH)
+def insert_draft(draft):
+    conn = get_connection()
     c = conn.cursor()
-    c.execute("SELECT id, prompt, post FROM posts WHERE status = 'pending'")
+    c.execute("""
+        INSERT INTO posts (title, summary, type, status) VALUES (?, ?, ?, ?)
+    """, (draft['title'], draft['summary'], draft['type'], 'draft'))
+    conn.commit()
+    conn.close()
+
+def get_pipeline():
+    conn = get_connection()
+    c = conn.cursor()
+    c.execute("SELECT id, title, summary, type, status FROM posts ORDER BY id DESC")
     rows = c.fetchall()
     conn.close()
-    return rows
 
-def get_published_posts():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""
-        SELECT id, prompt, post, bluesky_uri, mood, created_at, published_at, like_count, repost_count, reply_count
-        FROM posts
-        WHERE status = 'published'
-    """)
-    rows = c.fetchall()
-    conn.close()
-    return rows
+    data = []
+    for row in rows:
+        data.append({
+            'id': row[0],
+            'title': row[1],
+            'summary': row[2],
+            'type': row[3],
+            'status': row[4],
+            'metrics': None  # För enkelhet just nu
+        })
+    return data
 
-def mark_as_published(post_id, bluesky_uri):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""
-        UPDATE posts
-        SET status = 'published', bluesky_uri = ?, published_at = datetime('now')
-        WHERE id = ?
-    """, (bluesky_uri, post_id))
-    conn.commit()
-    conn.close()
+def get_settings():
+    # Dummy settings
+    return {
+        "base_prompt": "Write a short engaging post:",
+        "style": "News",
+        "model": "OpenAI GPT",
+        "temperature": 0.7
+    }
 
-def delete_post(post_id):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("UPDATE posts SET status = 'deleted' WHERE id = ?", (post_id,))
-    conn.commit()
-    conn.close()
+def save_settings(settings):
+    pass  # Vi sparar inte settings ännu
 
-def get_setting(key, default=None):
-    conn = sqlite3.connect(DB_PATH)
+def get_account_stats():
+    # Dummy stats
+    return {
+        "X (Twitter)": {"followers": "15.2K", "posts": 314},
+        "Bluesky": {"followers": "3.8K", "posts": 95},
+        "Mastodon": {"followers": "--", "posts": 0}
+    }
+
+def get_post(post_id):
+    conn = get_connection()
     c = conn.cursor()
-    c.execute("SELECT value FROM settings WHERE key = ?", (key,))
+    c.execute("SELECT id, title, summary, type, status FROM posts WHERE id = ?", (post_id,))
     row = c.fetchone()
     conn.close()
-    return row[0] if row else default
 
-def set_setting(key, value):
-    conn = sqlite3.connect(DB_PATH)
+    if row:
+        return {
+            'id': row[0],
+            'title': row[1],
+            'summary': row[2],
+            'type': row[3],
+            'status': row[4]
+        }
+    return None
+
+def update_post_status(post_id, status):
+    conn = get_connection()
     c = conn.cursor()
-    c.execute("REPLACE INTO settings (key, value) VALUES (?, ?)", (key, value))
+    c.execute("UPDATE posts SET status = ? WHERE id = ?", (status, post_id))
     conn.commit()
     conn.close()
+
+# Kör setup vid import
+setup_database()
