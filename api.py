@@ -1,8 +1,7 @@
-import os
+# === File: api.py ===
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse
 import db
 import generator
 import publisher
@@ -11,7 +10,7 @@ import essence
 
 app = FastAPI()
 
-# CORS för utveckling
+# Tillåt CORS från alla domäner för utveckling
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -20,20 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Dynamisk sökväg till frontend
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
-
-# Mounta frontend på root "/"
-app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
-
-# Alla API-endpoints flyttas under /api
-
-@app.get("/api/pipeline")
+@app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@app.post("/api/generate_draft")
+@app.post("/generate_draft")
 async def generate_draft(request: Request):
     data = await request.json()
     draft = generator.generate_post(
@@ -44,27 +34,27 @@ async def generate_draft(request: Request):
     db.insert_draft(draft)
     return {"status": "ok"}
 
-@app.post("/api/publish/{post_id}")
+@app.post("/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
-@app.get("/api/settings")
+@app.get("/settings")
 def get_settings():
     return db.get_settings()
 
-@app.post("/api/settings")
+@app.post("/settings")
 def update_settings(settings: dict):
     db.save_settings(settings)
     return {"status": "saved"}
 
-@app.get("/api/stats")
+@app.get("/stats")
 def get_stats():
     return db.get_account_stats()
 
-@app.post("/api/run_automatic_pipeline")
+@app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
 
