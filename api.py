@@ -1,18 +1,12 @@
-# === File: api.py ===
 
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-import db
-import scraper
-
-# Init DB at startup
-db.init_db()
+import db, scraper
 
 app = FastAPI()
 
-# CORS (öppet för utveckling)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -21,39 +15,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Statisk frontend
-app.mount("/", StaticFiles(directory="static", html=True), name="static")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+
+@app.get("/")
+async def serve_index():
+    with open(os.path.join(BASE_DIR, "static/index.html"), "r", encoding="utf-8") as f:
+        return f.read()
 
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@app.post("/settings")
-async def update_settings(request: Request):
-    data = await request.json()
-    db.save_settings(data)
-    return {"status": "saved"}
-
-@app.get("/settings")
-def get_settings():
-    return db.get_settings()
-
-@app.get("/stats")
-def get_stats():
-    return db.get_account_stats()
-
 @app.post("/run_automatic_pipeline")
-def run_pipeline():
-    google_news = scraper.fetch_google_news()
+def run_automatic_pipeline():
+    news = scraper.fetch_google_news()
     youtube = scraper.fetch_youtube_videos()
-    all_items = google_news + youtube
-
+    all_items = news + youtube
     for item in all_items:
         db.insert_scraped_item(item)
-        db.insert_draft({
-            "title": item['title'],
-            "status": "new",
-            "type": item['type'],
-            "metrics": None
-        })
-    return {"status": "pipeline completed"}
+    return {"inserted": len(all_items)}
