@@ -1,19 +1,18 @@
 # === File: api.py ===
 
-from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 import db
 import generator
 import publisher
 import scraper
 import essence
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
-# Tillåt CORS från alla domäner för utveckling
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # För enkelhet i utveckling
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,7 +45,8 @@ def get_settings():
     return db.get_settings()
 
 @app.post("/settings")
-def update_settings(settings: dict):
+async def update_settings(request: Request):
+    settings = await request.json()
     db.save_settings(settings)
     return {"status": "saved"}
 
@@ -84,7 +84,3 @@ def run_automatic_pipeline():
         db.insert_scraped_item(item)
 
     return {"status": "completed"}
-
-@app.get("/api/health")
-def health():
-    return {"status": "ok"}
