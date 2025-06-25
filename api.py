@@ -23,11 +23,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-@app.on_event("startup")
-def startup_event():
-    print("==> Starting AverisAxiom Backend...")
-    db.init_db()
-
 @app.get("/")
 async def serve_frontend():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
@@ -79,6 +74,14 @@ def run_automatic_pipeline():
     for story in storylines:
         draft = generator.generate_post(story['title'], story['summary'], style="News")
         db.insert_draft(draft)
-    for item in all_items:
-        db.insert_scraped_item(item)
     return {"status": "completed"}
+
+@app.post("/update_summary")
+async def update_summary(request: Request):
+    data = await request.json()
+    post_id = data.get("id")
+    new_summary = data.get("summary")
+    if not post_id or new_summary is None:
+        return JSONResponse(status_code=400, content={"error": "Missing id or summary"})
+    db.update_post_summary(post_id, new_summary)
+    return {"status": "updated"}
