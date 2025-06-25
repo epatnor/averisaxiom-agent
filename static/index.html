@@ -13,8 +13,8 @@
     <div class="section">
         <h3>Creative Studio</h3>
         <div class="compact-group">
-            <input type="text" id="new-topic" placeholder="Enter new creative topic..." style="flex:1">
-            <button class="small-button" id="generate-draft-btn">Generate Draft</button>
+            <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
+            <button class="small-button">Generate Draft</button>
         </div>
     </div>
 
@@ -22,7 +22,7 @@
     <div class="section">
         <h3>Automatic Feed Generation</h3>
         <div class="compact-group">
-            <button class="small-button" id="run-pipeline-btn">Run Automatic Pipeline</button>
+            <button class="small-button" id="run-automatic-btn">Run Automatic Pipeline</button>
             <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
         </div>
     </div>
@@ -31,11 +31,11 @@
     <div class="section">
         <h3>Settings</h3>
         <div class="compact-group">
-            <input type="text" id="base-prompt">
-            <select id="style-select"><option>News</option><option>Thoughts</option></select>
-            <select id="model-select"><option>OpenAI GPT</option></select>
-            <input type="number" id="temperature" value="0.7" step="0.1" min="0" max="1">
-            <button class="small-button" id="save-settings-btn">Save</button>
+            <input type="text" placeholder="Base Prompt" value="Current system prompt">
+            <select><option>News</option><option>Thoughts</option></select>
+            <select><option>OpenAI GPT</option></select>
+            <input type="number" value="0.7" step="0.1" min="0" max="1">
+            <button class="small-button">Save</button>
         </div>
     </div>
 
@@ -54,7 +54,9 @@
         <div>Post</div><div>Status</div><div>Type</div><div>Metrics</div><div>Actions</div>
     </div>
 
-    <div id="post-list"></div>
+    <div id="pipeline-list">
+        <!-- Här fyller app.js dynamiskt på poster -->
+    </div>
 
 </div>
 <script src="/static/app.js"></script>
