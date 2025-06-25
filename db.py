@@ -73,3 +73,14 @@ def insert_scraped_item(item):
     """, (item['title'], item['source'], item['type']))
     conn.commit()
     conn.close()
+
+def update_post_summary(post_id, new_summary):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        UPDATE posts
+        SET summary = ?
+        WHERE id = ?
+    """, (new_summary, post_id))
+    conn.commit()
+    conn.close()
