@@ -1,46 +1,77 @@
 
 import sqlite3
+import os
+
+DB_PATH = "posts.db"
 
 def get_conn():
-    return sqlite3.connect("posts.db")
+    return sqlite3.connect(DB_PATH)
 
 def init_db():
-    with get_conn() as conn:
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS drafts (
-                        id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        title TEXT, summary TEXT, content TEXT, style TEXT, status TEXT DEFAULT 'draft')''')
-        c.execute('''CREATE TABLE IF NOT EXISTS settings (
-                        key TEXT PRIMARY KEY, value TEXT)''')
-        conn.commit()
-
-def insert_draft(draft):
-    with get_conn() as conn:
-        c = conn.cursor()
-        c.execute("INSERT INTO drafts (title, summary, content, style) VALUES (?, ?, ?, ?)", 
-                  (draft['title'], draft['summary'], draft['content'], draft['style']))
-        conn.commit()
-
-def get_pipeline():
-    with get_conn() as conn:
-        c = conn.cursor()
-        rows = c.execute("SELECT id, title, status, style FROM drafts").fetchall()
-        return [{
-            "id": row[0], "title": row[1], "status": row[2], "type": row[3], "metrics": None
-        } for row in rows]
-
-def get_settings():
-    with get_conn() as conn:
-        c = conn.cursor()
-        rows = c.execute("SELECT key, value FROM settings").fetchall()
-        return {row[0]: row[1] for row in rows}
-
-def save_settings(settings):
-    with get_conn() as conn:
-        c = conn.cursor()
-        for key, value in settings.items():
-            c.execute("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", (key, str(value)))
-        conn.commit()
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("""CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        summary TEXT,
+        status TEXT,
+        type TEXT,
+        source TEXT,
+        comments INTEGER DEFAULT 0,
+        likes INTEGER DEFAULT 0,
+        shares INTEGER DEFAULT 0
+    )""")
+    conn.commit()
+    conn.close()
 
 def insert_scraped_item(item):
-    pass  # Placeholder for now
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("INSERT INTO posts (title, status, type, source) VALUES (?, 'new', ?, ?)", 
+              (item['title'], item['type'], item['source']))
+    conn.commit()
+    conn.close()
+
+def insert_draft(draft):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("INSERT INTO posts (title, summary, status, type) VALUES (?, ?, 'draft', 'semi')",
+              (draft['title'], draft['content']))
+    conn.commit()
+    conn.close()
+
+def get_pipeline():
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT id, title, summary, status, type, comments, likes, shares FROM posts ORDER BY id DESC")
+    rows = c.fetchall()
+    conn.close()
+    posts = []
+    for row in rows:
+        metrics = None
+        if row[5] or row[6] or row[7]:
+            metrics = {"comments": row[5], "likes": row[6], "shares": row[7]}
+        posts.append({
+            "id": row[0],
+            "title": row[1],
+            "summary": row[2],
+            "status": row[3],
+            "type": row[4],
+            "metrics": metrics
+        })
+    return posts
+
+def get_post(post_id):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("SELECT title, summary FROM posts WHERE id=?", (post_id,))
+    row = c.fetchone()
+    conn.close()
+    return {"title": row[0], "summary": row[1]}
+
+def update_post_status(post_id, status):
+    conn = get_conn()
+    c = conn.cursor()
+    c.execute("UPDATE posts SET status=? WHERE id=?", (status, post_id))
+    conn.commit()
+    conn.close()

@@ -3,6 +3,5 @@ fastapi
 uvicorn
 requests
 feedparser
-sqlite3
 openai
 python-dotenv
