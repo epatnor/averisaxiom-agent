@@ -2,6 +2,13 @@ const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
+
+    // Knyt knappar direkt när sidan laddas
+    document.getElementById("run-automatic-btn").addEventListener("click", () => {
+        runAutomatic();
+    });
+
+    // Vi kan på samma sätt knyta andra knappar här framöver
 });
 
 function loadPipeline() {
@@ -68,7 +75,7 @@ function expandRow(id) {
         }
     });
 
-    const row = Array.from(allItems).find(div => div.innerHTML.includes(`onclick="expandRow(${id})"`));
+    const row = Array.from(allItems).find(div => div.innerHTML.includes(`expandRow(${id})`));
     if (row) {
         row.dataset.expanded = "true";
         const expanded = document.createElement("div");
@@ -109,6 +116,13 @@ function statusEmoji(status) {
 }
 
 function runAutomatic() {
+    console.log("Running automatic pipeline...");
     fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
-        .then(() => loadPipeline());
+        .then(() => {
+            console.log("Pipeline complete");
+            loadPipeline();
+        })
+        .catch(err => {
+            console.error("Pipeline failed", err);
+        });
 }
