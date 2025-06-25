@@ -4,16 +4,16 @@ const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
-    loadStats();
-
-    document.getElementById("automatic-btn").addEventListener("click", runAutomatic);
-    document.getElementById("generate-btn").addEventListener("click", generateDraft);
+    document.getElementById("run-pipeline").addEventListener("click", runAutomaticPipeline);
 });
 
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
-        .then(data => renderPipeline(data));
+        .then(data => renderPipeline(data))
+        .catch(err => {
+            console.error("Failed to load pipeline:", err);
+        });
 }
 
 function renderPipeline(data) {
@@ -21,114 +21,107 @@ function renderPipeline(data) {
     list.innerHTML = "";
 
     data.forEach(item => {
-        const row = document.createElement("div");
-        row.className = "list-item";
+        const div = document.createElement("div");
+        div.className = "list-item";
 
-        const metrics = (item.comments !== null)
-            ? `💬${item.comments} ❤️${formatLikes(item.likes)} 🔁${item.shares}`
+        const metrics = item.metrics 
+            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}` 
             : "-";
 
-        row.innerHTML = `
-            <div class="title-snippet">${item.title}</div>
-            <div class="status ${statusClass(item.status)}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="type-${item.type}">${capitalize(item.type)}</div>
+        const statusClass = `status-${item.status}`;
+        const typeClass = `type-${item.type}`;
+
+        div.innerHTML = `
+            <div class="title-snippet clickable">${item.title}</div>
+            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="${typeClass}">${capitalize(item.type)}</div>
             <div class="metrics">${metrics}</div>
-            <div class="action-buttons">${generateActionButtons(item)}</div>
+            <div class="action-buttons">${actionButtons(item)}</div>
+            <div class="expanded" style="display:none;">
+                <textarea class="edit-summary">${item.summary || ''}</textarea>
+                <div class="expanded-buttons">
+                    <button class="small-button save-btn" data-id="${item.id}">Save</button>
+                    <button class="small-button cancel-btn">Cancel</button>
+                </div>
+            </div>
         `;
 
-        // Expansion på klick av titel
-        row.querySelector(".title-snippet").addEventListener("click", () => toggleRowExpand(row, item));
-
-        // Knyt knapparnas funktioner
-        row.querySelectorAll(".small-button").forEach(btn => {
-            if (btn.innerText === "Edit") {
-                btn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    editPost(item);
-                });
-            }
-            // Fler knappar kan kopplas här om vi vill
+        // Expand on title click
+        div.querySelector(".title-snippet").addEventListener("click", () => {
+            const exp = div.querySelector(".expanded");
+            exp.style.display = exp.style.display === "none" ? "block" : "none";
         });
 
-        list.appendChild(row);
+        // Action button events
+        const saveBtn = div.querySelector(".save-btn");
+        if (saveBtn) {
+            saveBtn.addEventListener("click", () => {
+                const newSummary = div.querySelector(".edit-summary").value;
+                updatePostSummary(item.id, newSummary);
+            });
+        }
+
+        const cancelBtn = div.querySelector(".cancel-btn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                div.querySelector(".expanded").style.display = "none";
+            });
+        }
+
+        list.appendChild(div);
     });
 }
 
-function toggleRowExpand(row, item) {
-    const expanded = row.classList.contains("expanded");
-    if (expanded) {
-        row.classList.remove("expanded");
-        row.querySelector(".title-snippet").innerText = item.title;
-    } else {
-        row.classList.add("expanded");
-        row.querySelector(".title-snippet").innerText = `${item.title}\n\n${item.summary}`;
-    }
-}
-
-function editPost(item) {
-    alert("Edit clicked for:\n\n" + item.title + "\n\n" + item.summary);
-}
-
-function generateActionButtons(item) {
-    if (item.status === "New") {
-        return `<button class="small-button">Generate Draft</button>`;
-    } else if (item.status === "Draft") {
-        return `<button class="small-button">Publish</button>
-                <button class="small-button">Edit</button>
-                <button class="small-button">Delete</button>`;
-    } else if (item.status === "Pending") {
-        return `<button class="small-button">Post</button>
-                <button class="small-button">Edit</button>
-                <button class="small-button">Delete</button>`;
-    } else if (item.status === "Published") {
-        return `<button class="small-button">View</button>
-                <button class="small-button disabled">Update Stats</button>`;
+function actionButtons(item) {
+    if (item.status === "new") {
+        return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
+    } else if (item.status === "draft") {
+        return `<button class='small-button' onclick='publishPost(${item.id})'>Publish</button>`;
+    } else if (item.status === "pending") {
+        return `<button class='small-button' onclick='publishPost(${item.id})'>Post</button>`;
+    } else if (item.status === "published") {
+        return `<button class='small-button'>View</button>`;
     }
     return "";
 }
 
-function statusEmoji(status) {
-    switch (status) {
-        case "New": return "🟡";
-        case "Draft": return "🟠";
-        case "Pending": return "🟣";
-        case "Published": return "🟢";
-        default: return "";
-    }
+function publishPost(id) {
+    fetch(`${API_URL}/publish/${id}`, { method: "POST" })
+        .then(() => loadPipeline())
+        .catch(err => console.error("Failed to publish post:", err));
 }
 
-function statusClass(status) {
-    return `status-${status.toLowerCase()}`;
+function updatePostSummary(id, summary) {
+    fetch(`${API_URL}/update_summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, summary })
+    }).then(() => loadPipeline());
 }
 
-function capitalize(str) {
-    if (!str) return "";
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+function generateDraftFromNews(id) {
+    alert("Draft generation from news not yet implemented.");
 }
 
-function formatLikes(likes) {
-    return likes >= 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
-}
-
-function runAutomatic() {
+function runAutomaticPipeline() {
     fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
         .then(() => loadPipeline());
 }
 
-function generateDraft() {
-    const topic = document.getElementById("creative-topic").value;
-    if (!topic) {
-        alert("Enter a topic first");
-        return;
+function statusEmoji(status) {
+    switch(status) {
+        case "new": return "🟡";
+        case "draft": return "🟠";
+        case "pending": return "🟣";
+        case "published": return "🟢";
+        default: return "";
     }
-    fetch(`${API_URL}/generate_draft`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: topic, summary: "", style: "News" })
-    })
-    .then(() => loadPipeline());
 }
 
-function loadStats() {
-    // Placeholder - kommer sen
+function formatLikes(likes) {
+    return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
+}
+
+function capitalize(str) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
 }
