@@ -13,8 +13,8 @@
     <div class="section">
         <h3>Creative Studio</h3>
         <div class="compact-group">
-            <input type="text" placeholder="Enter new creative topic..." id="creative-topic">
-            <button class="small-button" onclick="generateDraft()">Generate Draft</button>
+            <input type="text" placeholder="Enter new creative topic..." style="flex:1">
+            <button class="small-button">Generate Draft</button>
         </div>
     </div>
 
@@ -22,7 +22,7 @@
     <div class="section">
         <h3>Automatic Feed Generation</h3>
         <div class="compact-group">
-            <button class="small-button" onclick="runAutomatic()">Run Automatic Pipeline</button>
+            <button class="small-button">Run Automatic Pipeline</button>
             <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
         </div>
     </div>
@@ -31,24 +31,21 @@
     <div class="section">
         <h3>Settings</h3>
         <div class="compact-group">
-            <input type="text" id="base-prompt" placeholder="Base Prompt">
-            <select id="style">
-                <option>News</option>
-                <option>Thoughts</option>
-            </select>
-            <select id="model">
-                <option>OpenAI GPT</option>
-            </select>
-            <input type="number" id="temperature" value="0.7" step="0.1" min="0" max="1">
-            <button class="small-button" onclick="saveSettings()">Save</button>
+            <input type="text" placeholder="Base Prompt" value="Current system prompt">
+            <select><option>News</option><option>Thoughts</option></select>
+            <select><option>OpenAI GPT</option></select>
+            <input type="number" value="0.7" step="0.1" min="0" max="1">
+            <button class="small-button">Save</button>
         </div>
     </div>
 
     <!-- Account Stats -->
     <div class="section">
         <h3>Account Stats</h3>
-        <div class="compact-group" id="account-stats">
-            <!-- Stats loaded dynamically -->
+        <div class="compact-group">
+            <div class="stats-box">X (Twitter): 15.2K Followers / 314 Posts</div>
+            <div class="stats-box">Bluesky: 3.8K Followers / 95 Posts</div>
+            <div class="stats-box">Mastodon: --</div>
         </div>
     </div>
 
@@ -56,11 +53,93 @@
     <div class="list-header">
         <div>Post</div><div>Status</div><div>Type</div><div>Metrics</div><div>Actions</div>
     </div>
-    <div id="pipeline-list">
-        <!-- Items loaded dynamically -->
+
+    <div class="list-item">
+        <div class="title-snippet">BREAKING: US strikes Iranian nuclear facility...</div>
+        <div class="status-new">🟡 New</div>
+        <div class="type-auto">Auto</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons"><button class="small-button">Generate Draft</button></div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">EU unveils ambitious green energy transition plan...</div>
+        <div class="status-new">🟡 New</div>
+        <div class="type-auto">Auto</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons"><button class="small-button">Generate Draft</button></div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">How will oil markets react to Iran strike?</div>
+        <div class="status-draft">🟠 Draft</div>
+        <div class="type-semi">Semi</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons">
+            <button class="small-button">Publish</button>
+            <button class="small-button">Edit</button>
+            <button class="small-button">Delete</button>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">Tesla announces breakthrough in solid-state battery...</div>
+        <div class="status-draft">🟠 Draft</div>
+        <div class="type-semi">Semi</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons">
+            <button class="small-button">Publish</button>
+            <button class="small-button">Edit</button>
+            <button class="small-button">Delete</button>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">AI Conference 2025 creative preview...</div>
+        <div class="status-pending">🟣 Pending</div>
+        <div class="type-creative">Creative</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons">
+            <button class="small-button">Post</button>
+            <button class="small-button">Edit</button>
+            <button class="small-button">Delete</button>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">Global leaders debate carbon tax at COP30 summit...</div>
+        <div class="status-pending">🟣 Pending</div>
+        <div class="type-creative">Creative</div>
+        <div class="metrics">-</div>
+        <div class="action-buttons">
+            <button class="small-button">Post</button>
+            <button class="small-button">Edit</button>
+            <button class="small-button">Delete</button>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">US strikes Iran's nuclear facility fully confirmed...</div>
+        <div class="status-published">🟢 Published</div>
+        <div class="type-auto">Auto</div>
+        <div class="metrics">💬245 ❤️3.2K 🔁780</div>
+        <div class="action-buttons">
+            <button class="small-button">View</button>
+            <button class="small-button disabled">Update Stats</button>
+        </div>
+    </div>
+
+    <div class="list-item">
+        <div class="title-snippet">NASA's Artemis mission successfully lands crew on Moon...</div>
+        <div class="status-published">🟢 Published</div>
+        <div class="type-auto">Auto</div>
+        <div class="metrics">💬312 ❤️5.1K 🔁980</div>
+        <div class="action-buttons">
+            <button class="small-button">View</button>
+            <button class="small-button disabled">Update Stats</button>
+        </div>
     </div>
 
 </div>
-<script src="/static/app.js"></script>
 </body>
 </html>
