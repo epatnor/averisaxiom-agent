@@ -2,14 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>AverisAxiom Control Panel - Unified Pipeline View</title>
-    <link rel="stylesheet" href="./styles.css">
+    <title>AverisAxiom Control Panel</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>AverisAxiom Control Panel - Unified Pipeline View</header>
 <div class="container">
 
-    <!-- Creative Studio -->
     <div class="section">
         <h3>Creative Studio</h3>
         <div class="compact-group">
@@ -18,16 +17,14 @@
         </div>
     </div>
 
-    <!-- Automatic Feed Generation -->
     <div class="section">
         <h3>Automatic Feed Generation</h3>
         <div class="compact-group">
             <button class="small-button" onclick="runAutomatic()">Run Automatic Pipeline</button>
-            <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+            <span class="info-text">(Fetches latest news & generates drafts)</span>
         </div>
     </div>
 
-    <!-- Settings -->
     <div class="section">
         <h3>Settings</h3>
         <div class="compact-group">
@@ -44,23 +41,18 @@
         </div>
     </div>
 
-    <!-- Account Stats -->
     <div class="section">
         <h3>Account Stats</h3>
-        <div class="compact-group" id="account-stats">
-            <!-- Stats loaded dynamically -->
-        </div>
+        <div class="compact-group" id="account-stats"></div>
     </div>
 
-    <!-- Unified List -->
     <div class="list-header">
         <div>Post</div><div>Status</div><div>Type</div><div>Metrics</div><div>Actions</div>
     </div>
-    <div id="pipeline-list">
-        <!-- Items loaded dynamically -->
-    </div>
+    <div id="pipeline-list"></div>
 
 </div>
-<script src="./app.js"></script>
+
+<script src="app.js"></script>
 </body>
 </html>
