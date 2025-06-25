@@ -3,7 +3,6 @@
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 import db
 import generator
@@ -13,24 +12,20 @@ import essence
 
 app = FastAPI()
 
-# Tillåt CORS under utveckling
+# Tillåt CORS från frontend på annan port (8080)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Servera statiska filer direkt från roten
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
-
-# API endpoints börjar på /api/*
-@app.get("/api/pipeline")
+@app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-@app.post("/api/generate_draft")
+@app.post("/generate_draft")
 async def generate_draft(request: Request):
     data = await request.json()
     draft = generator.generate_post(
@@ -41,27 +36,28 @@ async def generate_draft(request: Request):
     db.insert_draft(draft)
     return {"status": "ok"}
 
-@app.post("/api/publish/{post_id}")
+@app.post("/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
-@app.get("/api/settings")
+@app.get("/settings")
 def get_settings():
     return db.get_settings()
 
-@app.post("/api/settings")
-def update_settings(settings: dict):
+@app.post("/settings")
+async def update_settings(request: Request):
+    settings = await request.json()
     db.save_settings(settings)
     return {"status": "saved"}
 
-@app.get("/api/stats")
+@app.get("/stats")
 def get_stats():
     return db.get_account_stats()
 
-@app.post("/api/run_automatic_pipeline")
+@app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
 
