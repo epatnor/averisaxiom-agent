@@ -17,28 +17,22 @@ def fetch_google_news():
         })
     return results
 
-def fetch_youtube():
+def fetch_youtube_videos(query="world news"):
     print("Fetching YouTube videos...")
     API_KEY = os.getenv("YOUTUBE_API_KEY")
     if not API_KEY:
-        print("No YouTube API key found!")
+        print("Warning: No YOUTUBE_API_KEY set")
         return []
+    search_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q={query}&type=video&maxResults=10&key={API_KEY}"
+    resp = requests.get(search_url)
+    data = resp.json()
 
-    search_url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&q=world%20news&type=video&maxResults=10&key={API_KEY}"
-    try:
-        resp = requests.get(search_url)
-        resp.raise_for_status()
-        data = resp.json()
-
-        results = []
-        for item in data.get("items", []):
-            title = item['snippet']['title']
-            results.append({
-                "title": title,
-                "type": "auto",
-                "source": "YouTube"
-            })
-        return results
-    except Exception as e:
-        print(f"Error fetching YouTube data: {e}")
-        return []
+    results = []
+    for item in data.get("items", []):
+        title = item['snippet']['title']
+        results.append({
+            "title": title,
+            "type": "auto",
+            "source": "YouTube"
+        })
+    return results
