@@ -1,108 +1,127 @@
+# === File: db.py ===
+
 import sqlite3
 import os
+import json
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "posts.db")
+DB_FILE = "posts.db"
 
-def get_connection():
-    return sqlite3.connect(DB_PATH)
-
-def setup_database():
-    conn = get_connection()
+def init_db():
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
+    
     c.execute("""
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            summary TEXT,
-            type TEXT,
-            status TEXT,
-            metrics TEXT
-        )
+    CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        status TEXT,
+        type TEXT,
+        metrics TEXT
+    )
     """)
-    conn.commit()
-    conn.close()
-
-def insert_scraped_item(item):
-    conn = get_connection()
-    c = conn.cursor()
+    
     c.execute("""
-        INSERT INTO posts (title, type, status) VALUES (?, ?, ?)
-    """, (item['title'], item['type'], 'new'))
+    CREATE TABLE IF NOT EXISTS settings (
+        id INTEGER PRIMARY KEY,
+        base_prompt TEXT,
+        style TEXT,
+        model TEXT,
+        temperature REAL
+    )
+    """)
+    
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS scraped_items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT,
+        type TEXT,
+        source TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+    
     conn.commit()
     conn.close()
 
 def insert_draft(draft):
-    conn = get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""
-        INSERT INTO posts (title, summary, type, status) VALUES (?, ?, ?, ?)
-    """, (draft['title'], draft['summary'], draft['type'], 'draft'))
+        INSERT INTO posts (title, status, type, metrics)
+        VALUES (?, ?, ?, ?)
+    """, (draft['title'], draft['status'], draft['type'], json.dumps(draft.get('metrics'))))
+    conn.commit()
+    conn.close()
+
+def insert_scraped_item(item):
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO scraped_items (title, type, source)
+        VALUES (?, ?, ?)
+    """, (item['title'], item['type'], item['source']))
     conn.commit()
     conn.close()
 
 def get_pipeline():
-    conn = get_connection()
+    conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
-    c.execute("SELECT id, title, summary, type, status FROM posts ORDER BY id DESC")
+    c.execute("SELECT id, title, status, type, metrics FROM posts ORDER BY id DESC")
     rows = c.fetchall()
     conn.close()
-
-    data = []
+    
+    pipeline = []
     for row in rows:
-        data.append({
-            'id': row[0],
-            'title': row[1],
-            'summary': row[2],
-            'type': row[3],
-            'status': row[4],
-            'metrics': None  # För enkelhet just nu
+        metrics = json.loads(row[4]) if row[4] else None
+        pipeline.append({
+            "id": row[0],
+            "title": row[1],
+            "status": row[2],
+            "type": row[3],
+            "metrics": metrics
         })
-    return data
+    return pipeline
 
 def get_settings():
-    # Dummy settings
-    return {
-        "base_prompt": "Write a short engaging post:",
-        "style": "News",
-        "model": "OpenAI GPT",
-        "temperature": 0.7
-    }
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("SELECT base_prompt, style, model, temperature FROM settings WHERE id = 1")
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return {
+            "base_prompt": row[0],
+            "style": row[1],
+            "model": row[2],
+            "temperature": row[3]
+        }
+    else:
+        return {
+            "base_prompt": "",
+            "style": "News",
+            "model": "OpenAI GPT",
+            "temperature": 0.7
+        }
 
 def save_settings(settings):
-    pass  # Vi sparar inte settings ännu
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+    c.execute("""
+        INSERT INTO settings (id, base_prompt, style, model, temperature)
+        VALUES (1, ?, ?, ?, ?)
+        ON CONFLICT(id) DO UPDATE SET
+            base_prompt=excluded.base_prompt,
+            style=excluded.style,
+            model=excluded.model,
+            temperature=excluded.temperature
+    """, (settings['base_prompt'], settings['style'], settings['model'], settings['temperature']))
+    conn.commit()
+    conn.close()
 
 def get_account_stats():
     # Dummy stats
     return {
-        "X (Twitter)": {"followers": "15.2K", "posts": 314},
-        "Bluesky": {"followers": "3.8K", "posts": 95},
-        "Mastodon": {"followers": "--", "posts": 0}
+        "X (Twitter)": {"followers": 15200, "posts": 314},
+        "Bluesky": {"followers": 3800, "posts": 95},
+        "Mastodon": {"followers": 0, "posts": 0}
     }
-
-def get_post(post_id):
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("SELECT id, title, summary, type, status FROM posts WHERE id = ?", (post_id,))
-    row = c.fetchone()
-    conn.close()
-
-    if row:
-        return {
-            'id': row[0],
-            'title': row[1],
-            'summary': row[2],
-            'type': row[3],
-            'status': row[4]
-        }
-    return None
-
-def update_post_status(post_id, status):
-    conn = get_connection()
-    c = conn.cursor()
-    c.execute("UPDATE posts SET status = ? WHERE id = ?", (status, post_id))
-    conn.commit()
-    conn.close()
-
-# Kör setup vid import
-setup_database()
