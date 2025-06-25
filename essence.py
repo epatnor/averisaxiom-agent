@@ -1,26 +1,40 @@
+# === File: essence.py ===
 
 import os
 import openai
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Skapa OpenAI klient
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def cluster_and_summarize(headlines):
-    system_prompt = "Cluster these headlines into 5 storylines and summarize each storyline."
-    joined = "\n".join(headlines)
+    print("Running AI clustering & summarization...")
 
-    response = openai.ChatCompletion.create(
+    system_prompt = (
+        "You are an expert news analyst. Your task is to group related headlines "
+        "into major storylines and write a brief summary for each cluster. "
+        "Return the output as a JSON list of objects with keys: 'title' and 'summary'."
+    )
+
+    user_prompt = "Here are the latest headlines:\n\n"
+    for h in headlines:
+        user_prompt += f"- {h}\n"
+
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": joined}
-        ]
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.3
     )
 
-    text = response.choices[0].message.content
-    clusters = []
-    for line in text.split("\n"):
-        if line.strip():
-            parts = line.split(":", 1)
-            if len(parts) == 2:
-                clusters.append({"title": parts[0].strip(), "summary": parts[1].strip()})
-    return clusters
+    raw_output = response.choices[0].message.content.strip()
+
+    # OBS: vi låtsas att vi får korrekt JSON (i skarp drift ska vi göra bättre felhantering)
+    import json
+    try:
+        clusters = json.loads(raw_output)
+        return clusters
+    except Exception as e:
+        print("Error parsing AI response:", e)
+        return []
