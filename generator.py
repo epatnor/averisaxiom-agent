@@ -1,17 +1,39 @@
+# === File: generator.py ===
 
-import openai
 import os
+import openai
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_post(title, summary, style="News"):
-    prompt = f"Write a {style} style social media post based on the following:\nTitle: {title}\nSummary: {summary}"
-    response = openai.ChatCompletion.create(
+    print(f"Generating post for: {title} [{style}]")
+
+    system_prompt = (
+        "You are a professional social media writer. Based on the title and summary, "
+        "write a short engaging post suitable for Twitter or Bluesky. "
+        "Do NOT include hashtags. Keep it concise and impactful."
+    )
+
+    user_prompt = f"Title: {title}\nSummary: {summary}"
+
+    response = client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "system", "content": "You're a social media content generator."},
-            {"role": "user", "content": prompt}
-        ]
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ],
+        temperature=0.5
     )
-    content = response.choices[0].message.content
-    return {"title": title, "summary": summary, "content": content, "style": style}
+
+    text = response.choices[0].message.content.strip()
+
+    return {
+        "title": title,
+        "content": text,
+        "summary": summary,
+        "status": "draft",
+        "type": style.lower(),
+        "comments": 0,
+        "likes": 0,
+        "shares": 0
+    }
