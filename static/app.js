@@ -21,11 +21,27 @@ function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
     list.innerHTML = "";
 
+    const header = document.createElement("div");
+    header.className = "list-header";
+    header.style.display = "grid";
+    header.style.gridTemplateColumns = "120px 1fr 160px 160px 200px";
+    header.style.gap = "10px";
+    header.style.padding = "4px 0";
+    header.style.borderBottom = "2px solid #666";
+    header.innerHTML = `
+        <div style="font-weight: bold;">Origin</div>
+        <div style="font-weight: bold;">Title</div>
+        <div style="font-weight: bold;">Created</div>
+        <div style="font-weight: bold;">Type</div>
+        <div style="font-weight: bold;">Actions</div>
+    `;
+    list.appendChild(header);
+
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
         div.style.display = "grid";
-        div.style.gridTemplateColumns = "120px 1fr 120px 160px 160px";
+        div.style.gridTemplateColumns = "120px 1fr 160px 160px 200px";
         div.style.alignItems = "center";
         div.style.gap = "10px";
         div.style.padding = "6px 0";
@@ -40,11 +56,12 @@ function renderPipeline(data) {
         const icon = typeIcon(item.type);
         const origin = capitalize(item.origin || "manual");
         const isPublished = item.status.toLowerCase() === "published";
+        const createdAt = item.created_at || "";
 
         div.innerHTML = `
             <div class="origin-label"><span class="origin-tag ${origin.toLowerCase()}">${origin}</span></div>
             <div class="title-snippet clickable">${item.title}</div>
-            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="created-date">${createdAt}</div>
             <div class="${typeClass}">
                 ${icon} ${capitalize(item.type || "Unknown")}
             </div>
