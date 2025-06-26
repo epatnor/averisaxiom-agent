@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <title>AverisAxiom Control Panel - Unified Pipeline View</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <style>
+        .toggle-header {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .toggle-icon {
+            transition: transform 0.2s ease;
+        }
+        .collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+        .toggle-content {
+            display: none;
+        }
+        .expanded .toggle-content {
+            display: block;
+        }
+    </style>
 </head>
 <body>
 <header>AverisAxiom Control Panel - Unified Pipeline View</header>
@@ -20,37 +40,47 @@
     </div>
 
     <!-- AI-Assisted Post -->
-    <div class="section">
-        <h3>AI-Assisted Post</h3>
-        <div class="compact-group">
-            <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
-            <button id="generate-draft-btn" class="small-button">Generate Draft</button>
+    <div class="section expanded">
+        <div class="toggle-header" onclick="this.parentElement.classList.toggle('expanded'); this.parentElement.classList.toggle('collapsed')">
+            <h3>AI-Assisted Post</h3>
+            <span class="toggle-icon">▶</span>
+        </div>
+        <div class="toggle-content">
+            <div class="compact-group">
+                <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
+                <button id="generate-draft-btn" class="small-button">Generate Draft</button>
+            </div>
+            <div class="compact-group">
+                <input type="text" id="ai-base-prompt" value="Creative system prompt">
+                <select id="ai-post-style">
+                    <option value="creative">Creative</option>
+                    <option value="joke">Joke</option>
+                    <option value="rant">Rant</option>
+                </select>
+                <input type="number" id="ai-temperature" value="0.7" step="0.1" min="0" max="1">
+            </div>
         </div>
     </div>
 
     <!-- Automatic Feed Generation -->
-    <div class="section">
-        <h3>Automatic Feed Generation</h3>
-        <div class="compact-group">
-            <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
-            <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+    <div class="section expanded">
+        <div class="toggle-header" onclick="this.parentElement.classList.toggle('expanded'); this.parentElement.classList.toggle('collapsed')">
+            <h3>Automatic Feed Generation</h3>
+            <span class="toggle-icon">▶</span>
         </div>
-    </div>
-
-    <!-- Settings -->
-    <div class="section">
-        <h3>Settings</h3>
-        <div class="compact-group">
-            <input type="text" id="base-prompt" value="Current system prompt">
-            <select id="post-style">
-                <option value="news">News</option>
-                <option value="thoughts">Thoughts</option>
-            </select>
-            <select id="model-choice">
-                <option value="gpt">OpenAI GPT</option>
-            </select>
-            <input type="number" id="temperature" value="0.7" step="0.1" min="0" max="1">
-            <button id="save-settings-btn" class="small-button">Save</button>
+        <div class="toggle-content">
+            <div class="compact-group">
+                <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
+                <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+            </div>
+            <div class="compact-group">
+                <input type="text" id="auto-base-prompt" value="Auto system prompt">
+                <select id="auto-post-style">
+                    <option value="news">News</option>
+                    <option value="thought">Thought</option>
+                </select>
+                <input type="number" id="auto-temperature" value="0.7" step="0.1" min="0" max="1">
+            </div>
         </div>
     </div>
 
