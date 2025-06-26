@@ -7,6 +7,7 @@ body {
     flex-direction: column;
     height: 100vh;
 }
+
 header {
     position: sticky;
     top: 0;
@@ -18,38 +19,65 @@ header {
     font-size: 1.4rem;
     border-bottom: 1px solid #333;
 }
+
 .container {
     flex: 1;
     padding: 12px 20px;
     overflow-y: auto;
 }
+
 .section {
     margin-bottom: 20px;
     background-color: #242424;
     padding: 12px;
     border-radius: 10px;
 }
+
 .section h3 {
     margin-top: 0;
     margin-bottom: 10px;
 }
-.list-header, .list-item {
+
+.list-header {
     display: grid;
-    grid-template-columns: 1fr 100px 80px 200px 250px;
+    grid-template-columns: 1.8fr 0.6fr 0.6fr 0.6fr 0.6fr;
+    padding: 10px 0;
+    border-bottom: 2px solid #444;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #ccc;
+}
+
+.list-item {
+    display: grid;
+    grid-template-columns: 1.8fr 0.6fr 0.6fr 0.6fr 0.6fr;
+    gap: 12px;
     padding: 10px 0;
     border-bottom: 1px solid #333;
-    align-items: center;
+    align-items: start;
 }
+
+/* Titel – klickbar */
 .title-snippet {
+    font-weight: 600;
+    cursor: pointer;
+    color: #f0f0f0;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 500px;
 }
+.title-snippet:hover {
+    text-decoration: underline;
+}
+
+/* Status och typ */
 .status-new { color: #f1c40f; }
 .status-draft { color: #e67e22; }
 .status-pending { color: #9b59b6; }
 .status-published { color: #2ecc71; }
+
 .type-auto, .type-semi, .type-creative {
     border: 1px solid #555;
     padding: 2px 6px;
@@ -59,115 +87,44 @@ header {
 .type-auto { border-color: #f39c12; }
 .type-semi { border-color: #e67e22; }
 .type-creative { border-color: #3498db; }
-.metrics { font-size: 0.75rem; text-align: center; }
-.action-buttons { display: flex; gap: 6px; justify-content: center; }
-.small-button {
-    padding: 4px 10px;
+
+.metrics, .post-metrics {
     font-size: 0.75rem;
+    text-align: center;
+    color: #aaa;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+.action-buttons button {
+    font-size: 0.75rem;
+    padding: 4px 10px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
     background-color: #3c3c3c;
     color: #fff;
 }
-.disabled { background-color: #555; color: #aaa; cursor: not-allowed; }
-.compact-group {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-.compact-group input, .compact-group select {
-    padding: 6px;
-    border-radius: 6px;
-    border: 1px solid #555;
-    background-color: #1a1a1a;
-    color: #fff;
-    font-size: 0.85rem;
-}
-.stats-box {
-    background-color: #1a1a1a;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 0.85rem;
-}
-.post-editing {
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 6px 8px;
-  color: #f0f0f0;
-  width: 100%;
-  resize: vertical;
-  font-family: inherit;
-  font-size: 0.95rem;
-  line-height: 1.4;
+.action-buttons button:hover {
+    background-color: #555;
 }
 
-.edit-controls {
-  margin-top: 4px;
-  display: flex;
-  gap: 8px;
-}
-.edit-controls button {
-  background: #444;
-  color: #fff;
-  border: none;
-  padding: 4px 8px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-.edit-controls button:hover {
-  background: #666;
-}
-/* Ny layout för postrader */
-.list-item {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    border-bottom: 1px solid #333;
-}
-
-/* Headerdelen (titel + metadata) */
-.post-header {
-    display: grid;
-    grid-template-columns: 1.8fr 0.6fr 0.6fr 0.6fr 0.6fr;
-    gap: 12px;
-    align-items: center;
-    margin-bottom: 4px;
-}
-
-/* Titel – klickbar */
-.title-snippet {
-    font-weight: 600;
-    cursor: pointer;
-    color: #f0f0f0;
-}
-.title-snippet:hover {
-    text-decoration: underline;
-}
-
-/* Meta-information */
-.post-meta {
-    font-size: 0.85rem;
-    color: #ccc;
-}
-
-/* Metrics */
-.post-metrics {
-    font-size: 0.85rem;
+.disabled {
+    background-color: #555;
     color: #aaa;
+    cursor: not-allowed;
 }
 
-/* Action-knappar */
-.action-buttons button {
-    font-size: 0.85rem;
-    padding: 3px 8px;
-}
-
-/* Redigeringsfältet */
+/* Expand editor */
 .post-editor {
+    grid-column: 1 / -1;
     margin-top: 6px;
+    background-color: #1c1c1c;
+    border-radius: 6px;
+    padding: 10px;
 }
 
 .post-editing {
@@ -185,7 +142,6 @@ header {
     margin-bottom: 6px;
 }
 
-/* Save/Cancel-raden */
 .edit-controls {
     display: flex;
     gap: 10px;
@@ -200,8 +156,30 @@ header {
     cursor: pointer;
     transition: background 0.2s ease;
 }
-
 .edit-controls .small-button:hover {
     background: #666;
 }
 
+/* Kompakt inputs & selects */
+.compact-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+.compact-group input, .compact-group select {
+    padding: 6px;
+    border-radius: 6px;
+    border: 1px solid #555;
+    background-color: #1a1a1a;
+    color: #fff;
+    font-size: 0.85rem;
+}
+
+/* Statsruta */
+.stats-box {
+    background-color: #1a1a1a;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
