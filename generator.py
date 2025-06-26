@@ -6,23 +6,24 @@ import json
 from dotenv import load_dotenv
 from utils import remove_emojis_and_codeblock
 
-# Load environment variables (e.g., OPENAI_API_KEY)
+# Load API key from .env
 load_dotenv()
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_post(topic, summary, style=None):
-    """Generates a post based on a topic/summary, with an auto-detected type and improved title."""
+    """Generates a social media post with a precise, informative title and brief summary."""
 
     print(f"Generating post for: {topic} [style: {style}]")
 
-    # English prompt for international usage with clearer title instruction
     system_prompt = (
-        "You are a professional social media assistant.\n"
-        "Given a topic and/or summary, generate a short, intelligent post for an educated audience.\n"
-        "Avoid emojis, hashtags, clickbait, or slang.\n"
-        "Keep tone factual, neutral, and slightly journalistic.\n"
-        "Write a distinct, relevant title that summarizes the idea clearly.\n"
-        "Return ONLY valid JSON in this format:\n"
+        "You are a social media writing assistant creating short, intelligent posts.\n"
+        "Your task is to:\n"
+        "- Write a distinct, highly specific title that includes names, places, or unique events.\n"
+        "- Avoid vague or generic themes like 'Global Politics' or 'Tech News'.\n"
+        "- Focus on clarity and information value in the title (like a news headline).\n"
+        "- Write a 2–3 sentence content summary that is neutral and factual.\n"
+        "- Do not include hashtags, emojis, or formatting.\n"
+        "- Return ONLY valid JSON:\n"
         "{ \"title\": \"...\", \"content\": \"...\", \"type\": \"...\" }\n"
         "Post type must be one of: News, Thought, Question, Satire, Creative, Raw, Rant, Joke."
     )
