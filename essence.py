@@ -1,12 +1,15 @@
 # essence.py
 
-import openai
 import os
 import json
+from openai import OpenAI
+from dotenv import load_dotenv
 
-# Ställ in din OpenAI API-nyckel från miljövariabler (bra för säkerhet)
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Ladda .env om det behövs (valfritt)
+load_dotenv()
 
+# Initiera klient enligt nya openai>=1.0.0 formatet
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def cluster_and_summarize(headlines):
     """
@@ -16,8 +19,7 @@ def cluster_and_summarize(headlines):
     if not headlines:
         return []
 
-    # Grundprompt för GPT – säger åt den att gruppera rubriker och skapa en kort sammanfattning.
-    # Vi instruerar modellen att inte använda emojis eller onödiga symboler.
+    # Skapa prompten för GPT
     prompt = f"""
 You are an AI news clustering assistant.
 
@@ -34,12 +36,11 @@ DO NOT include any explanation, just return pure JSON.
 Here are the headlines:
 
 {headlines}
-"""
+""".strip()
 
-    # Kör prompten mot OpenAI:s GPT-modell
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
+        response = client.chat.completions.create(
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that returns news topic clusters."},
                 {"role": "user", "content": prompt}
@@ -48,9 +49,8 @@ Here are the headlines:
             max_tokens=1000,
         )
 
-        # Extrahera och returnera JSON från svaret
-        result = response.choices[0].message['content'].strip()
-        return json.loads(result)
+        content = response.choices[0].message.content.strip()
+        return json.loads(content)
 
     except Exception as e:
         print("⚠️ GPT clustering failed:", str(e))
