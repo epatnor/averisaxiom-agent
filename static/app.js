@@ -83,12 +83,17 @@ function renderPipeline(data) {
 function typeIcon(type) {
     switch (type.toLowerCase()) {
         case "creative": return "✨";
-        case "auto": return "🤖";
-        case "semi": return "🧪";
         case "news": return "📰";
-        default: return "";
+        case "thought": return "🧠";
+        case "question": return "❓";
+        case "satire": return "🎭";
+        case "raw": return "🧵";
+        case "rant": return "😡";
+        case "joke": return "😂";
+        default: return "📄";
     }
 }
+
 
 function actionButtons(item) {
     if (item.status === "new") {
