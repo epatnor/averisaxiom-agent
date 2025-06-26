@@ -23,13 +23,16 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+
 @app.get("/")
 async def serve_frontend():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
+
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
+
 
 @app.post("/generate_draft")
 async def generate_draft(request: Request):
@@ -39,10 +42,10 @@ async def generate_draft(request: Request):
         data.get('summary', ''),
         style=data.get('style', 'Creative')
     )
-    draft['status'] = 'Draft'
     draft['origin'] = 'manual'
     db.insert_draft(draft)
     return {"status": "ok"}
+
 
 @app.post("/publish/{post_id}")
 def publish_post(post_id: int):
@@ -51,9 +54,11 @@ def publish_post(post_id: int):
     db.update_post_status(post_id, 'Published')
     return {"status": "published"}
 
+
 @app.get("/settings")
 def get_settings():
     return db.get_settings()
+
 
 @app.post("/settings")
 async def update_settings(request: Request):
@@ -61,9 +66,11 @@ async def update_settings(request: Request):
     db.save_settings(settings)
     return {"status": "saved"}
 
+
 @app.get("/stats")
 def get_stats():
     return db.get_account_stats()
+
 
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
@@ -75,10 +82,10 @@ def run_automatic_pipeline():
     storylines = essence.cluster_and_summarize(headlines)
     for story in storylines:
         draft = generator.generate_post(story['title'], story['summary'], style="News")
-        draft['status'] = 'Draft'
         draft['origin'] = 'auto'
         db.insert_draft(draft)
     return {"status": "completed"}
+
 
 @app.post("/update_summary")
 async def update_summary(request: Request):
@@ -89,15 +96,3 @@ async def update_summary(request: Request):
         return JSONResponse(status_code=400, content={"error": "Missing id or summary"})
     db.update_post_summary(post_id, new_summary)
     return {"status": "updated"}
-
-@app.post("/generate_draft_from_news/{post_id}")
-def generate_draft_from_news(post_id: int):
-    scraped_items = db.get_scraped_items()
-    match = next((item for item in scraped_items if item["id"] == post_id), None)
-    if not match:
-        return JSONResponse(status_code=404, content={"error": "Item not found"})
-    draft = generator.generate_post(match["title"], "", style="News")
-    draft['status'] = 'Draft'
-    draft['origin'] = 'semi'
-    db.insert_draft(draft)
-    return {"status": "ok"}
