@@ -1,15 +1,14 @@
-// app.js – Main frontend logic for AverisAxiom control panel
+// app.js – AverisAxiom Frontend Logic
 
 const API_URL = "http://localhost:8000";
 
-// Körs när sidan laddats
 document.addEventListener("DOMContentLoaded", () => {
-    loadPipeline(); // Hämta och rendera poster
+    loadPipeline();
     document.getElementById("generate-draft-btn").addEventListener("click", generateCreativeDraft);
     document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
 });
 
-// Hämtar pipeline-data från backend
+// Fetch pipeline data and render the list
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
@@ -17,7 +16,7 @@ function loadPipeline() {
         .catch(err => console.error("Failed to load pipeline:", err));
 }
 
-// Renderar pipeline-poster i listan
+// Render each post item
 function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
     list.innerHTML = "";
@@ -25,12 +24,6 @@ function renderPipeline(data) {
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
-        div.style.display = "grid";
-        div.style.gridTemplateColumns = "100px 1fr 120px 140px 180px";
-        div.style.alignItems = "center";
-        div.style.gap = "10px";
-        div.style.padding = "8px 0";
-        div.style.borderBottom = "1px solid #333";
 
         const metrics = item.metrics
             ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}`
@@ -46,32 +39,30 @@ function renderPipeline(data) {
             <div class="title-snippet clickable">${item.title}</div>
             <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
             <div class="${typeClass}">${icon} ${capitalize(item.type || "Unknown")}</div>
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div class="actions-col">
                 <div class="post-metrics">${metrics}</div>
                 <div class="action-buttons">${actionButtons(item)}</div>
             </div>
-            <div class="post-editor" style="grid-column: 1 / -1; display:none;">
-                <textarea class="post-editing" style="width: 100%; margin-top: 4px;">${item.summary || ''}</textarea>
-                <div class="edit-controls" style="margin-top: 4px;">
+            <div class="post-editor">
+                <textarea class="post-editing">${item.summary || ''}</textarea>
+                <div class="edit-controls">
                     <button class="small-button save-btn" data-id="${item.id}">Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
             </div>
         `;
 
-        // Expandera/komprimera editor
+        // Add event listeners
         div.querySelector(".title-snippet").addEventListener("click", () => {
             const editor = div.querySelector(".post-editor");
             editor.style.display = editor.style.display === "none" ? "block" : "none";
         });
 
-        // Spara redigerad summering
         div.querySelector(".save-btn").addEventListener("click", () => {
             const newSummary = div.querySelector(".post-editing").value;
             updatePostSummary(item.id, newSummary);
         });
 
-        // Avbryt redigering
         div.querySelector(".cancel-btn").addEventListener("click", () => {
             div.querySelector(".post-editor").style.display = "none";
         });
@@ -80,7 +71,7 @@ function renderPipeline(data) {
     });
 }
 
-// Returnerar knappar baserat på postens status
+// Buttons shown for each post
 function actionButtons(item) {
     const status = (item.status || "").toLowerCase();
     if (status === "new") {
@@ -92,10 +83,10 @@ function actionButtons(item) {
     } else if (status === "published") {
         return `<button class='small-button'>View</button>`;
     }
-    return "";
+    return ``;
 }
 
-// Skicka ny kreativ prompt till backend
+// Call API to create draft from creative topic
 function generateCreativeDraft() {
     const topic = document.getElementById("creative-topic").value;
     if (!topic) return;
@@ -109,14 +100,14 @@ function generateCreativeDraft() {
     });
 }
 
-// Skicka publiceringsförfrågan
+// Publish the selected post
 function publishPost(id) {
     fetch(`${API_URL}/publish/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to publish post:", err));
 }
 
-// Uppdatera summeringstext
+// Update a post's summary
 function updatePostSummary(id, summary) {
     fetch(`${API_URL}/update_summary`, {
         method: "POST",
@@ -125,20 +116,14 @@ function updatePostSummary(id, summary) {
     }).then(() => loadPipeline());
 }
 
-// Generera draft från nyhetsartikel
+// Generate a draft from a scraped news item
 function generateDraftFromNews(id) {
     fetch(`${API_URL}/generate_draft_from_news/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to generate draft from news:", err));
 }
 
-// Kör automatiskt flöde (feeds -> clustering -> draft generation)
-function runAutomaticPipeline() {
-    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-// Returnerar emoji för status
+// Emoji indicators for post status
 function statusEmoji(status) {
     switch (status.toLowerCase()) {
         case "new": return "🟡";
@@ -149,7 +134,7 @@ function statusEmoji(status) {
     }
 }
 
-// Returnerar ikon beroende på typ
+// Emoji icons for post type
 function typeIcon(type) {
     switch ((type || "").toLowerCase()) {
         case "creative": return "✨";
@@ -164,12 +149,12 @@ function typeIcon(type) {
     }
 }
 
-// Gör första bokstaven stor
+// Capitalize helper
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
 
-// Formattera likes med K
+// Format likes count
 function formatLikes(likes) {
     return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
 }
