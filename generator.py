@@ -51,8 +51,12 @@ def generate_post(title, summary, style=None):
         # Försök parsa JSON från svaret
         raw = response.choices[0].message.content.strip()
         print("GPT returned:", raw)
-
+        
+        if not raw:
+            raise ValueError("Empty response from GPT")
+        
         parsed = json.loads(raw)
+
         content = parsed.get("content", "").strip()
         post_type = parsed.get("type", "Creative").strip()
 
