@@ -22,6 +22,12 @@ function renderPipeline(data) {
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
+        div.style.display = "grid";
+        div.style.gridTemplateColumns = "120px 1fr 120px 160px 160px";
+        div.style.alignItems = "center";
+        div.style.gap = "10px";
+        div.style.padding = "8px 0";
+        div.style.borderBottom = "1px solid #333";
 
         const metrics = item.metrics
             ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}`
@@ -33,17 +39,19 @@ function renderPipeline(data) {
         const origin = capitalize(item.origin || "manual");
 
         div.innerHTML = `
+            <div class="origin-label"><span class="origin-tag">${origin}</span></div>
             <div class="title-snippet clickable">${item.title}</div>
             <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
             <div class="${typeClass}">
                 ${icon} ${capitalize(item.type || "Unknown")}
-                <span class="origin-tag">${origin}</span>
             </div>
-            <div class="post-metrics">${metrics}</div>
-            <div class="action-buttons">${actionButtons(item)}</div>
-            <div class="post-editor" style="display:none;">
-                <textarea class="post-editing">${item.summary || ''}</textarea>
-                <div class="edit-controls">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <div class="post-metrics">${metrics}</div>
+                <div class="action-buttons">${actionButtons(item)}</div>
+            </div>
+            <div class="post-editor" style="grid-column: 1 / -1; display:none;">
+                <textarea class="post-editing" style="width: 100%; margin-top: 4px;">${item.summary || ''}</textarea>
+                <div class="edit-controls" style="margin-top: 4px;">
                     <button class="small-button save-btn" data-id="${item.id}">Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
@@ -79,10 +87,8 @@ function actionButtons(item) {
     } else if (status === "published") {
         return `<button class='small-button'>View</button>`;
     }
-    // fallback – visa alltid nån action
-    return `<button class='small-button' disabled>?</button>`;
+    return ``;
 }
-
 
 function generateCreativeDraft() {
     const topic = document.getElementById("creative-topic").value;
