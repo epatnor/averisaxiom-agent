@@ -40,7 +40,7 @@ async def generate_draft(request: Request):
         style=data.get('style', 'Creative')
     )
     draft["origin"] = "auto"
-    db.insert_draft(draft)
+    db.insert_draft({**draft, "origin": "creative"})
     return {"status": "ok"}
 
 @app.post("/run_automatic_pipeline")
@@ -54,7 +54,7 @@ def run_automatic_pipeline():
     for story in storylines:
         draft = generator.generate_post(story['title'], story['summary'], style="News")
         draft["origin"] = "auto"
-        db.insert_draft(draft)
+        db.insert_draft({**draft, "origin": "auto"})
     return {"status": "completed"}
 
 @app.post("/publish/{post_id}")
