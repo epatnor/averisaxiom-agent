@@ -4,11 +4,17 @@ import re
 
 def remove_emojis_and_codeblock(text):
     """
-    Tar bort emojis och markdown-block (t.ex. ```json) från GPT-svar.
-    Returnerar en renad sträng.
+    Tar bort emojis och markdown-kodblock (t.ex. ```json) från GPT-svar.
+    Returnerar en renad sträng utan symboler, emojis eller formatteringstecken.
     """
-    # Ta bort markdown-codeblock-start ``` eller ```json etc.
+    # Ta bort markdown-kodblock (``` eller ```json)
     text = re.sub(r"```(?:json)?", "", text, flags=re.IGNORECASE).strip("` \n")
 
-    # Ta bort emojis (alla symboler som inte är vanliga tecken/punktuation)
-    text = re.sub(r"[^
+    # Ta bort icke-standardtecken (inkl. emojis och konstiga symboler)
+    text = re.sub(
+        r"[^\w\s.,;:!?\"'()\[\]{}<>/@\-–—=+%€$£&|#*]", "", 
+        text, 
+        flags=re.UNICODE
+    )
+
+    return text.strip()
