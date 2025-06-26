@@ -69,17 +69,20 @@ function renderPipeline(data) {
 }
 
 function actionButtons(item) {
-    if (item.status === "new") {
+    const status = (item.status || "").toLowerCase();
+    if (status === "new") {
         return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
-    } else if (item.status === "draft") {
+    } else if (status === "draft") {
         return `<button class='small-button' onclick='publishPost(${item.id})'>Publish</button>`;
-    } else if (item.status === "pending") {
+    } else if (status === "pending") {
         return `<button class='small-button' onclick='publishPost(${item.id})'>Post</button>`;
-    } else if (item.status === "published") {
+    } else if (status === "published") {
         return `<button class='small-button'>View</button>`;
     }
-    return "";
+    // fallback – visa alltid nån action
+    return `<button class='small-button' disabled>?</button>`;
 }
+
 
 function generateCreativeDraft() {
     const topic = document.getElementById("creative-topic").value;
