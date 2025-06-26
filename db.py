@@ -15,6 +15,7 @@ def init_db():
                 summary TEXT,
                 status TEXT,
                 type TEXT,
+                origin TEXT,  -- Ny kolumn
                 comments INTEGER,
                 likes INTEGER,
                 shares INTEGER
@@ -35,9 +36,16 @@ def insert_draft(draft):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
-        INSERT INTO posts (title, summary, status, type, comments, likes, shares)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (draft['title'], draft['summary'], draft['status'], draft['type'], 0, 0, 0))
+        INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        draft['title'],
+        draft['summary'],
+        draft['status'],
+        draft['type'],
+        draft.get('origin', 'manual'),
+        0, 0, 0
+    ))
     conn.commit()
     conn.close()
 
@@ -45,7 +53,7 @@ def get_pipeline():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
-        SELECT id, title, summary, status, type, comments, likes, shares
+        SELECT id, title, summary, status, type, origin, comments, likes, shares
         FROM posts
         ORDER BY id DESC
     """)
@@ -58,9 +66,10 @@ def get_pipeline():
             "summary": row[2],
             "status": row[3],
             "type": row[4],
-            "comments": row[5],
-            "likes": row[6],
-            "shares": row[7]
+            "origin": row[5],
+            "comments": row[6],
+            "likes": row[7],
+            "shares": row[8]
         } for row in rows
     ]
 
