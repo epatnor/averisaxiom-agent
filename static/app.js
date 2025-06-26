@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
     document.getElementById("generate-draft-btn").addEventListener("click", generateCreativeDraft);
     document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
+    document.getElementById("submit-manual-btn").addEventListener("click", submitManualPost);
 });
 
 function loadPipeline() {
@@ -127,6 +128,21 @@ function generateCreativeDraft() {
         document.getElementById("creative-topic").value = "";
         loadPipeline();
     }).catch(err => console.error("Failed to generate creative draft:", err));
+}
+
+function submitManualPost() {
+    const title = document.getElementById("manual-title").value;
+    const summary = document.getElementById("manual-summary").value;
+    if (!title || !summary) return;
+    fetch(`${API_URL}/insert_manual_post`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, summary })
+    }).then(() => {
+        document.getElementById("manual-title").value = "";
+        document.getElementById("manual-summary").value = "";
+        loadPipeline();
+    }).catch(err => console.error("Failed to insert manual post:", err));
 }
 
 function publishPost(id) {
