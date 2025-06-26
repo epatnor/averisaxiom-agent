@@ -17,6 +17,8 @@ function loadPipeline() {
 }
 
 // Render each post item
+// Filnamn: app.js
+
 function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
     list.innerHTML = "";
@@ -24,35 +26,45 @@ function renderPipeline(data) {
     data.forEach(item => {
         const div = document.createElement("div");
         div.className = "list-item";
+        div.style.display = "grid";
+        div.style.gridTemplateColumns = "100px 1fr 120px 160px 160px";
+        div.style.alignItems = "center";
+        div.style.gap = "10px";
+        div.style.padding = "4px 10px";
+        div.style.borderBottom = "1px solid #333";
 
-        const metrics = item.metrics
-            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}`
-            : `💬${item.comments || 0} ❤️${formatLikes(item.likes || 0)} 🔁${item.shares || 0}`;
+        const status = (item.status || "").toLowerCase();
+        const metrics = (status === "published")
+            ? `💬${item.comments || 0} ❤️${formatLikes(item.likes || 0)} 🔁${item.shares || 0}`
+            : "";
 
-        const statusClass = `status-${item.status.toLowerCase()}`;
+        const statusClass = `status-${status}`;
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
-        const origin = capitalize(item.origin || "manual");
+        const origin = (item.origin || "manual").toLowerCase();
 
         div.innerHTML = `
-            <div class="origin-label"><span class="origin-tag">${origin}</span></div>
+            <div class="origin-label">
+                <span class="origin-tag ${origin}">${capitalize(origin)}</span>
+            </div>
             <div class="title-snippet clickable">${item.title}</div>
             <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="${typeClass}">${icon} ${capitalize(item.type || "Unknown")}</div>
-            <div class="actions-col">
-                <div class="post-metrics">${metrics}</div>
+            <div class="${typeClass}">
+                ${icon} ${capitalize(item.type || "Unknown")}
+            </div>
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                ${metrics ? `<div class="post-metrics">${metrics}</div>` : ""}
                 <div class="action-buttons">${actionButtons(item)}</div>
             </div>
-            <div class="post-editor">
-                <textarea class="post-editing">${item.summary || ''}</textarea>
-                <div class="edit-controls">
+            <div class="post-editor" style="grid-column: 1 / -1; display: none;">
+                <textarea class="post-editing" style="width: 100%; margin-top: 4px;">${item.summary || ''}</textarea>
+                <div class="edit-controls" style="margin-top: 4px;">
                     <button class="small-button save-btn" data-id="${item.id}">Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
             </div>
         `;
 
-        // Add event listeners
         div.querySelector(".title-snippet").addEventListener("click", () => {
             const editor = div.querySelector(".post-editor");
             editor.style.display = editor.style.display === "none" ? "block" : "none";
@@ -70,6 +82,7 @@ function renderPipeline(data) {
         list.appendChild(div);
     });
 }
+
 
 // Buttons shown for each post
 function actionButtons(item) {
