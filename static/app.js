@@ -32,7 +32,7 @@ function typeIcon(type) {
 // 🎯 Load posts from backend
 async function loadPosts() {
     try {
-        const res = await fetch("/get_posts");
+        const res = await fetch("/posts");
         if (!res.ok) throw new Error(`Failed to fetch posts: ${res.statusText}`);
         const posts = await res.json();
         renderPostList(posts);
