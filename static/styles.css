@@ -98,7 +98,6 @@ header {
   padding: 6px 8px;
   color: #f0f0f0;
   width: 100%;
-  min-height: 48px;
   resize: vertical;
   font-family: inherit;
   font-size: 0.95rem;
@@ -110,3 +109,15 @@ header {
   display: flex;
   gap: 8px;
 }
+.edit-controls button {
+  background: #444;
+  color: #fff;
+  border: none;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.edit-controls button:hover {
+  background: #666;
+}
+
