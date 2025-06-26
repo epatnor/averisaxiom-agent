@@ -2,8 +2,9 @@ const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
-    document.getElementById("run-pipeline").addEventListener("click", runAutomaticPipeline);
+    document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
     document.getElementById("generate-draft-btn").addEventListener("click", () => {
+
         const topic = document.getElementById("creative-topic").value.trim();
         if (!topic) return;
 
