@@ -1,4 +1,4 @@
-// app.js – AverisAxiom Frontend Logic
+// app.js
 
 const API_URL = "http://localhost:8000";
 
@@ -8,16 +8,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
 });
 
-// Fetch pipeline data and render the list
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
         .then(data => renderPipeline(data))
-        .catch(err => console.error("Failed to load pipeline:", err));
+        .catch(err => {
+            console.error("Failed to load pipeline:", err);
+        });
 }
-
-// Render each post item
-// Filnamn: app.js
 
 function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
@@ -27,39 +25,36 @@ function renderPipeline(data) {
         const div = document.createElement("div");
         div.className = "list-item";
         div.style.display = "grid";
-        div.style.gridTemplateColumns = "100px 1fr 120px 160px 160px";
+        div.style.gridTemplateColumns = "120px 1fr 120px 160px 160px";
         div.style.alignItems = "center";
         div.style.gap = "10px";
-        div.style.padding = "4px 10px";
+        div.style.padding = "6px 0";
         div.style.borderBottom = "1px solid #333";
 
-        const status = (item.status || "").toLowerCase();
-        const metrics = (status === "published")
+        const metrics = item.status.toLowerCase() === "published"
             ? `💬${item.comments || 0} ❤️${formatLikes(item.likes || 0)} 🔁${item.shares || 0}`
             : "";
 
-        const statusClass = `status-${status}`;
+        const statusClass = `status-${item.status.toLowerCase()}`;
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
-        const origin = (item.origin || "manual").toLowerCase();
+        const origin = capitalize(item.origin || "manual");
 
         div.innerHTML = `
-            <div class="origin-label">
-                <span class="origin-tag ${origin}">${capitalize(origin)}</span>
-            </div>
+            <div class="origin-label"><span class="origin-tag ${origin.toLowerCase()}">${origin}</span></div>
             <div class="title-snippet clickable">${item.title}</div>
             <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
             <div class="${typeClass}">
                 ${icon} ${capitalize(item.type || "Unknown")}
             </div>
-            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
                 ${metrics ? `<div class="post-metrics">${metrics}</div>` : ""}
                 <div class="action-buttons">${actionButtons(item)}</div>
             </div>
-            <div class="post-editor" style="grid-column: 1 / -1; display: none;">
-                <textarea class="post-editing" style="width: 100%; margin-top: 4px;">${item.summary || ''}</textarea>
+            <div class="post-editor" style="grid-column: 1 / -1; display:none;">
+                <textarea class="post-editing" style="width: 100%; margin-top: 4px;" ${item.status.toLowerCase() === "published" ? "readonly" : ""}>${item.summary || ''}</textarea>
                 <div class="edit-controls" style="margin-top: 4px;">
-                    <button class="small-button save-btn" data-id="${item.id}">Save</button>
+                    <button class="small-button save-btn" data-id="${item.id}" ${item.status.toLowerCase() === "published" ? "disabled" : ""}>Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
             </div>
@@ -70,10 +65,13 @@ function renderPipeline(data) {
             editor.style.display = editor.style.display === "none" ? "block" : "none";
         });
 
-        div.querySelector(".save-btn").addEventListener("click", () => {
-            const newSummary = div.querySelector(".post-editing").value;
-            updatePostSummary(item.id, newSummary);
-        });
+        const saveBtn = div.querySelector(".save-btn");
+        if (saveBtn && !saveBtn.disabled) {
+            saveBtn.addEventListener("click", () => {
+                const newSummary = div.querySelector(".post-editing").value;
+                updatePostSummary(item.id, newSummary);
+            });
+        }
 
         div.querySelector(".cancel-btn").addEventListener("click", () => {
             div.querySelector(".post-editor").style.display = "none";
@@ -83,8 +81,6 @@ function renderPipeline(data) {
     });
 }
 
-
-// Buttons shown for each post
 function actionButtons(item) {
     const status = (item.status || "").toLowerCase();
     if (status === "new") {
@@ -99,7 +95,6 @@ function actionButtons(item) {
     return ``;
 }
 
-// Call API to create draft from creative topic
 function generateCreativeDraft() {
     const topic = document.getElementById("creative-topic").value;
     if (!topic) return;
@@ -110,33 +105,40 @@ function generateCreativeDraft() {
     }).then(() => {
         document.getElementById("creative-topic").value = "";
         loadPipeline();
-    });
+    }).catch(err => console.error("Failed to generate creative draft:", err));
 }
 
-// Publish the selected post
 function publishPost(id) {
     fetch(`${API_URL}/publish/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to publish post:", err));
 }
 
-// Update a post's summary
 function updatePostSummary(id, summary) {
     fetch(`${API_URL}/update_summary`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, summary })
-    }).then(() => loadPipeline());
+    }).then(() => loadPipeline())
+      .catch(err => console.error("Failed to update post summary:", err));
 }
 
-// Generate a draft from a scraped news item
 function generateDraftFromNews(id) {
     fetch(`${API_URL}/generate_draft_from_news/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to generate draft from news:", err));
 }
 
-// Emoji indicators for post status
+function runAutomaticPipeline() {
+    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
+        .then(res => {
+            if (!res.ok) throw new Error("Pipeline run failed");
+            console.log("✅ Auto pipeline executed successfully");
+            loadPipeline();
+        })
+        .catch(err => console.error("❌ Failed to run auto pipeline:", err));
+}
+
 function statusEmoji(status) {
     switch (status.toLowerCase()) {
         case "new": return "🟡";
@@ -147,7 +149,6 @@ function statusEmoji(status) {
     }
 }
 
-// Emoji icons for post type
 function typeIcon(type) {
     switch ((type || "").toLowerCase()) {
         case "creative": return "✨";
@@ -162,12 +163,10 @@ function typeIcon(type) {
     }
 }
 
-// Capitalize helper
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
 
-// Format likes count
 function formatLikes(likes) {
     return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
 }
