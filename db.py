@@ -5,61 +5,67 @@ import os
 
 DB_PATH = "posts.db"
 
-# Dummydata som injiceras vid första skapandet av databasen
-DUMMY_POSTS = [
-    {
-        "title": "AI beats humans at Dota 2 again",
-        "summary": "An OpenAI system has once more surpassed top players in competitive gaming.",
-        "status": "published",
-        "type": "News",
-        "origin": "auto",
-        "comments": 12,
-        "likes": 945,
-        "shares": 102
-    },
-    {
-        "title": "Cats officially take over the Internet",
-        "summary": "Experts say it's now 90% memes, 10% actual news.",
-        "status": "published",
-        "type": "Joke",
-        "origin": "manual",
-        "comments": 3,
-        "likes": 1503,
-        "shares": 54
-    }
-]
-
 def init_db():
-    first_time = not os.path.exists(DB_PATH)
-    if first_time:
+    if not os.path.exists(DB_PATH):
         print("==> Creating new database...")
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("""
+            CREATE TABLE posts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                summary TEXT,
+                status TEXT,
+                type TEXT,
+                origin TEXT,
+                comments INTEGER,
+                likes INTEGER,
+                shares INTEGER
+            )
+        """)
+        c.execute("""
+            CREATE TABLE scraped (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT,
+                source TEXT,
+                type TEXT
+            )
+        """)
 
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS posts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            summary TEXT,
-            status TEXT,
-            type TEXT,
-            origin TEXT,
-            comments INTEGER,
-            likes INTEGER,
-            shares INTEGER
-        )
-    """)
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS scraped (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            title TEXT,
-            source TEXT,
-            type TEXT
-        )
-    """)
+        dummy_posts = [
+            {
+                "title": "AI Takes Over the World",
+                "summary": "A fictional look at a future where AI writes all the news.",
+                "status": "Published",
+                "type": "Satire",
+                "origin": "auto",
+                "comments": 12,
+                "likes": 1045,
+                "shares": 98
+            },
+            {
+                "title": "Cats Take Over the Internet (Again)",
+                "summary": "In a shocking turn of events, 90% of global content is now memes featuring cats wearing sunglasses. Resistance is futile.",
+                "status": "Published",
+                "type": "News",
+                "origin": "auto",
+                "comments": 53,
+                "likes": 8792,
+                "shares": 421
+            },
+            {
+                "title": "Welcome to AverisAxiom",
+                "summary": "This is a test post to demonstrate layout and formatting.",
+                "status": "Published",
+                "type": "Creative",
+                "origin": "manual",
+                "comments": 5,
+                "likes": 212,
+                "shares": 13
+            }
+        ]
 
-    if first_time:
-        for post in DUMMY_POSTS:
+        for post in dummy_posts:
             c.execute("""
                 INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -74,8 +80,9 @@ def init_db():
                 post["shares"]
             ))
 
-    conn.commit()
-    conn.close()
+        conn.commit()
+        conn.close()
+
 
 def insert_draft(draft):
     """Lägger till ett nytt utkast i databasen"""
