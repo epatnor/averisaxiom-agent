@@ -37,10 +37,11 @@ async def generate_draft(request: Request):
     draft = generator.generate_post(
         data['title'],
         data.get('summary', ''),
-        style=data.get('style', 'News')
+        style=data.get('style', 'Creative')  # <- default till Creative
     )
     db.insert_draft(draft)
     return {"status": "ok"}
+
 
 @app.post("/publish/{post_id}")
 def publish_post(post_id: int):
