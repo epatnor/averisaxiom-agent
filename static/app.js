@@ -1,5 +1,3 @@
-// app.js
-
 const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -8,7 +6,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
 });
 
-// Hämta alla poster från backend
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
@@ -18,7 +15,6 @@ function loadPipeline() {
         });
 }
 
-// Rendera listan av poster
 function renderPipeline(data) {
     const list = document.getElementById("pipeline-list");
     list.innerHTML = "";
@@ -29,12 +25,12 @@ function renderPipeline(data) {
 
         const metrics = item.metrics
             ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}`
-            : "-";
+            : `💬${item.comments || 0} ❤️${formatLikes(item.likes || 0)} 🔁${item.shares || 0}`;
 
         const statusClass = `status-${item.status.toLowerCase()}`;
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
-        const origin = typeOrigin(item.status, item.type, item.summary);
+        const origin = capitalize(item.origin || "manual");
 
         div.innerHTML = `
             <div class="title-snippet clickable">${item.title}</div>
@@ -72,7 +68,6 @@ function renderPipeline(data) {
     });
 }
 
-// Actions beroende på status
 function actionButtons(item) {
     if (item.status === "new") {
         return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
@@ -86,7 +81,6 @@ function actionButtons(item) {
     return "";
 }
 
-// Skicka ny kreativ prompt
 function generateCreativeDraft() {
     const topic = document.getElementById("creative-topic").value;
     if (!topic) return;
@@ -100,14 +94,12 @@ function generateCreativeDraft() {
     });
 }
 
-// Publicera post
 function publishPost(id) {
     fetch(`${API_URL}/publish/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to publish post:", err));
 }
 
-// Uppdatera summering
 function updatePostSummary(id, summary) {
     fetch(`${API_URL}/update_summary`, {
         method: "POST",
@@ -116,20 +108,17 @@ function updatePostSummary(id, summary) {
     }).then(() => loadPipeline());
 }
 
-// Skapa draft från nyhet
 function generateDraftFromNews(id) {
     fetch(`${API_URL}/generate_draft_from_news/${id}`, { method: "POST" })
         .then(() => loadPipeline())
         .catch(err => console.error("Failed to generate draft from news:", err));
 }
 
-// Kör pipeline
 function runAutomaticPipeline() {
     fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
         .then(() => loadPipeline());
 }
 
-// Hjälpfunktioner
 function statusEmoji(status) {
     switch (status.toLowerCase()) {
         case "new": return "🟡";
@@ -153,23 +142,6 @@ function typeIcon(type) {
         default: return "📄";
     }
 }
-
-function typeOrigin(status, type, summary) {
-    const s = (status || "").toLowerCase();
-    const hasSummary = !!(summary && summary.trim());
-
-    if (s === "new") return "Auto";
-    if (s === "draft") {
-        if (type && type.toLowerCase() === "creative") return "Creative";
-        if (hasSummary && summary.includes("#")) return "Semi"; // heuristik
-        return "Manual";
-    }
-    if (s === "pending") return "Creative";
-    if (s === "published") return "Auto";
-    return "Manual";
-}
-
-
 
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
