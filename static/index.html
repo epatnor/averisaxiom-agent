@@ -40,16 +40,17 @@
     </div>
 
     <!-- AI-Assisted Post -->
-    <div class="section expanded">
-        <div class="toggle-header" onclick="this.parentElement.classList.toggle('expanded'); this.parentElement.classList.toggle('collapsed')">
-            <h3>AI-Assisted Post</h3>
-            <span class="toggle-icon">▶</span>
+    <div class="section">
+        <h3>AI-Assisted Post</h3>
+        <div class="compact-group">
+            <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
+            <button id="generate-draft-btn" class="small-button">Generate Draft</button>
+        </div>
+        <div class="toggle-header" onclick="this.nextElementSibling.classList.toggle('toggle-content'); this.classList.toggle('collapsed');">
+            <h4>⚙️ Settings</h4>
+            <span class="toggle-icon">⚙️</span>
         </div>
         <div class="toggle-content">
-            <div class="compact-group">
-                <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
-                <button id="generate-draft-btn" class="small-button">Generate Draft</button>
-            </div>
             <div class="compact-group">
                 <input type="text" id="ai-base-prompt" value="Creative system prompt">
                 <select id="ai-post-style">
@@ -63,16 +64,17 @@
     </div>
 
     <!-- Automatic Feed Generation -->
-    <div class="section expanded">
-        <div class="toggle-header" onclick="this.parentElement.classList.toggle('expanded'); this.parentElement.classList.toggle('collapsed')">
-            <h3>Automatic Feed Generation</h3>
-            <span class="toggle-icon">▶</span>
+    <div class="section">
+        <h3>Automatic Feed Generation</h3>
+        <div class="compact-group">
+            <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
+            <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+        </div>
+        <div class="toggle-header" onclick="this.nextElementSibling.classList.toggle('toggle-content'); this.classList.toggle('collapsed');">
+            <h4>⚙️ Settings</h4>
+            <span class="toggle-icon">⚙️</span>
         </div>
         <div class="toggle-content">
-            <div class="compact-group">
-                <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
-                <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
-            </div>
             <div class="compact-group">
                 <input type="text" id="auto-base-prompt" value="Auto system prompt">
                 <select id="auto-post-style">
