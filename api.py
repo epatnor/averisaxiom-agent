@@ -37,11 +37,25 @@ async def generate_draft(request: Request):
     draft = generator.generate_post(
         data['topic'],
         data.get('summary', ''),
-        style=data.get('style', 'Creative')  # <- default till Creative
+        style=data.get('style', 'Creative')
     )
+    draft["origin"] = "auto"
     db.insert_draft(draft)
     return {"status": "ok"}
 
+@app.post("/run_automatic_pipeline")
+def run_automatic_pipeline():
+    print("==> Starting automatic pipeline...")
+    google_news = scraper.fetch_google_news()
+    youtube_videos = scraper.fetch_youtube_videos()
+    all_items = google_news + youtube_videos
+    headlines = [item['title'] for item in all_items]
+    storylines = essence.cluster_and_summarize(headlines)
+    for story in storylines:
+        draft = generator.generate_post(story['title'], story['summary'], style="News")
+        draft["origin"] = "auto"
+        db.insert_draft(draft)
+    return {"status": "completed"}
 
 @app.post("/publish/{post_id}")
 def publish_post(post_id: int):
@@ -63,19 +77,6 @@ async def update_settings(request: Request):
 @app.get("/stats")
 def get_stats():
     return db.get_account_stats()
-
-@app.post("/run_automatic_pipeline")
-def run_automatic_pipeline():
-    print("==> Starting automatic pipeline...")
-    google_news = scraper.fetch_google_news()
-    youtube_videos = scraper.fetch_youtube_videos()
-    all_items = google_news + youtube_videos
-    headlines = [item['title'] for item in all_items]
-    storylines = essence.cluster_and_summarize(headlines)
-    for story in storylines:
-        draft = generator.generate_post(story['title'], story['summary'], style="News")
-        db.insert_draft(draft)
-    return {"status": "completed"}
 
 @app.post("/update_summary")
 async def update_summary(request: Request):
