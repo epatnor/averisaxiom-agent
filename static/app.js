@@ -32,14 +32,16 @@ function renderPipeline(data) {
         const typeClass = `type-${item.type}`;
 
         div.innerHTML = `
-            <div class="title-snippet clickable">${item.title}</div>
-            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="${typeClass}">${capitalize(item.type)}</div>
-            <div class="metrics">${metrics}</div>
-            <div class="action-buttons">${actionButtons(item)}</div>
-            <div class="expanded" style="display:none;">
-                <textarea class="edit-summary">${item.summary || ''}</textarea>
-                <div class="expanded-buttons">
+            <div class="post-header">
+                <div class="title-snippet clickable" title="Click to edit">${item.title}</div>
+                <div class="post-meta ${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+                <div class="post-meta ${typeClass}">${capitalize(item.type)}</div>
+                <div class="post-metrics">${metrics}</div>
+                <div class="action-buttons">${actionButtons(item)}</div>
+            </div>
+            <div class="post-editor" style="display:none;">
+                <textarea class="post-editing">${item.summary || ''}</textarea>
+                <div class="edit-controls">
                     <button class="small-button save-btn" data-id="${item.id}">Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
@@ -48,25 +50,20 @@ function renderPipeline(data) {
 
         // Expand on title click
         div.querySelector(".title-snippet").addEventListener("click", () => {
-            const exp = div.querySelector(".expanded");
-            exp.style.display = exp.style.display === "none" ? "block" : "none";
+            const editor = div.querySelector(".post-editor");
+            editor.style.display = editor.style.display === "none" ? "block" : "none";
         });
 
-        // Action button events
-        const saveBtn = div.querySelector(".save-btn");
-        if (saveBtn) {
-            saveBtn.addEventListener("click", () => {
-                const newSummary = div.querySelector(".edit-summary").value;
-                updatePostSummary(item.id, newSummary);
-            });
-        }
+        // Save button event
+        div.querySelector(".save-btn").addEventListener("click", () => {
+            const newSummary = div.querySelector(".post-editing").value;
+            updatePostSummary(item.id, newSummary);
+        });
 
-        const cancelBtn = div.querySelector(".cancel-btn");
-        if (cancelBtn) {
-            cancelBtn.addEventListener("click", () => {
-                div.querySelector(".expanded").style.display = "none";
-            });
-        }
+        // Cancel button event
+        div.querySelector(".cancel-btn").addEventListener("click", () => {
+            div.querySelector(".post-editor").style.display = "none";
+        });
 
         list.appendChild(div);
     });
