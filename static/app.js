@@ -2,9 +2,10 @@ const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
-    document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
-    document.getElementById("generate-draft-btn").addEventListener("click", () => {
 
+    document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
+
+    document.getElementById("generate-draft-btn").addEventListener("click", () => {
         const topic = document.getElementById("creative-topic").value.trim();
         if (!topic) return;
 
@@ -49,7 +50,7 @@ function renderPipeline(data) {
         div.innerHTML = `
             <div class="title-snippet clickable">${item.title}</div>
             <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="${typeClass}">${capitalize(item.type)}</div>
+            <div class="${typeClass}">${typeIcon(item.type)} ${capitalize(item.type)}</div>
             <div class="post-metrics">${metrics}</div>
             <div class="action-buttons">${actionButtons(item)}</div>
             <div class="post-editor" style="display:none;">
@@ -77,6 +78,16 @@ function renderPipeline(data) {
 
         list.appendChild(div);
     });
+}
+
+function typeIcon(type) {
+    switch (type.toLowerCase()) {
+        case "creative": return "✨";
+        case "auto": return "🤖";
+        case "semi": return "🧪";
+        case "news": return "📰";
+        default: return "";
+    }
 }
 
 function actionButtons(item) {
@@ -116,7 +127,7 @@ function runAutomaticPipeline() {
 }
 
 function statusEmoji(status) {
-    switch(status) {
+    switch (status) {
         case "new": return "🟡";
         case "draft": return "🟠";
         case "pending": return "🟣";
