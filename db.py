@@ -93,3 +93,14 @@ def update_post_summary(post_id, new_summary):
     """, (new_summary, post_id))
     conn.commit()
     conn.close()
+
+def update_post_origin(post_id, new_origin):
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("""
+        UPDATE posts
+        SET origin = ?
+        WHERE id = ?
+    """, (new_origin, post_id))
+    conn.commit()
+    conn.close()
