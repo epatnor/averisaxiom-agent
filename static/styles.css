@@ -84,7 +84,17 @@ header {
 }
 .type-auto { border-color: #f39c12; }
 .type-semi { border-color: #e67e22; }
-.type-creative { border-color: #3498db; }
+.type-creative {
+    background-color: #1e2b39;
+    border: 1px solid #3fa9f5;
+    color: #8fd4ff;
+    padding: 2px 6px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    display: inline-block;
+    text-align: center;
+}
+
 
 .metrics, .post-metrics {
     font-size: 0.75rem;
