@@ -47,12 +47,12 @@ header {
 input[type="text"],
 input[type="number"],
 select {
-    padding: 10px 12px;
+    padding: 8px 10px;
     border-radius: 6px;
     border: 1px solid #444;
     background-color: #2a2a2a;
     color: #f0f0f0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: border-color 0.2s;
     flex: 1;
 }
@@ -65,14 +65,15 @@ select:focus {
 }
 
 .small-button {
-    padding: 8px 16px;
+    padding: 4px 10px;
     background-color: #444;
     color: #f0f0f0;
     border: 1px solid #666;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: background-color 0.2s, border-color 0.2s;
+    height: 30px;
 }
 
 .small-button:hover {
@@ -172,7 +173,7 @@ select:focus {
 }
 
 .post-editing {
-    width: 100%;
+    width: calc(100% - 8px);
     height: 80px;
     background: #111;
     color: #fff;
