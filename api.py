@@ -39,23 +39,10 @@ async def generate_draft(request: Request):
         data.get('summary', ''),
         style=data.get('style', 'Creative')
     )
-    draft["origin"] = "auto"
-    db.insert_draft({**draft, "origin": "creative"})
+    draft['status'] = 'Draft'
+    draft['origin'] = 'manual'
+    db.insert_draft(draft)
     return {"status": "ok"}
-
-@app.post("/run_automatic_pipeline")
-def run_automatic_pipeline():
-    print("==> Starting automatic pipeline...")
-    google_news = scraper.fetch_google_news()
-    youtube_videos = scraper.fetch_youtube_videos()
-    all_items = google_news + youtube_videos
-    headlines = [item['title'] for item in all_items]
-    storylines = essence.cluster_and_summarize(headlines)
-    for story in storylines:
-        draft = generator.generate_post(story['title'], story['summary'], style="News")
-        draft["origin"] = "auto"
-        db.insert_draft({**draft, "origin": "auto"})
-    return {"status": "completed"}
 
 @app.post("/publish/{post_id}")
 def publish_post(post_id: int):
@@ -78,6 +65,21 @@ async def update_settings(request: Request):
 def get_stats():
     return db.get_account_stats()
 
+@app.post("/run_automatic_pipeline")
+def run_automatic_pipeline():
+    print("==> Starting automatic pipeline...")
+    google_news = scraper.fetch_google_news()
+    youtube_videos = scraper.fetch_youtube_videos()
+    all_items = google_news + youtube_videos
+    headlines = [item['title'] for item in all_items]
+    storylines = essence.cluster_and_summarize(headlines)
+    for story in storylines:
+        draft = generator.generate_post(story['title'], story['summary'], style="News")
+        draft['status'] = 'Draft'
+        draft['origin'] = 'auto'
+        db.insert_draft(draft)
+    return {"status": "completed"}
+
 @app.post("/update_summary")
 async def update_summary(request: Request):
     data = await request.json()
@@ -87,3 +89,15 @@ async def update_summary(request: Request):
         return JSONResponse(status_code=400, content={"error": "Missing id or summary"})
     db.update_post_summary(post_id, new_summary)
     return {"status": "updated"}
+
+@app.post("/generate_draft_from_news/{post_id}")
+def generate_draft_from_news(post_id: int):
+    scraped_items = db.get_scraped_items()
+    match = next((item for item in scraped_items if item["id"] == post_id), None)
+    if not match:
+        return JSONResponse(status_code=404, content={"error": "Item not found"})
+    draft = generator.generate_post(match["title"], "", style="News")
+    draft['status'] = 'Draft'
+    draft['origin'] = 'semi'
+    db.insert_draft(draft)
+    return {"status": "ok"}
