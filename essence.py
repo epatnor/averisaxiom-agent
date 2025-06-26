@@ -5,21 +5,24 @@ import json
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Ladda .env om det behövs (valfritt)
+# Ladda miljövariabler från .env-fil
 load_dotenv()
 
-# Initiera klient enligt nya openai>=1.0.0 formatet
+# Initiera OpenAI-klienten (kräver openai>=1.0.0)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def cluster_and_summarize(headlines):
     """
-    Tar en lista av nyhetsrubriker och returnerar grupperade ämneskluster med sammanfattningar.
-    Använder GPT för att skapa en JSON-struktur med {title, summary}-objekt.
+    Tar en lista av rubriker och returnerar JSON-struktur med ämneskluster:
+    [{ "title": "...", "summary": "..." }, ...]
+    Om något går fel returneras en tom lista.
     """
-    if not headlines:
+
+    if not headlines or not isinstance(headlines, list):
+        print("⚠️ Tom eller ogiltig lista av rubriker.")
         return []
 
-    # Skapa prompten för GPT
+    # Format för prompt till GPT
     prompt = f"""
 You are an AI news clustering assistant.
 
@@ -46,12 +49,26 @@ Here are the headlines:
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7,
-            max_tokens=1000,
+            max_tokens=1200,
         )
 
         content = response.choices[0].message.content.strip()
-        return json.loads(content)
+        
+        # Verifiera JSON-format
+        parsed = json.loads(content)
+
+        # Extra kontroll: ska vara lista med dicts innehållande title & summary
+        if isinstance(parsed, list) and all(isinstance(p, dict) and "title" in p and "summary" in p for p in parsed):
+            return parsed
+        else:
+            print("⚠️ Ogiltig JSON-struktur:", parsed)
+            return []
+
+    except json.JSONDecodeError as je:
+        print("⚠️ Kunde inte tolka JSON från GPT:", je)
+        print("Rådata:", content)
+        return []
 
     except Exception as e:
-        print("⚠️ GPT clustering failed:", str(e))
+        print("⚠️ Fel vid GPT-anrop:", str(e))
         return []
