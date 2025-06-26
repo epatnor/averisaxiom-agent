@@ -31,11 +31,16 @@
     <div class="section">
         <h3>Settings</h3>
         <div class="compact-group">
-            <input type="text" placeholder="Base Prompt" value="Current system prompt">
-            <select><option>News</option><option>Thoughts</option></select>
-            <select><option>OpenAI GPT</option></select>
-            <input type="number" value="0.7" step="0.1" min="0" max="1">
-            <button class="small-button">Save</button>
+            <input type="text" id="base-prompt" value="Current system prompt">
+            <select id="post-style">
+                <option value="news">News</option>
+                <option value="thoughts">Thoughts</option>
+            </select>
+            <select id="model-choice">
+                <option value="gpt">OpenAI GPT</option>
+            </select>
+            <input type="number" id="temperature" value="0.7" step="0.1" min="0" max="1">
+            <button id="save-settings-btn" class="small-button">Save</button>
         </div>
     </div>
 
@@ -59,7 +64,7 @@
     </div>
 
     <div id="pipeline-list">
-        <!-- Posts get rendered here -->
+        <!-- Posts injected here -->
     </div>
 
 </div>
