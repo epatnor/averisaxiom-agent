@@ -31,10 +31,80 @@ header {
 }
 
 .section {
-    background-color: #1e1e1e;
-    padding: 12px;
-    border-radius: 6px;
     border: 1px solid #333;
+    border-radius: 12px;
+    padding: 16px;
+    background-color: #222;
+}
+
+.compact-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: #f0f0f0;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+    flex: 1;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus {
+    border-color: #888;
+    outline: none;
+}
+
+.small-button {
+    padding: 8px 16px;
+    background-color: #444;
+    color: #f0f0f0;
+    border: 1px solid #666;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.small-button:hover {
+    background-color: #666;
+    border-color: #888;
+}
+
+.stats-box {
+    padding: 10px 14px;
+    background-color: #2a2a2a;
+    border-radius: 6px;
+    border: 1px solid #444;
+    font-size: 0.9rem;
+}
+
+.toggle-settings {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.toggle-content {
+    display: none;
+}
+
+.expanded + .toggle-content {
+    display: block;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    color: #aaa;
 }
 
 #pipeline-list {
@@ -97,7 +167,7 @@ header {
 
 .post-editor {
     grid-column: 1 / -1;
-    display: none; /* Viktigt: börja stängd */
+    display: none;
     padding-top: 4px;
 }
 
@@ -117,16 +187,6 @@ header {
     margin-top: 4px;
     display: flex;
     gap: 8px;
-}
-
-.small-button {
-    background: #333;
-    border: 1px solid #555;
-    color: #f0f0f0;
-    padding: 4px 8px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.8rem;
 }
 
 .status-draft, .status-published, .status-pending, .status-new {
