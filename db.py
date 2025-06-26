@@ -115,7 +115,7 @@ def get_pipeline():
     c.execute("""
         SELECT id, title, summary, status, type, origin, comments, likes, shares, created_at
         FROM posts
-        ORDER BY id DESC
+        ORDER BY datetime(created_at) DESC
     """)
     rows = c.fetchall()
     conn.close()
@@ -133,6 +133,7 @@ def get_pipeline():
             "created_at": row[9]
         } for row in rows
     ]
+
 
 def insert_scraped_item(item):
     conn = sqlite3.connect(DB_PATH)
