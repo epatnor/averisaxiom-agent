@@ -55,7 +55,11 @@ function renderPipeline(data) {
         const statusClass = `status-${item.status.toLowerCase()}`;
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
-        const origin = capitalize(item.origin || "manual");
+        // Format origin tag properly
+        let origin = item.origin || "manual";
+        if (origin === "semi") origin = "AI-Assisted";
+        else origin = capitalize(origin);
+
         const isPublished = item.status.toLowerCase() === "published";
         const createdAt = item.created_at || "";
 
