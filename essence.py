@@ -5,24 +5,25 @@ import json
 from openai import OpenAI
 from dotenv import load_dotenv
 
-# Ladda miljövariabler från .env-fil
 load_dotenv()
 
-# Initiera OpenAI-klienten (kräver openai>=1.0.0)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def cluster_and_summarize(headlines):
-    """
-    Tar en lista av rubriker och returnerar JSON-struktur med ämneskluster:
-    [{ "title": "...", "summary": "..." }, ...]
-    Om något går fel returneras en tom lista.
-    """
+# Undvik ämnen som inte är relevanta för AverisAxiom
+UNWANTED_KEYWORDS = ["sports", "soccer", "football", "celebrity", "celebrities", "entertainment", "hollywood"]
 
+def is_relevant(title):
+    """Filtrera bort ointressanta ämnen baserat på nyckelord."""
+    lower = title.lower()
+    return not any(bad in lower for bad in UNWANTED_KEYWORDS)
+
+def cluster_and_summarize(headlines):
+    """Sammanfatta och klustra nyheter med GPT, returnera lista med {'title', 'summary'}."""
     if not headlines or not isinstance(headlines, list):
         print("⚠️ Tom eller ogiltig lista av rubriker.")
         return []
 
-    # Format för prompt till GPT
+    # Sätt ihop prompten
     prompt = f"""
 You are an AI news clustering assistant.
 
@@ -32,9 +33,8 @@ Return ONLY a valid JSON array of objects, where each object has:
 - "title": A short representative title for the cluster.
 - "summary": A 2-3 sentence summary of the topic.
 
-Avoid using emojis or special symbols. Write in neutral, journalistic tone.
-
-DO NOT include any explanation, just return pure JSON.
+Avoid using emojis or special symbols. Write in a neutral, journalistic tone.
+DO NOT include any explanation or markdown formatting, just return JSON.
 
 Here are the headlines:
 
@@ -42,6 +42,7 @@ Here are the headlines:
 """.strip()
 
     try:
+        # Skicka prompten till GPT
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -53,16 +54,23 @@ Here are the headlines:
         )
 
         content = response.choices[0].message.content.strip()
-        
-        # Verifiera JSON-format
+
+        # Rensa eventuell markdown-kodblock
+        if content.startswith("```json"):
+            content = content.removeprefix("```json").removesuffix("```").strip()
+        elif content.startswith("```"):
+            content = content.removeprefix("```").removesuffix("```").strip()
+
+        # Försök tolka som JSON
         parsed = json.loads(content)
 
-        # Extra kontroll: ska vara lista med dicts innehållande title & summary
-        if isinstance(parsed, list) and all(isinstance(p, dict) and "title" in p and "summary" in p for p in parsed):
-            return parsed
-        else:
-            print("⚠️ Ogiltig JSON-struktur:", parsed)
-            return []
+        # Validera och filtrera irrelevanta ämnen
+        valid = [
+            item for item in parsed
+            if isinstance(item, dict) and "title" in item and "summary" in item and is_relevant(item["title"])
+        ]
+
+        return valid
 
     except json.JSONDecodeError as je:
         print("⚠️ Kunde inte tolka JSON från GPT:", je)
