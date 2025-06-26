@@ -9,9 +9,19 @@
 <header>AverisAxiom Control Panel - Unified Pipeline View</header>
 <div class="container">
 
-    <!-- Creative Studio -->
+    <!-- Manual Post -->
     <div class="section">
-        <h3>Creative Studio</h3>
+        <h3>Manual Post</h3>
+        <div class="compact-group">
+            <input type="text" id="manual-title" placeholder="Enter manual title..." style="flex: 1">
+            <input type="text" id="manual-summary" placeholder="Enter manual summary..." style="flex: 2">
+            <button id="submit-manual-btn" class="small-button">Submit Manual</button>
+        </div>
+    </div>
+
+    <!-- AI-Assisted Post -->
+    <div class="section">
+        <h3>AI-Assisted Post</h3>
         <div class="compact-group">
             <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
             <button id="generate-draft-btn" class="small-button">Generate Draft</button>
@@ -52,15 +62,6 @@
             <div class="stats-box">Bluesky: 3.8K Followers / 95 Posts</div>
             <div class="stats-box">Mastodon: --</div>
         </div>
-    </div>
-
-    <!-- Unified List Header -->
-    <div class="list-item header-row">
-        <div>Post</div>
-        <div>Status</div>
-        <div>Type</div>
-        <div>Metrics</div>
-        <div>Actions</div>
     </div>
 
     <div id="pipeline-list">
