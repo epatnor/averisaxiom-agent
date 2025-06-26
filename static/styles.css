@@ -111,7 +111,10 @@ header {
     font-size: 0.8rem;
 }
 
-.status-draft, .status-published, .status-pending, .status-new {
+.status-draft,
+.status-published,
+.status-pending,
+.status-new {
     font-size: 0.8rem;
     white-space: nowrap;
 }
@@ -132,7 +135,6 @@ header {
     color: #6fcf97;
 }
 
-
 .type-News,
 .type-Creative,
 .type-Thought,
@@ -149,6 +151,22 @@ header {
     background-color: #2a2a2a;
     border: 1px solid #444;
     color: #ddd;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Ursprungstaggen */
+.origin-tag {
+    font-size: 0.7rem;
+    background: #444;
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+    border: 1px solid #666;
 }
 
 #creative-input {
