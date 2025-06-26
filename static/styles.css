@@ -59,7 +59,6 @@ header {
     align-items: start;
 }
 
-/* Titel – klickbar */
 .title-snippet {
     font-weight: 600;
     cursor: pointer;
@@ -72,7 +71,6 @@ header {
     text-decoration: underline;
 }
 
-/* Status och typ */
 .status-new { color: #f1c40f; }
 .status-draft { color: #e67e22; }
 .status-pending { color: #9b59b6; }
@@ -118,7 +116,7 @@ header {
     cursor: not-allowed;
 }
 
-/* Expand editor */
+/* Editor expansion */
 .post-editor {
     grid-column: 1 / -1;
     margin-top: 6px;
@@ -160,14 +158,14 @@ header {
     background: #666;
 }
 
-/* Kompakt inputs & selects */
 .compact-group {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
     align-items: center;
 }
-.compact-group input, .compact-group select {
+.compact-group input,
+.compact-group select {
     padding: 6px;
     border-radius: 6px;
     border: 1px solid #555;
@@ -176,7 +174,6 @@ header {
     font-size: 0.85rem;
 }
 
-/* Statsruta */
 .stats-box {
     background-color: #1a1a1a;
     padding: 10px;
