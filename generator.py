@@ -33,11 +33,11 @@ def generate_post(title, summary, style="News"):
 
     return {
         "title": title,
-        "content": text,
-        "summary": summary,
+        "summary": text,  # <-- spara GPT-texten i summary-fältet
         "status": "draft",
         "type": style.lower(),
         "comments": 0,
         "likes": 0,
         "shares": 0
     }
+
