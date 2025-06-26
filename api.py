@@ -1,19 +1,23 @@
+# api.py
+
 import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
+
 import db
 import generator
 import publisher
 import scraper
 import essence
 
-# Initiera databasen om den inte finns
+# Initierar databasen om den inte redan finns
 db.init_db()
 
 app = FastAPI()
 
+# Tillåt CORS för frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,35 +26,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Kopplar statiska filer (frontend)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
-
+# Root endpoint levererar frontend
 @app.get("/")
 async def serve_frontend():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
-
+# Returnerar innehållet i pipelinen (t.ex. drafts)
 @app.get("/pipeline")
 def get_pipeline():
     return db.get_pipeline()
 
-
+# Skapar ett AI-assisterat utkast (semi-auto)
 @app.post("/generate_draft")
 async def generate_draft(request: Request):
     data = await request.json()
-    draft = generator.generate_post(
-        data['topic'],
-        data.get('summary', ''),
-        style=data.get('style', 'Creative')
-    )
-    # Mark AI-assisted drafts as 'semi'
-    draft['origin'] = 'semi'
+    story = {
+        "title": data["topic"],
+        "summary": data.get("summary", "")
+    }
+    draft = generator.generate_full_post(story)
+    draft["origin"] = "semi"
     db.insert_draft(draft)
     return {"status": "ok"}
 
-
+# Lägger till ett manuellt inlägg
 @app.post("/insert_manual_post")
 async def insert_manual_post(request: Request):
     data = await request.json()
@@ -59,38 +63,37 @@ async def insert_manual_post(request: Request):
         "summary": data.get("summary", ""),
         "status": "Draft",
         "type": "Creative",
-        "origin": "manual"  # Manual origin for truly manual input
+        "origin": "manual"
     }
     db.insert_draft(draft)
     return {"status": "ok"}
 
-
-
+# Publicerar ett inlägg till sociala medier
 @app.post("/publish/{post_id}")
 def publish_post(post_id: int):
     post = db.get_post(post_id)
     publisher.publish(post)
-    db.update_post_status(post_id, 'Published')
+    db.update_post_status(post_id, "Published")
     return {"status": "published"}
 
-
+# Hämtar inställningar från databasen
 @app.get("/settings")
 def get_settings():
     return db.get_settings()
 
-
+# Uppdaterar inställningar
 @app.post("/settings")
 async def update_settings(request: Request):
     settings = await request.json()
     db.save_settings(settings)
     return {"status": "saved"}
 
-
+# Returnerar kontostatistik (antal likes etc.)
 @app.get("/stats")
 def get_stats():
     return db.get_account_stats()
 
-
+# Kör hela automatiska pipelinen
 @app.post("/run_automatic_pipeline")
 def run_automatic_pipeline():
     print("==> Starting automatic pipeline...")
@@ -98,20 +101,18 @@ def run_automatic_pipeline():
     youtube_videos = scraper.fetch_youtube_videos()
     all_items = google_news + youtube_videos
 
-    # Rätt format: en lista av dicts med "title" och "summary"
+    # Strukturera om till rätt format
     items = [{"title": item["title"], "summary": item.get("summary", "")} for item in all_items]
-
     storylines = essence.generate_clustered_storylines(items)
 
     for story in storylines:
-        draft = generator.generate_post(story['title'], story['summary'], style="News")
-        draft['origin'] = 'auto'
+        draft = generator.generate_full_post(story)
+        draft["origin"] = "auto"
         db.insert_draft(draft)
 
     return {"status": "completed"}
 
-
-
+# Uppdaterar sammanfattningen för ett inlägg
 @app.post("/update_summary")
 async def update_summary(request: Request):
     data = await request.json()
