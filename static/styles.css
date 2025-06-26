@@ -91,3 +91,22 @@ header {
     border-radius: 6px;
     font-size: 0.85rem;
 }
+.post-editing {
+  background-color: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 8px;
+  color: #f0f0f0;
+  width: 100%;
+  min-height: 48px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.edit-controls {
+  margin-top: 4px;
+  display: flex;
+  gap: 8px;
+}
