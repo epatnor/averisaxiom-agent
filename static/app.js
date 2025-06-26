@@ -48,11 +48,13 @@ function renderPipeline(data) {
         const typeClass = `type-${item.type}`;
 
         div.innerHTML = `
-            <div class="title-snippet clickable">${item.title}</div>
-            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="${typeClass}">${typeIcon(item.type)} ${capitalize(item.type)}</div>
-            <div class="post-metrics">${metrics}</div>
-            <div class="action-buttons">${actionButtons(item)}</div>
+            <div class="post-row">
+                <div class="title-snippet clickable">${item.title}</div>
+                <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+                <div class="${typeClass}">${typeIcon(item.type)} ${capitalize(item.type)}</div>
+                <div class="post-metrics">${metrics}</div>
+                <div class="action-buttons">${actionButtons(item)}</div>
+            </div>
             <div class="post-editor" style="display:none;">
                 <textarea class="post-editing">${item.summary || ''}</textarea>
                 <div class="edit-controls">
@@ -61,6 +63,7 @@ function renderPipeline(data) {
                 </div>
             </div>
         `;
+
 
         div.querySelector(".title-snippet").addEventListener("click", () => {
             const editor = div.querySelector(".post-editor");
@@ -93,6 +96,7 @@ function typeIcon(type) {
         default: return "📄";
     }
 }
+
 
 
 function actionButtons(item) {
