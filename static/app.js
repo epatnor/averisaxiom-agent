@@ -1,10 +1,24 @@
-// app.js
-
 const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
     document.getElementById("run-pipeline").addEventListener("click", runAutomaticPipeline);
+    document.getElementById("generate-draft-btn").addEventListener("click", () => {
+        const topic = document.getElementById("creative-topic").value.trim();
+        if (!topic) return;
+
+        fetch(`${API_URL}/generate_draft`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ title: topic })
+        })
+        .then(res => res.json())
+        .then(() => {
+            document.getElementById("creative-topic").value = "";
+            loadPipeline();
+        })
+        .catch(err => console.error("Failed to generate draft:", err));
+    });
 });
 
 function loadPipeline() {
