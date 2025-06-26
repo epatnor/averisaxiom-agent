@@ -2,6 +2,7 @@
 
 import sqlite3
 import os
+from datetime import datetime, timedelta
 
 DB_PATH = "posts.db"
 
@@ -10,6 +11,7 @@ def init_db():
         print("==> Creating new database...")
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
         c.execute("""
             CREATE TABLE posts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,7 +22,8 @@ def init_db():
                 origin TEXT,
                 comments INTEGER,
                 likes INTEGER,
-                shares INTEGER
+                shares INTEGER,
+                created_at TEXT
             )
         """)
         c.execute("""
@@ -32,6 +35,7 @@ def init_db():
             )
         """)
 
+        base_date = datetime(2025, 6, 1, 10, 30)
         dummy_posts = [
             {
                 "title": "AI Takes Over the World",
@@ -41,7 +45,8 @@ def init_db():
                 "origin": "auto",
                 "comments": 12,
                 "likes": 1045,
-                "shares": 98
+                "shares": 98,
+                "created_at": (base_date + timedelta(days=1)).strftime("%Y-%m-%d %H:%M")
             },
             {
                 "title": "Cats Take Over the Internet (Again)",
@@ -51,7 +56,8 @@ def init_db():
                 "origin": "auto",
                 "comments": 53,
                 "likes": 8792,
-                "shares": 421
+                "shares": 421,
+                "created_at": (base_date + timedelta(days=2, hours=3)).strftime("%Y-%m-%d %H:%M")
             },
             {
                 "title": "Welcome to AverisAxiom",
@@ -61,14 +67,15 @@ def init_db():
                 "origin": "manual",
                 "comments": 5,
                 "likes": 212,
-                "shares": 13
+                "shares": 13,
+                "created_at": (base_date + timedelta(days=4, hours=1)).strftime("%Y-%m-%d %H:%M")
             }
         ]
 
         for post in dummy_posts:
             c.execute("""
-                INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 post["title"],
                 post["summary"],
@@ -77,37 +84,36 @@ def init_db():
                 post["origin"],
                 post["comments"],
                 post["likes"],
-                post["shares"]
+                post["shares"],
+                post["created_at"]
             ))
 
         conn.commit()
         conn.close()
 
-
 def insert_draft(draft):
-    """Lägger till ett nytt utkast i databasen"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
-        INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         draft.get('title'),
         draft.get('summary'),
         draft.get('status'),
         draft.get('type'),
         draft.get('origin', 'manual'),
-        0, 0, 0
+        0, 0, 0,
+        datetime.now().strftime("%Y-%m-%d %H:%M")
     ))
     conn.commit()
     conn.close()
 
 def get_pipeline():
-    """Hämtar alla inlägg för pipeline-vyn"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
-        SELECT id, title, summary, status, type, origin, comments, likes, shares
+        SELECT id, title, summary, status, type, origin, comments, likes, shares, created_at
         FROM posts
         ORDER BY id DESC
     """)
@@ -123,12 +129,12 @@ def get_pipeline():
             "origin": row[5],
             "comments": row[6],
             "likes": row[7],
-            "shares": row[8]
+            "shares": row[8],
+            "created_at": row[9]
         } for row in rows
     ]
 
 def insert_scraped_item(item):
-    """Lägger till ett scrapat nyhetsämne"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -139,7 +145,6 @@ def insert_scraped_item(item):
     conn.close()
 
 def update_post_summary(post_id, new_summary):
-    """Uppdaterar summeringen för ett visst inlägg"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
@@ -151,7 +156,6 @@ def update_post_summary(post_id, new_summary):
     conn.close()
 
 def update_post_origin(post_id, new_origin):
-    """Uppdaterar origin-fältet (manual/auto)"""
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("""
