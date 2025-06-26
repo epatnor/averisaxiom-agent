@@ -45,7 +45,21 @@ async def generate_draft(request: Request):
         data.get('summary', ''),
         style=data.get('style', 'Creative')
     )
-    draft['origin'] = 'manual'
+    draft['origin'] = 'semi'
+    db.insert_draft(draft)
+    return {"status": "ok"}
+
+
+@app.post("/insert_manual_post")
+async def insert_manual_post(request: Request):
+    data = await request.json()
+    draft = {
+        "title": data.get("title", "Untitled"),
+        "summary": data.get("summary", ""),
+        "status": "Draft",
+        "type": "Creative",
+        "origin": "manual"
+    }
     db.insert_draft(draft)
     return {"status": "ok"}
 
