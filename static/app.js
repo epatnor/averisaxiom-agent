@@ -32,13 +32,11 @@ function renderPipeline(data) {
         const typeClass = `type-${item.type}`;
 
         div.innerHTML = `
-            <div class="post-header">
-                <div class="title-snippet clickable" title="Click to edit">${item.title}</div>
-                <div class="post-meta ${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-                <div class="post-meta ${typeClass}">${capitalize(item.type)}</div>
-                <div class="post-metrics">${metrics}</div>
-                <div class="action-buttons">${actionButtons(item)}</div>
-            </div>
+            <div class="title-snippet clickable">${item.title}</div>
+            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="${typeClass}">${capitalize(item.type)}</div>
+            <div class="post-metrics">${metrics}</div>
+            <div class="action-buttons">${actionButtons(item)}</div>
             <div class="post-editor" style="display:none;">
                 <textarea class="post-editing">${item.summary || ''}</textarea>
                 <div class="edit-controls">
@@ -48,19 +46,16 @@ function renderPipeline(data) {
             </div>
         `;
 
-        // Expand on title click
         div.querySelector(".title-snippet").addEventListener("click", () => {
             const editor = div.querySelector(".post-editor");
             editor.style.display = editor.style.display === "none" ? "block" : "none";
         });
 
-        // Save button event
         div.querySelector(".save-btn").addEventListener("click", () => {
             const newSummary = div.querySelector(".post-editing").value;
             updatePostSummary(item.id, newSummary);
         });
 
-        // Cancel button event
         div.querySelector(".cancel-btn").addEventListener("click", () => {
             div.querySelector(".post-editor").style.display = "none";
         });
