@@ -5,22 +5,15 @@
     <title>AverisAxiom Control Panel - Unified Pipeline View</title>
     <link rel="stylesheet" href="/static/styles.css">
     <style>
-        .toggle-header {
+        .toggle-settings {
+            margin-left: 8px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .toggle-icon {
-            transition: transform 0.2s ease;
-        }
-        .collapsed .toggle-icon {
-            transform: rotate(-90deg);
+            font-size: 1.2em;
         }
         .toggle-content {
             display: none;
         }
-        .expanded .toggle-content {
+        .expanded + .toggle-content {
             display: block;
         }
     </style>
@@ -33,8 +26,8 @@
     <div class="section">
         <h3>Manual Post</h3>
         <div class="compact-group">
-            <input type="text" id="manual-title" placeholder="Enter manual title..." style="flex: 1">
-            <input type="text" id="manual-summary" placeholder="Enter manual summary..." style="flex: 2">
+            <input type="text" id="manual-title" placeholder="Enter manual post title..." style="flex: 2">
+            <input type="text" id="manual-summary" placeholder="Enter manual post summary..." style="flex: 3">
             <button id="submit-manual-btn" class="small-button">Submit Manual</button>
         </div>
     </div>
@@ -43,12 +36,9 @@
     <div class="section">
         <h3>AI-Assisted Post</h3>
         <div class="compact-group">
-            <input type="text" id="creative-topic" placeholder="Enter new creative topic..." style="flex:1">
+            <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex:3">
             <button id="generate-draft-btn" class="small-button">Generate Draft</button>
-        </div>
-        <div class="toggle-header" onclick="this.nextElementSibling.classList.toggle('toggle-content'); this.classList.toggle('collapsed');">
-            <h4>⚙️ Settings</h4>
-            <span class="toggle-icon">🛠️</span>
+            <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
         </div>
         <div class="toggle-content">
             <div class="compact-group">
@@ -69,10 +59,7 @@
         <div class="compact-group">
             <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
             <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
-        </div>
-        <div class="toggle-header" onclick="this.nextElementSibling.classList.toggle('toggle-content'); this.classList.toggle('collapsed');">
-            <h4>⚙️ Settings</h4>
-            <span class="toggle-icon">🛠️</span>
+            <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
         </div>
         <div class="toggle-content">
             <div class="compact-group">
