@@ -98,7 +98,8 @@ def run_automatic_pipeline():
     youtube_videos = scraper.fetch_youtube_videos()
     all_items = google_news + youtube_videos
     headlines = [item['title'] for item in all_items]
-    storylines = essence.cluster_and_summarize(headlines)
+    storylines = essence.generate_clustered_storylines(headlines)
+
     for story in storylines:
         draft = generator.generate_post(story['title'], story['summary'], style="News")
         draft['origin'] = 'auto'
