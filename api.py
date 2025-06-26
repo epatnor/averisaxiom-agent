@@ -45,6 +45,7 @@ async def generate_draft(request: Request):
         data.get('summary', ''),
         style=data.get('style', 'Creative')
     )
+    # Mark AI-assisted drafts as 'semi'
     draft['origin'] = 'semi'
     db.insert_draft(draft)
     return {"status": "ok"}
@@ -58,10 +59,11 @@ async def insert_manual_post(request: Request):
         "summary": data.get("summary", ""),
         "status": "Draft",
         "type": "Creative",
-        "origin": "manual"
+        "origin": "manual"  # Manual origin for truly manual input
     }
     db.insert_draft(draft)
     return {"status": "ok"}
+
 
 
 @app.post("/publish/{post_id}")
