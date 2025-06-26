@@ -15,7 +15,7 @@ def init_db():
                 summary TEXT,
                 status TEXT,
                 type TEXT,
-                origin TEXT,  -- Ny kolumn
+                origin TEXT,
                 comments INTEGER,
                 likes INTEGER,
                 shares INTEGER
@@ -39,10 +39,10 @@ def insert_draft(draft):
         INSERT INTO posts (title, summary, status, type, origin, comments, likes, shares)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        draft['title'],
-        draft['summary'],
-        draft['status'],
-        draft['type'],
+        draft.get('title'),
+        draft.get('summary'),
+        draft.get('status'),
+        draft.get('type'),
         draft.get('origin', 'manual'),
         0, 0, 0
     ))
