@@ -9,6 +9,9 @@ import publisher
 import scraper
 import essence
 
+# Initiera databasen om den inte finns
+db.init_db()
+
 app = FastAPI()
 
 app.add_middleware(
