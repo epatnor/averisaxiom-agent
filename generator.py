@@ -5,22 +5,22 @@ import openai
 import json
 from dotenv import load_dotenv
 
-# Ladda miljövariabler från .env-fil (inkl. OPENAI_API_KEY)
+# Läs in miljövariabler från .env-filen (inkl. OPENAI_API_KEY)
 load_dotenv()
 
-# Initiera OpenAI-klienten
+# Initiera OpenAI-klient enligt nyare syntax
 client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
 
 def generate_post(title, summary, style=None):
     """
     Skapar ett AI-genererat inlägg baserat på en rubrik och ev. sammanfattning.
-    Returnerar en dikt med postens titel, text, typ och metadata.
+    Resultatet är ett kort och sakligt textutkast med en klassificerad typ.
+    Om API:t misslyckas eller returnerar ogiltig JSON faller det tillbaka till rubrik/sammanfattning.
     """
 
     print(f"Generating post for: {title} [auto-type detection]")
 
-    # Prompt till GPT som instruerar den att hålla sig till saklig ton – inga emojis, inga hashtags
+    # Systemprompt: styr GPT mot sakligt, koncist språk utan emojis, hype eller clickbait.
     system_prompt = (
         "You are a professional social media assistant.\n"
         "Your task is to generate a short, engaging post from a given topic or summary.\n"
@@ -34,10 +34,11 @@ def generate_post(title, summary, style=None):
         "{ \"content\": \"...\", \"type\": \"...\" }"
     )
 
-    # Skicka in rubrik och sammanfattning som användarinput
+    # Användarprompt innehåller titel och ev. sammanfattning
     user_prompt = f"Title: {title}\nSummary: {summary or title}"
 
     try:
+        # Skicka prompt till GPT-4o och ta emot svaret
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -47,7 +48,7 @@ def generate_post(title, summary, style=None):
             temperature=0.6
         )
 
-        # Försök parsa JSON-svaret
+        # Försök parsa JSON från svaret
         raw = response.choices[0].message.content.strip()
         print("GPT returned:", raw)
 
@@ -60,6 +61,7 @@ def generate_post(title, summary, style=None):
         content = summary or title
         post_type = "Creative"
 
+    # Returnera som färdigt utkast
     return {
         "title": title,
         "summary": content,
