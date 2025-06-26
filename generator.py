@@ -1,45 +1,35 @@
 # generator.py
 
 import os
+import openai
 import json
-from openai import OpenAI
 from dotenv import load_dotenv
-from utils import remove_emojis_and_codeblock  # Importera saneringsfunktion
+from utils import remove_emojis_and_codeblock
 
-# Läs in miljövariabler från .env-filen (inkl. OPENAI_API_KEY)
+# Load environment variables (e.g., OPENAI_API_KEY)
 load_dotenv()
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Initiera OpenAI-klient enligt nyare syntax
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+def generate_post(topic, summary, style=None):
+    """Generates a post based on a topic/summary, with an auto-detected type and improved title."""
 
-def generate_post(title, summary, style=None):
-    """
-    Skapar ett AI-genererat inlägg baserat på en rubrik och ev. sammanfattning.
-    Resultatet är ett kort och sakligt textutkast med en klassificerad typ.
-    Om API:t misslyckas eller returnerar ogiltig JSON faller det tillbaka till rubrik/sammanfattning.
-    """
+    print(f"Generating post for: {topic} [style: {style}]")
 
-    print(f"Generating post for: {title} [auto-type detection]")
-
-    # Systemprompt: styr GPT mot sakligt, koncist språk utan emojis, hype eller clickbait.
+    # English prompt for international usage with clearer title instruction
     system_prompt = (
         "You are a professional social media assistant.\n"
-        "Your task is to generate a short, engaging post from a given topic or summary.\n"
-        "Maintain a neutral, journalistic tone.\n"
-        "Do not use emojis, hashtags, or symbols.\n"
-        "Avoid clickbait, exaggeration, or slang.\n"
-        "Keep it concise, factual, and appropriate for an intelligent audience.\n\n"
-        "You must also classify what type of post it is. Choose one of:\n"
-        "- News\n- Thought\n- Question\n- Satire\n- Creative\n- Raw\n- Rant\n- Joke\n\n"
-        "Return only valid JSON in this format:\n"
-        "{ \"content\": \"...\", \"type\": \"...\" }"
+        "Given a topic and/or summary, generate a short, intelligent post for an educated audience.\n"
+        "Avoid emojis, hashtags, clickbait, or slang.\n"
+        "Keep tone factual, neutral, and slightly journalistic.\n"
+        "Write a distinct, relevant title that summarizes the idea clearly.\n"
+        "Return ONLY valid JSON in this format:\n"
+        "{ \"title\": \"...\", \"content\": \"...\", \"type\": \"...\" }\n"
+        "Post type must be one of: News, Thought, Question, Satire, Creative, Raw, Rant, Joke."
     )
 
-    # Användarprompt innehåller titel och ev. sammanfattning
-    user_prompt = f"Title: {title}\nSummary: {summary or title}"
+    user_prompt = f"Topic: {topic}\nSummary: {summary or topic}"
 
     try:
-        # Skicka prompt till GPT-4o och ta emot svaret
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -49,7 +39,6 @@ def generate_post(title, summary, style=None):
             temperature=0.6
         )
 
-        # Extrahera och sanera svaret
         raw = response.choices[0].message.content.strip()
         print("GPT returned:", raw)
 
@@ -59,15 +48,16 @@ def generate_post(title, summary, style=None):
         cleaned = remove_emojis_and_codeblock(raw)
         parsed = json.loads(cleaned)
 
-        content = parsed.get("content", "").strip()
+        title = parsed.get("title", topic).strip()
+        content = parsed.get("content", summary or topic).strip()
         post_type = parsed.get("type", "Creative").strip()
 
     except Exception as e:
         print("⚠️ Failed to parse GPT response:", e)
-        content = summary or title
+        title = topic
+        content = summary or topic
         post_type = "Creative"
 
-    # Returnera som färdigt utkast
     return {
         "title": title,
         "summary": content,
