@@ -35,7 +35,7 @@ def get_pipeline():
 async def generate_draft(request: Request):
     data = await request.json()
     draft = generator.generate_post(
-        data['title'],
+        data['topic'],
         data.get('summary', ''),
         style=data.get('style', 'Creative')  # <- default till Creative
     )
