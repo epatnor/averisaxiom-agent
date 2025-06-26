@@ -1,35 +1,18 @@
+// app.js
+
 const API_URL = "http://localhost:8000";
 
 document.addEventListener("DOMContentLoaded", () => {
     loadPipeline();
-
-    document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
-
-    document.getElementById("generate-draft-btn").addEventListener("click", () => {
-        const topic = document.getElementById("creative-topic").value.trim();
-        if (!topic) return;
-
-        fetch(`${API_URL}/generate_draft`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title: topic })
-        })
-        .then(res => res.json())
-        .then(() => {
-            document.getElementById("creative-topic").value = "";
-            loadPipeline();
-        })
-        .catch(err => console.error("Failed to generate draft:", err));
-    });
+    document.getElementById("run-pipeline").addEventListener("click", runAutomaticPipeline);
+    document.getElementById("generate-draft").addEventListener("click", generateCreativeDraft);
 });
 
 function loadPipeline() {
     fetch(`${API_URL}/pipeline`)
         .then(res => res.json())
         .then(data => renderPipeline(data))
-        .catch(err => {
-            console.error("Failed to load pipeline:", err);
-        });
+        .catch(err => console.error("Failed to load pipeline:", err));
 }
 
 function renderPipeline(data) {
@@ -45,16 +28,14 @@ function renderPipeline(data) {
             : "-";
 
         const statusClass = `status-${item.status}`;
-        const typeClass = `type-${item.type}`;
+        const typeLabel = item.type ? `${typeIcon(item.type)} ${capitalize(item.type)}` : "";
 
         div.innerHTML = `
-            <div class="post-row">
-                <div class="title-snippet clickable">${item.title}</div>
-                <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-                <div class="${typeClass}">${typeIcon(item.type)} ${capitalize(item.type)}</div>
-                <div class="post-metrics">${metrics}</div>
-                <div class="action-buttons">${actionButtons(item)}</div>
-            </div>
+            <div class="title-snippet clickable">${item.title}</div>
+            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="type-${capitalize(item.type)}">${typeLabel}</div>
+            <div class="post-metrics">${metrics}</div>
+            <div class="action-buttons">${actionButtons(item)}</div>
             <div class="post-editor" style="display:none;">
                 <textarea class="post-editing">${item.summary || ''}</textarea>
                 <div class="edit-controls">
@@ -63,7 +44,6 @@ function renderPipeline(data) {
                 </div>
             </div>
         `;
-
 
         div.querySelector(".title-snippet").addEventListener("click", () => {
             const editor = div.querySelector(".post-editor");
@@ -82,22 +62,6 @@ function renderPipeline(data) {
         list.appendChild(div);
     });
 }
-
-function typeIcon(type) {
-    switch (type.toLowerCase()) {
-        case "creative": return "✨";
-        case "news": return "📰";
-        case "thought": return "🧠";
-        case "question": return "❓";
-        case "satire": return "🎭";
-        case "raw": return "🧵";
-        case "rant": return "😡";
-        case "joke": return "😂";
-        default: return "📄";
-    }
-}
-
-
 
 function actionButtons(item) {
     if (item.status === "new") {
@@ -135,6 +99,18 @@ function runAutomaticPipeline() {
         .then(() => loadPipeline());
 }
 
+function generateCreativeDraft() {
+    const input = document.getElementById("creative-input").value;
+    fetch(`${API_URL}/generate_draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: input })
+    }).then(() => {
+        document.getElementById("creative-input").value = "";
+        loadPipeline();
+    });
+}
+
 function statusEmoji(status) {
     switch (status) {
         case "new": return "🟡";
@@ -142,6 +118,20 @@ function statusEmoji(status) {
         case "pending": return "🟣";
         case "published": return "🟢";
         default: return "";
+    }
+}
+
+function typeIcon(type) {
+    switch (type.toLowerCase()) {
+        case "creative": return "✨";
+        case "news": return "📰";
+        case "thought": return "🧠";
+        case "question": return "❓";
+        case "satire": return "🎭";
+        case "raw": return "🧵";
+        case "rant": return "😡";
+        case "joke": return "😂";
+        default: return "📄";
     }
 }
 
