@@ -1,77 +1,20 @@
+// 🧠 Entry point when the page loads
 document.addEventListener("DOMContentLoaded", () => {
     loadPosts();
 
     document.getElementById("generate-draft-btn").addEventListener("click", () => {
         const topic = document.getElementById("creative-topic").value.trim();
-        if (!topic) return;
-        fetch("/generate_draft", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ topic })
-        }).then(loadPosts);
+        if (topic) {
+            generateDraft(topic);
+        }
     });
 
     document.getElementById("run-pipeline-btn").addEventListener("click", () => {
-        fetch("/run_pipeline", { method: "POST" }).then(loadPosts);
+        runAutomaticPipeline();
     });
 });
 
-function loadPosts() {
-    fetch("/get_posts")
-        .then(res => res.json())
-        .then(data => {
-            const list = document.getElementById("pipeline-list");
-            list.innerHTML = "";
-            data.forEach((post, index) => {
-                const item = document.createElement("div");
-                item.className = "list-item";
-
-                const typeLabel = `${typeIcon(post.type)} ${capitalize(post.type)}`;
-
-                item.innerHTML = `
-                    <div class="title-snippet" onclick="toggleEditor(${index})">${truncate(post.title, 80)}</div>
-                    <div class="status-${post.status.toLowerCase()}">${capitalize(post.status)}</div>
-                    <div class="type-${capitalize(post.type)}">${typeLabel}</div>
-                    <div class="post-metrics">-</div>
-                    <div><button class="small-button" onclick="publishPost(${post.id})">Publish</button></div>
-                    <div class="post-editor" id="editor-${index}" style="display:none;">
-                        <textarea class="post-editing" id="edit-body-${index}">${post.body || ""}</textarea>
-                        <div class="edit-controls">
-                            <button class="small-button" onclick="savePost(${post.id}, ${index})">Save</button>
-                            <button class="small-button" onclick="cancelEditor(${index})">Cancel</button>
-                        </div>
-                    </div>
-                `;
-                list.appendChild(item);
-            });
-        });
-}
-
-function toggleEditor(index) {
-    document.getElementById(`editor-${index}`).style.display = "block";
-}
-
-function cancelEditor(index) {
-    document.getElementById(`editor-${index}`).style.display = "none";
-}
-
-function savePost(id, index) {
-    const text = document.getElementById(`edit-body-${index}`).value;
-    fetch("/save_post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, text })
-    }).then(loadPosts);
-}
-
-function publishPost(id) {
-    fetch("/publish_post", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id })
-    }).then(loadPosts);
-}
-
+// 🌈 Icon lookup for post type
 function typeIcon(type) {
     switch (type?.toLowerCase()) {
         case "creative": return "✨";
@@ -86,11 +29,100 @@ function typeIcon(type) {
     }
 }
 
-function capitalize(word) {
-    if (!word) return "";
-    return word.charAt(0).toUpperCase() + word.slice(1);
+// 🎯 Load posts from backend
+async function loadPosts() {
+    try {
+        const res = await fetch("/get_posts");
+        if (!res.ok) throw new Error(`Failed to fetch posts: ${res.statusText}`);
+        const posts = await res.json();
+        renderPostList(posts);
+    } catch (error) {
+        console.error("Error loading posts:", error);
+        document.getElementById("pipeline-list").innerHTML = `<div style="color:red;">Failed to load posts</div>`;
+    }
 }
 
-function truncate(text, maxLength) {
-    return text.length > maxLength ? text.slice(0, maxLength - 1) + "…" : text;
+// 🎨 Render each post row into the UI
+function renderPostList(posts) {
+    const container = document.getElementById("pipeline-list");
+    container.innerHTML = "";
+
+    posts.forEach(post => {
+        const row = document.createElement("div");
+        row.className = "list-item";
+
+        const title = document.createElement("div");
+        title.className = "title-snippet";
+        title.textContent = post.title || "(Untitled)";
+
+        const status = document.createElement("div");
+        status.className = `status-${post.status?.toLowerCase() || "unknown"}`;
+        status.textContent = post.status || "-";
+
+        const type = document.createElement("div");
+        type.className = `type-${post.type || "unknown"}`;
+        type.innerHTML = `${typeIcon(post.type)} <span>${post.type || "-"}</span>`;
+
+        const metrics = document.createElement("div");
+        metrics.className = "post-metrics";
+        metrics.textContent = "-";
+
+        const action = document.createElement("div");
+        const btn = document.createElement("button");
+        btn.textContent = "Publish";
+        btn.className = "small-button";
+        btn.onclick = () => publishPost(post.id);
+        action.appendChild(btn);
+
+        row.appendChild(title);
+        row.appendChild(status);
+        row.appendChild(type);
+        row.appendChild(metrics);
+        row.appendChild(action);
+        container.appendChild(row);
+    });
+}
+
+// ✨ Generate a creative draft post
+async function generateDraft(topic) {
+    try {
+        const res = await fetch("/generate_draft", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic })
+        });
+
+        if (!res.ok) throw new Error("Failed to generate draft");
+
+        const data = await res.json();
+        console.log("Draft generated:", data);
+        loadPosts();
+    } catch (error) {
+        console.error("Error generating draft:", error);
+    }
+}
+
+// 🤖 Run automatic news-based generation
+async function runAutomaticPipeline() {
+    try {
+        const res = await fetch("/run_pipeline", { method: "POST" });
+        if (!res.ok) throw new Error("Pipeline execution failed");
+
+        const result = await res.json();
+        console.log("Pipeline complete:", result);
+        loadPosts();
+    } catch (error) {
+        console.error("Error running pipeline:", error);
+    }
+}
+
+// 🚀 Publish a draft post
+async function publishPost(id) {
+    try {
+        const res = await fetch(`/publish_post/${id}`, { method: "POST" });
+        if (!res.ok) throw new Error("Failed to publish post");
+        loadPosts();
+    } catch (error) {
+        console.error("Error publishing post:", error);
+    }
 }
