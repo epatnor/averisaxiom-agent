@@ -1,128 +1,79 @@
-// app.js
-
-const API_URL = "http://localhost:8000";
-
 document.addEventListener("DOMContentLoaded", () => {
-    loadPipeline();
-    document.getElementById("run-pipeline").addEventListener("click", runAutomaticPipeline);
-    document.getElementById("generate-draft").addEventListener("click", generateCreativeDraft);
+    loadPosts();
+
+    document.getElementById("generate-draft-btn").addEventListener("click", () => {
+        const topic = document.getElementById("creative-topic").value.trim();
+        if (!topic) return;
+        fetch("/generate_draft", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ topic })
+        }).then(loadPosts);
+    });
+
+    document.getElementById("run-pipeline-btn").addEventListener("click", () => {
+        fetch("/run_pipeline", { method: "POST" }).then(loadPosts);
+    });
 });
 
-function loadPipeline() {
-    fetch(`${API_URL}/pipeline`)
+function loadPosts() {
+    fetch("/get_posts")
         .then(res => res.json())
-        .then(data => renderPipeline(data))
-        .catch(err => console.error("Failed to load pipeline:", err));
+        .then(data => {
+            const list = document.getElementById("pipeline-list");
+            list.innerHTML = "";
+            data.forEach((post, index) => {
+                const item = document.createElement("div");
+                item.className = "list-item";
+
+                const typeLabel = `${typeIcon(post.type)} ${capitalize(post.type)}`;
+
+                item.innerHTML = `
+                    <div class="title-snippet" onclick="toggleEditor(${index})">${truncate(post.title, 80)}</div>
+                    <div class="status-${post.status.toLowerCase()}">${capitalize(post.status)}</div>
+                    <div class="type-${capitalize(post.type)}">${typeLabel}</div>
+                    <div class="post-metrics">-</div>
+                    <div><button class="small-button" onclick="publishPost(${post.id})">Publish</button></div>
+                    <div class="post-editor" id="editor-${index}" style="display:none;">
+                        <textarea class="post-editing" id="edit-body-${index}">${post.body || ""}</textarea>
+                        <div class="edit-controls">
+                            <button class="small-button" onclick="savePost(${post.id}, ${index})">Save</button>
+                            <button class="small-button" onclick="cancelEditor(${index})">Cancel</button>
+                        </div>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        });
 }
 
-function renderPipeline(data) {
-    const list = document.getElementById("pipeline-list");
-    list.innerHTML = "";
-
-    data.forEach(item => {
-        const div = document.createElement("div");
-        div.className = "list-item";
-
-        const metrics = item.metrics 
-            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}` 
-            : "-";
-
-        const statusClass = `status-${item.status}`;
-        const typeLabel = item.type ? `${typeIcon(item.type)} ${capitalize(item.type)}` : "";
-
-        div.innerHTML = `
-            <div class="title-snippet clickable">${item.title}</div>
-            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
-            <div class="type-${capitalize(item.type)}">${typeLabel}</div>
-            <div class="post-metrics">${metrics}</div>
-            <div class="action-buttons">${actionButtons(item)}</div>
-            <div class="post-editor" style="display:none;">
-                <textarea class="post-editing">${item.summary || ''}</textarea>
-                <div class="edit-controls">
-                    <button class="small-button save-btn" data-id="${item.id}">Save</button>
-                    <button class="small-button cancel-btn">Cancel</button>
-                </div>
-            </div>
-        `;
-
-        div.querySelector(".title-snippet").addEventListener("click", () => {
-            const editor = div.querySelector(".post-editor");
-            editor.style.display = editor.style.display === "none" ? "block" : "none";
-        });
-
-        div.querySelector(".save-btn").addEventListener("click", () => {
-            const newSummary = div.querySelector(".post-editing").value;
-            updatePostSummary(item.id, newSummary);
-        });
-
-        div.querySelector(".cancel-btn").addEventListener("click", () => {
-            div.querySelector(".post-editor").style.display = "none";
-        });
-
-        list.appendChild(div);
-    });
+function toggleEditor(index) {
+    document.getElementById(`editor-${index}`).style.display = "block";
 }
 
-function actionButtons(item) {
-    if (item.status === "new") {
-        return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
-    } else if (item.status === "draft") {
-        return `<button class='small-button' onclick='publishPost(${item.id})'>Publish</button>`;
-    } else if (item.status === "pending") {
-        return `<button class='small-button' onclick='publishPost(${item.id})'>Post</button>`;
-    } else if (item.status === "published") {
-        return `<button class='small-button'>View</button>`;
-    }
-    return "";
+function cancelEditor(index) {
+    document.getElementById(`editor-${index}`).style.display = "none";
+}
+
+function savePost(id, index) {
+    const text = document.getElementById(`edit-body-${index}`).value;
+    fetch("/save_post", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, text })
+    }).then(loadPosts);
 }
 
 function publishPost(id) {
-    fetch(`${API_URL}/publish/${id}`, { method: "POST" })
-        .then(() => loadPipeline())
-        .catch(err => console.error("Failed to publish post:", err));
-}
-
-function updatePostSummary(id, summary) {
-    fetch(`${API_URL}/update_summary`, {
+    fetch("/publish_post", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, summary })
-    }).then(() => loadPipeline());
-}
-
-function generateDraftFromNews(id) {
-    alert("Draft generation from news not yet implemented.");
-}
-
-function runAutomaticPipeline() {
-    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
-        .then(() => loadPipeline());
-}
-
-function generateCreativeDraft() {
-    const input = document.getElementById("creative-input").value;
-    fetch(`${API_URL}/generate_draft`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input })
-    }).then(() => {
-        document.getElementById("creative-input").value = "";
-        loadPipeline();
-    });
-}
-
-function statusEmoji(status) {
-    switch (status) {
-        case "new": return "🟡";
-        case "draft": return "🟠";
-        case "pending": return "🟣";
-        case "published": return "🟢";
-        default: return "";
-    }
+        body: JSON.stringify({ id })
+    }).then(loadPosts);
 }
 
 function typeIcon(type) {
-    switch (type.toLowerCase()) {
+    switch (type?.toLowerCase()) {
         case "creative": return "✨";
         case "news": return "📰";
         case "thought": return "🧠";
@@ -135,10 +86,11 @@ function typeIcon(type) {
     }
 }
 
-function formatLikes(likes) {
-    return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
+function capitalize(word) {
+    if (!word) return "";
+    return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-function capitalize(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1);
+function truncate(text, maxLength) {
+    return text.length > maxLength ? text.slice(0, maxLength - 1) + "…" : text;
 }
