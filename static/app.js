@@ -155,12 +155,14 @@ function typeIcon(type) {
 }
 
 function typeOrigin(status, type) {
-    if (status === "New") return "Auto";
-    if (status === "Draft" && type) return "Semi";
-    if (status === "Pending") return "Creative";
-    if (status === "Published") return "Auto";
+    const s = (status || "").toLowerCase();
+    if (s === "new") return "Auto";
+    if (s === "draft" && type) return "Semi";
+    if (s === "pending") return "Creative";
+    if (s === "published") return "Auto";
     return "Manual";
 }
+
 
 function capitalize(str) {
     return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
