@@ -1,22 +1,137 @@
-// 🧠 Entry point when the page loads
+// app.js
+
+const API_URL = "http://localhost:8000";
+
 document.addEventListener("DOMContentLoaded", () => {
-    loadPosts();
-
-    document.getElementById("generate-draft-btn").addEventListener("click", () => {
-        const topic = document.getElementById("creative-topic").value.trim();
-        if (topic) {
-            generateDraft(topic);
-        }
-    });
-
-    document.getElementById("run-pipeline-btn").addEventListener("click", () => {
-        runAutomaticPipeline();
-    });
+    loadPipeline();
+    document.getElementById("generate-draft-btn").addEventListener("click", generateCreativeDraft);
+    document.getElementById("run-pipeline-btn").addEventListener("click", runAutomaticPipeline);
 });
 
-// 🌈 Icon lookup for post type
+// Hämta alla poster från backend
+function loadPipeline() {
+    fetch(`${API_URL}/pipeline`)
+        .then(res => res.json())
+        .then(data => renderPipeline(data))
+        .catch(err => {
+            console.error("Failed to load pipeline:", err);
+        });
+}
+
+// Rendera listan av poster
+function renderPipeline(data) {
+    const list = document.getElementById("pipeline-list");
+    list.innerHTML = "";
+
+    data.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "list-item";
+
+        const metrics = item.metrics
+            ? `💬${item.metrics.comments} ❤️${formatLikes(item.metrics.likes)} 🔁${item.metrics.shares}`
+            : "-";
+
+        const statusClass = `status-${item.status.toLowerCase()}`;
+        const typeClass = `type-${item.type || "default"}`;
+        const icon = typeIcon(item.type);
+
+        div.innerHTML = `
+            <div class="title-snippet clickable">${item.title}</div>
+            <div class="${statusClass}">${statusEmoji(item.status)} ${capitalize(item.status)}</div>
+            <div class="${typeClass}">${icon} ${capitalize(item.type || "Unknown")}</div>
+            <div class="post-metrics">${metrics}</div>
+            <div class="action-buttons">${actionButtons(item)}</div>
+            <div class="post-editor" style="display:none;">
+                <textarea class="post-editing">${item.summary || ''}</textarea>
+                <div class="edit-controls">
+                    <button class="small-button save-btn" data-id="${item.id}">Save</button>
+                    <button class="small-button cancel-btn">Cancel</button>
+                </div>
+            </div>
+        `;
+
+        div.querySelector(".title-snippet").addEventListener("click", () => {
+            const editor = div.querySelector(".post-editor");
+            editor.style.display = editor.style.display === "none" ? "block" : "none";
+        });
+
+        div.querySelector(".save-btn").addEventListener("click", () => {
+            const newSummary = div.querySelector(".post-editing").value;
+            updatePostSummary(item.id, newSummary);
+        });
+
+        div.querySelector(".cancel-btn").addEventListener("click", () => {
+            div.querySelector(".post-editor").style.display = "none";
+        });
+
+        list.appendChild(div);
+    });
+}
+
+function actionButtons(item) {
+    if (item.status === "new") {
+        return `<button class='small-button' onclick='generateDraftFromNews(${item.id})'>Generate Draft</button>`;
+    } else if (item.status === "draft") {
+        return `<button class='small-button' onclick='publishPost(${item.id})'>Publish</button>`;
+    } else if (item.status === "pending") {
+        return `<button class='small-button' onclick='publishPost(${item.id})'>Post</button>`;
+    } else if (item.status === "published") {
+        return `<button class='small-button'>View</button>`;
+    }
+    return "";
+}
+
+function generateCreativeDraft() {
+    const topic = document.getElementById("creative-topic").value;
+    if (!topic) return;
+    fetch(`${API_URL}/generate_draft`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic })
+    }).then(() => {
+        document.getElementById("creative-topic").value = "";
+        loadPipeline();
+    });
+}
+
+function publishPost(id) {
+    fetch(`${API_URL}/publish/${id}`, { method: "POST" })
+        .then(() => loadPipeline())
+        .catch(err => console.error("Failed to publish post:", err));
+}
+
+function updatePostSummary(id, summary) {
+    fetch(`${API_URL}/update_summary`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, summary })
+    }).then(() => loadPipeline());
+}
+
+function generateDraftFromNews(id) {
+    fetch(`${API_URL}/generate_draft_from_news/${id}`, { method: "POST" })
+        .then(() => loadPipeline())
+        .catch(err => console.error("Failed to generate draft from news:", err));
+}
+
+function runAutomaticPipeline() {
+    fetch(`${API_URL}/run_automatic_pipeline`, { method: "POST" })
+        .then(() => loadPipeline());
+}
+
+// Hjälpfunktioner
+function statusEmoji(status) {
+    switch (status.toLowerCase()) {
+        case "new": return "🟡";
+        case "draft": return "🟠";
+        case "pending": return "🟣";
+        case "published": return "🟢";
+        default: return "⚪";
+    }
+}
+
 function typeIcon(type) {
-    switch (type?.toLowerCase()) {
+    switch ((type || "").toLowerCase()) {
         case "creative": return "✨";
         case "news": return "📰";
         case "thought": return "🧠";
@@ -29,100 +144,10 @@ function typeIcon(type) {
     }
 }
 
-// 🎯 Load posts from backend
-async function loadPosts() {
-    try {
-        const res = await fetch("/api/posts");
-        if (!res.ok) throw new Error(`Failed to fetch posts: ${res.statusText}`);
-        const posts = await res.json();
-        renderPostList(posts);
-    } catch (error) {
-        console.error("Error loading posts:", error);
-        document.getElementById("pipeline-list").innerHTML = `<div style="color:red;">Failed to load posts</div>`;
-    }
+function capitalize(str) {
+    return str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
 }
 
-// 🎨 Render each post row into the UI
-function renderPostList(posts) {
-    const container = document.getElementById("pipeline-list");
-    container.innerHTML = "";
-
-    posts.forEach(post => {
-        const row = document.createElement("div");
-        row.className = "list-item";
-
-        const title = document.createElement("div");
-        title.className = "title-snippet";
-        title.textContent = post.title || "(Untitled)";
-
-        const status = document.createElement("div");
-        status.className = `status-${post.status?.toLowerCase() || "unknown"}`;
-        status.textContent = post.status || "-";
-
-        const type = document.createElement("div");
-        type.className = `type-${post.type || "unknown"}`;
-        type.innerHTML = `${typeIcon(post.type)} <span>${post.type || "-"}</span>`;
-
-        const metrics = document.createElement("div");
-        metrics.className = "post-metrics";
-        metrics.textContent = "-";
-
-        const action = document.createElement("div");
-        const btn = document.createElement("button");
-        btn.textContent = "Publish";
-        btn.className = "small-button";
-        btn.onclick = () => publishPost(post.id);
-        action.appendChild(btn);
-
-        row.appendChild(title);
-        row.appendChild(status);
-        row.appendChild(type);
-        row.appendChild(metrics);
-        row.appendChild(action);
-        container.appendChild(row);
-    });
-}
-
-// ✨ Generate a creative draft post
-async function generateDraft(topic) {
-    try {
-        const res = await fetch("/generate_draft", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ topic })
-        });
-
-        if (!res.ok) throw new Error("Failed to generate draft");
-
-        const data = await res.json();
-        console.log("Draft generated:", data);
-        loadPosts();
-    } catch (error) {
-        console.error("Error generating draft:", error);
-    }
-}
-
-// 🤖 Run automatic news-based generation
-async function runAutomaticPipeline() {
-    try {
-        const res = await fetch("/run_pipeline", { method: "POST" });
-        if (!res.ok) throw new Error("Pipeline execution failed");
-
-        const result = await res.json();
-        console.log("Pipeline complete:", result);
-        loadPosts();
-    } catch (error) {
-        console.error("Error running pipeline:", error);
-    }
-}
-
-// 🚀 Publish a draft post
-async function publishPost(id) {
-    try {
-        const res = await fetch(`/publish_post/${id}`, { method: "POST" });
-        if (!res.ok) throw new Error("Failed to publish post");
-        loadPosts();
-    } catch (error) {
-        console.error("Error publishing post:", error);
-    }
+function formatLikes(likes) {
+    return likes > 1000 ? (likes / 1000).toFixed(1) + "K" : likes;
 }
