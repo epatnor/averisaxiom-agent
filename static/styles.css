@@ -1,4 +1,4 @@
-/* styles.css – AverisAxiom Panel UI */
+/* styles.css – AverisAxiom Panel UI (kompaktare version) */
 
 body {
     margin: 0;
@@ -57,9 +57,9 @@ select {
 
 .list-item {
     display: grid;
-    grid-template-columns: 100px 1fr 120px 160px auto;
+    grid-template-columns: 80px 1fr 110px 140px auto;
     align-items: center;
-    padding: 10px 16px;
+    padding: 6px 16px;
     border-bottom: 1px solid #333;
     gap: 12px;
     transition: background-color 0.2s;
@@ -70,13 +70,18 @@ select {
 }
 
 .origin-tag {
-    font-size: 0.7rem;
-    background-color: #444;
-    padding: 4px 8px;
-    border-radius: 4px;
+    font-size: 0.8rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.4px;
     display: inline-block;
+}
+
+.origin-tag.manual {
+    color: #99ccff;
+}
+
+.origin-tag.auto {
+    color: #ff9966;
 }
 
 .title-snippet {
@@ -122,12 +127,12 @@ select {
 .post-editor {
     display: none;
     grid-column: 1 / -1;
-    padding: 12px 0 6px 0;
+    padding-top: 8px;
 }
 
 .post-editing {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     background-color: #1d1d1d;
     border: 1px solid #444;
     border-radius: 4px;
@@ -144,7 +149,7 @@ select {
 }
 
 .small-button {
-    padding: 5px 10px;
+    padding: 4px 9px;
     background-color: #333;
     color: #eee;
     border: 1px solid #555;
