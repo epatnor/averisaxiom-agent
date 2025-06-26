@@ -97,14 +97,19 @@ def run_automatic_pipeline():
     google_news = scraper.fetch_google_news()
     youtube_videos = scraper.fetch_youtube_videos()
     all_items = google_news + youtube_videos
-    headlines = [item['title'] for item in all_items]
-    storylines = essence.generate_clustered_storylines(headlines)
+
+    # Rätt format: en lista av dicts med "title" och "summary"
+    items = [{"title": item["title"], "summary": item.get("summary", "")} for item in all_items]
+
+    storylines = essence.generate_clustered_storylines(items)
 
     for story in storylines:
         draft = generator.generate_post(story['title'], story['summary'], style="News")
         draft['origin'] = 'auto'
         db.insert_draft(draft)
+
     return {"status": "completed"}
+
 
 
 @app.post("/update_summary")
