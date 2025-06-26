@@ -1,15 +1,16 @@
 # generator.py
 
 import os
-import openai
 import json
+from openai import OpenAI
 from dotenv import load_dotenv
+from utils import remove_emojis_and_codeblock  # Importera saneringsfunktion
 
 # Läs in miljövariabler från .env-filen (inkl. OPENAI_API_KEY)
 load_dotenv()
 
 # Initiera OpenAI-klient enligt nyare syntax
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_post(title, summary, style=None):
     """
@@ -48,14 +49,15 @@ def generate_post(title, summary, style=None):
             temperature=0.6
         )
 
-        # Försök parsa JSON från svaret
+        # Extrahera och sanera svaret
         raw = response.choices[0].message.content.strip()
         print("GPT returned:", raw)
-        
+
         if not raw:
             raise ValueError("Empty response from GPT")
-        
-        parsed = json.loads(raw)
+
+        cleaned = remove_emojis_and_codeblock(raw)
+        parsed = json.loads(cleaned)
 
         content = parsed.get("content", "").strip()
         post_type = parsed.get("type", "Creative").strip()
