@@ -1,79 +1,78 @@
-# generator.py
-
 import os
 import json
 from openai import OpenAI
 from dotenv import load_dotenv
-from utils import remove_emojis_and_codeblock  # Importera saneringsfunktion
+from utils import remove_emojis_and_codeblock
 
-# Läs in miljövariabler från .env-filen (inkl. OPENAI_API_KEY)
 load_dotenv()
 
-# Initiera OpenAI-klient enligt nyare syntax
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def generate_post(title, summary, style=None):
-    """
-    Skapar ett AI-genererat inlägg baserat på en rubrik och ev. sammanfattning.
-    Resultatet är ett kort och sakligt textutkast med en klassificerad typ.
-    Om API:t misslyckas eller returnerar ogiltig JSON faller det tillbaka till rubrik/sammanfattning.
-    """
-
-    print(f"Generating post for: {title} [auto-type detection]")
-
-    # Systemprompt: styr GPT mot sakligt, koncist språk utan emojis, hype eller clickbait.
-    system_prompt = (
-        "You are a professional social media assistant.\n"
-        "Your task is to generate a short, engaging post from a given topic or summary.\n"
-        "Maintain a neutral, journalistic tone.\n"
-        "Do not use emojis, hashtags, or symbols.\n"
-        "Avoid clickbait, exaggeration, or slang.\n"
-        "Keep it concise, factual, and appropriate for an intelligent audience.\n\n"
-        "You must also classify what type of post it is. Choose one of:\n"
-        "- News\n- Thought\n- Question\n- Satire\n- Creative\n- Raw\n- Rant\n- Joke\n\n"
-        "Return only valid JSON in this format:\n"
-        "{ \"content\": \"...\", \"type\": \"...\" }"
+# Genererar en post baserat på en story med title + summary
+def generate_post(story):
+    prompt = (
+        "Skriv ett inlägg baserat på detta ämne.\n"
+        "Det ska kännas som en tänkvärd och aktuell observation eller kommentar.\n"
+        "Skriv med god ton, inga hashtags, inga emojis, inga frågor – bara ett stilrent inlägg.\n"
+        "Håll det gärna inom 300–400 tecken, lite längre än typiska tweets, men inte en blogg.\n\n"
+        f"Ämne: {story['title']}\n"
+        f"Summering: {story['summary']}\n\n"
+        "Text:"
     )
 
-    # Användarprompt innehåller titel och ev. sammanfattning
-    user_prompt = f"Title: {title}\nSummary: {summary or title}"
-
     try:
-        # Skicka prompt till GPT-4o och ta emot svaret
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                { "role": "system", "content": "Du svarar endast med ren text utan kodblock eller emojis." },
+                { "role": "user", "content": prompt }
+            ],
+            temperature=0.7
+        )
+        raw = response.choices[0].message.content.strip()
+        text = remove_emojis_and_codeblock(raw)
+        return text
+
+    except Exception as e:
+        print("⚠️ Kunde inte generera inlägg:", e)
+        return None
+
+# Förbättrar genererade titlar, eller ersätter med snutt av texten
+def generate_better_title(story):
+    prompt = (
+        "Du är en assistent som skapar korta men specifika rubriker till sociala inlägg.\n"
+        "Rubriken får gärna låta som en tidningsrubrik eller en teaser till ämnet.\n"
+        "Använd max 10 ord. Undvik generiska titlar som 'AI advances' eller 'Global politics'.\n\n"
+        f"Text: {story['summary']}\n\n"
+        "Rubrik:"
+    )
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                { "role": "system", "content": "Svara med en enda kort rubrik utan emojis." },
+                { "role": "user", "content": prompt }
             ],
             temperature=0.6
         )
+        title = remove_emojis_and_codeblock(response.choices[0].message.content.strip())
 
-        # Extrahera och sanera svaret
-        raw = response.choices[0].message.content.strip()
-        print("GPT returned:", raw)
+        # Fall-back om GPT ger något för vagt
+        if len(title.split()) < 3 or any(generic in title.lower() for generic in ["politics", "technology", "ai", "news", "update"]):
+            title = story['summary'][:60].rstrip('.') + "…"
 
-        if not raw:
-            raise ValueError("Empty response from GPT")
-
-        cleaned = remove_emojis_and_codeblock(raw)
-        parsed = json.loads(cleaned)
-
-        content = parsed.get("content", "").strip()
-        post_type = parsed.get("type", "Creative").strip()
+        return title
 
     except Exception as e:
-        print("⚠️ Failed to parse GPT response:", e)
-        content = summary or title
-        post_type = "Creative"
+        print("⚠️ Kunde inte generera rubrik:", e)
+        return story['summary'][:60].rstrip('.') + "…"
 
-    # Returnera som färdigt utkast
+# Genererar både titel och text för en story
+def generate_full_post(story):
+    title = generate_better_title(story)
+    body = generate_post(story)
     return {
         "title": title,
-        "summary": content,
-        "status": "draft",
-        "type": post_type,
-        "comments": 0,
-        "likes": 0,
-        "shares": 0
+        "summary": body
     }
