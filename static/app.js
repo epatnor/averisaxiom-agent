@@ -34,7 +34,7 @@ function renderPipeline(data) {
         const statusClass = `status-${item.status.toLowerCase()}`;
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
-        const origin = typeOrigin(item.status, item.type);
+        const origin = typeOrigin(item.status, item.type, item.summary);
 
         div.innerHTML = `
             <div class="title-snippet clickable">${item.title}</div>
@@ -154,14 +154,21 @@ function typeIcon(type) {
     }
 }
 
-function typeOrigin(status, type) {
+function typeOrigin(status, type, summary) {
     const s = (status || "").toLowerCase();
+    const hasSummary = !!(summary && summary.trim());
+
     if (s === "new") return "Auto";
-    if (s === "draft" && type) return "Semi";
+    if (s === "draft") {
+        if (type && type.toLowerCase() === "creative") return "Creative";
+        if (hasSummary && summary.includes("#")) return "Semi"; // heuristik
+        return "Manual";
+    }
     if (s === "pending") return "Creative";
     if (s === "published") return "Auto";
     return "Manual";
 }
+
 
 
 function capitalize(str) {
