@@ -39,6 +39,7 @@ function renderPipeline(data) {
         const typeClass = `type-${(item.type || "default").toLowerCase()}`;
         const icon = typeIcon(item.type);
         const origin = capitalize(item.origin || "manual");
+        const isPublished = item.status.toLowerCase() === "published";
 
         div.innerHTML = `
             <div class="origin-label"><span class="origin-tag ${origin.toLowerCase()}">${origin}</span></div>
@@ -52,11 +53,13 @@ function renderPipeline(data) {
                 <div class="action-buttons">${actionButtons(item)}</div>
             </div>
             <div class="post-editor" style="grid-column: 1 / -1; display:none;">
-                <textarea class="post-editing" style="width: 100%; margin-top: 4px;" ${item.status.toLowerCase() === "published" ? "readonly" : ""}>${item.summary || ''}</textarea>
+                <textarea class="post-editing" style="width: 100%; margin-top: 4px;" ${isPublished ? "readonly" : ""}>${item.summary || ''}</textarea>
+                ${!isPublished ? `
                 <div class="edit-controls" style="margin-top: 4px;">
-                    <button class="small-button save-btn" data-id="${item.id}" ${item.status.toLowerCase() === "published" ? "disabled" : ""}>Save</button>
+                    <button class="small-button save-btn" data-id="${item.id}">Save</button>
                     <button class="small-button cancel-btn">Cancel</button>
                 </div>
+                ` : ""}
             </div>
         `;
 
@@ -66,16 +69,19 @@ function renderPipeline(data) {
         });
 
         const saveBtn = div.querySelector(".save-btn");
-        if (saveBtn && !saveBtn.disabled) {
+        if (saveBtn) {
             saveBtn.addEventListener("click", () => {
                 const newSummary = div.querySelector(".post-editing").value;
                 updatePostSummary(item.id, newSummary);
             });
         }
 
-        div.querySelector(".cancel-btn").addEventListener("click", () => {
-            div.querySelector(".post-editor").style.display = "none";
-        });
+        const cancelBtn = div.querySelector(".cancel-btn");
+        if (cancelBtn) {
+            cancelBtn.addEventListener("click", () => {
+                div.querySelector(".post-editor").style.display = "none";
+            });
+        }
 
         list.appendChild(div);
     });
@@ -89,8 +95,6 @@ function actionButtons(item) {
         return `<button class='small-button' onclick='publishPost(${item.id})'>Publish</button>`;
     } else if (status === "pending") {
         return `<button class='small-button' onclick='publishPost(${item.id})'>Post</button>`;
-    } else if (status === "published") {
-        return `<button class='small-button'>View</button>`;
     }
     return ``;
 }
