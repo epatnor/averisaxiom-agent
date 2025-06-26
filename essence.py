@@ -4,79 +4,49 @@ import os
 import json
 from openai import OpenAI
 from dotenv import load_dotenv
+from utils import remove_emojis_and_codeblock
 
 load_dotenv()
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# Undvik ämnen som inte är relevanta för AverisAxiom
-UNWANTED_KEYWORDS = ["sports", "soccer", "football", "celebrity", "celebrities", "entertainment", "hollywood"]
+def cluster_topics(topics):
+    """
+    Tar en lista av dicts med "title" och "summary", och grupperar dem tematiskt
+    med hjälp av GPT. Returnerar en lista av teman som innehåller rubrik och summering.
+    """
+    prompt = (
+        "Du är en analytisk assistent som grupperar nyhetsrubriker efter tema.\n"
+        "För varje grupp, skapa en titel och en kort summering (1-2 meningar).\n"
+        "Returnera resultatet som en JSON-array:\n\n"
+        "[\n"
+        "  { \"title\": \"Tema A\", \"summary\": \"Kort summering...\" },\n"
+        "  ...\n"
+        "]\n\n"
+        "Här är indata:\n\n"
+    )
 
-def is_relevant(title):
-    """Filtrera bort ointressanta ämnen baserat på nyckelord."""
-    lower = title.lower()
-    return not any(bad in lower for bad in UNWANTED_KEYWORDS)
-
-def cluster_and_summarize(headlines):
-    """Sammanfatta och klustra nyheter med GPT, returnera lista med {'title', 'summary'}."""
-    if not headlines or not isinstance(headlines, list):
-        print("⚠️ Tom eller ogiltig lista av rubriker.")
-        return []
-
-    # Sätt ihop prompten
-    prompt = f"""
-You are an AI news clustering assistant.
-
-You will receive a list of headlines. Your task is to group them into logical clusters based on common topics, then write a brief summary for each cluster.
-
-Return ONLY a valid JSON array of objects, where each object has:
-- "title": A short representative title for the cluster.
-- "summary": A 2-3 sentence summary of the topic.
-
-Avoid using emojis or special symbols. Write in a neutral, journalistic tone.
-DO NOT include any explanation or markdown formatting, just return JSON.
-
-Here are the headlines:
-
-{headlines}
-""".strip()
+    for t in topics:
+        prompt += f"- {t['title']}: {t['summary']}\n"
 
     try:
-        # Skicka prompten till GPT
         response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful assistant that returns news topic clusters."},
-                {"role": "user", "content": prompt}
+                { "role": "system", "content": "Du svarar alltid endast med giltig JSON." },
+                { "role": "user", "content": prompt }
             ],
-            temperature=0.7,
-            max_tokens=1200,
+            temperature=0.5
         )
 
-        content = response.choices[0].message.content.strip()
+        raw = response.choices[0].message.content.strip()
+        print("GPT clustering raw response:", raw)
 
-        # Rensa eventuell markdown-kodblock
-        if content.startswith("```json"):
-            content = content.removeprefix("```json").removesuffix("```").strip()
-        elif content.startswith("```"):
-            content = content.removeprefix("```").removesuffix("```").strip()
-
-        # Försök tolka som JSON
-        parsed = json.loads(content)
-
-        # Validera och filtrera irrelevanta ämnen
-        valid = [
-            item for item in parsed
-            if isinstance(item, dict) and "title" in item and "summary" in item and is_relevant(item["title"])
-        ]
-
-        return valid
-
-    except json.JSONDecodeError as je:
-        print("⚠️ Kunde inte tolka JSON från GPT:", je)
-        print("Rådata:", content)
-        return []
+        cleaned = remove_emojis_and_codeblock(raw)
+        parsed = json.loads(cleaned)
+        return parsed
 
     except Exception as e:
-        print("⚠️ Fel vid GPT-anrop:", str(e))
+        print("⚠️ Kunde inte tolka JSON från GPT:", e)
+        print("Rådata:", raw)
         return []
