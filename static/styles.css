@@ -1,4 +1,4 @@
-/* === Basic dark theme === */
+/* === Dark Theme Base === */
 body {
   margin: 0;
   padding: 0;
@@ -30,7 +30,7 @@ header {
   gap: 24px;
 }
 
-/* === Cards and Sections === */
+/* === Cards === */
 .card {
   background: #1c1c1c;
   border: 1px solid #2c2c2c;
@@ -38,25 +38,7 @@ header {
   padding: 20px;
 }
 
-.subcard input[type="text"],
-.subcard textarea {
-  width: 100%;
-  margin-top: 6px;
-  margin-bottom: 8px;
-  padding: 6px 10px;
-  border: 1px solid #333;
-  border-radius: 6px;
-  background-color: #1e1e1e;
-  color: #f0f0f0;
-  font-size: 0.95rem;
-  resize: vertical;
-}
-
-.subcard textarea {
-  min-height: 60px;
-}
-
-
+/* === Typography === */
 h2, h3 {
   margin-top: 0;
   color: #f5f5f5;
@@ -74,21 +56,26 @@ h3 {
   margin-bottom: 10px;
 }
 
-/* === Form Fields === */
+/* === Form Elements === */
 input[type="text"],
 input[type="password"],
 input[type="number"],
 textarea,
 select {
-  background: #222;
-  color: #eee;
-  border: 1px solid #444;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
-  box-sizing: border-box;
   width: 100%;
   margin-bottom: 10px;
+  padding: 8px 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #1e1e1e;
+  color: #f0f0f0;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  resize: vertical;
+}
+
+textarea {
+  min-height: 60px;
 }
 
 input:focus,
@@ -117,12 +104,12 @@ button:hover,
   border-color: #777;
 }
 
-/* === Layout Groups === */
+/* === Layout & Grouping === */
 .field-row,
 .compact-group {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 10px;
   align-items: center;
 }
 
@@ -133,7 +120,7 @@ button:hover,
   font-size: 0.95rem;
 }
 
-/* === Info Texts === */
+/* === Info Text === */
 .info-text {
   color: #bbb;
   font-size: 0.9rem;
