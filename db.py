@@ -167,7 +167,6 @@ def update_post_origin(post_id, new_origin):
     conn.commit()
     conn.close()
 
-
 # === SETTINGS ===
 
 def get_settings():
@@ -196,3 +195,4 @@ def save_settings(settings: dict):
     with open(env_path, "w") as f:
         for key, val in existing.items():
             f.write(f"{key}={val}\n")
+
