@@ -10,84 +10,94 @@
   <header class="header">
     <div class="header-content">
       <button onclick="window.location.href='/'" class="small-button">⬅ Back</button>
-      <h1 class="header-title">AverisAxiom Control Panel - Unified Pipeline View</h1>
+      <h1 class="header-title">AverisAxiom Settings</h1>
     </div>
   </header>
 
   <div class="container">
 
-    <!-- Scraper Section -->
-    <div class="card">
-      <h2>🔎 Scrapers</h2>
-      <div class="field-row two-column">
+    <!-- Scrapers -->
+    <div class="section">
+      <h3>🔍 Google News</h3>
+      <div class="compact-group">
+        <input type="text" name="google_rss_url" placeholder="RSS Feed URL">
+        <input type="number" name="google_max_age" placeholder="Max age (days)">
+        <input type="number" name="google_max_items" placeholder="Max items per run">
+      </div>
+      <div class="compact-group">
+        <input type="text" name="google_query" placeholder="Search terms or topics">
+        <label><input type="checkbox" name="google_require_date"> Only show news with publish date</label>
+      </div>
+      <textarea name="google_description" placeholder="Description..."></textarea>
+      <div class="compact-group">
+        <button class="small-button" onclick="saveGoogle()">💾 Save</button>
+        <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
+      </div>
+    </div>
 
-        <div class="subcard">
-          <h3>Google News</h3>
-          <input type="text" name="google_rss_url" placeholder="RSS Feed URL">
-          <textarea name="google_description" placeholder="Description..."></textarea>
-          <div class="field-row">
-            <input type="number" name="google_max_age" placeholder="Max age (days)">
-            <input type="number" name="google_max_items" placeholder="Max items per run">
-          </div>
-          <input type="text" name="google_query" placeholder="Search terms or topics">
-          <label class="checkbox-inline">
-            <input type="checkbox" name="google_require_date">
-            Only show news with publish date
-          </label>
-          <div class="compact-group">
-            <button class="small-button" onclick="saveGoogle()">💾 Save</button>
-            <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
-          </div>
-        </div>
-
-        <div class="subcard">
-          <h3>YouTube</h3>
-          <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
-          <textarea name="youtube_description" placeholder="Description..."></textarea>
-          <div class="compact-group">
-            <button class="small-button" onclick="saveYouTube()">💾 Save</button>
-            <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
-          </div>
-        </div>
-
+    <div class="section">
+      <h3>📺 YouTube</h3>
+      <div class="compact-group">
+        <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
+      </div>
+      <textarea name="youtube_description" placeholder="Description..."></textarea>
+      <div class="compact-group">
+        <button class="small-button" onclick="saveYouTube()">💾 Save</button>
+        <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
       </div>
     </div>
 
     <!-- API Keys -->
-    <div class="card">
-      <h2>🔐 API Keys</h2>
-      <div class="field-row two-column">
+    <div class="section">
+      <h3>🔐 API Keys</h3>
+      <div class="compact-group">
         <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key">
         <input type="text" name="SERPER_API_KEY" placeholder="Serper API Key">
+      </div>
+      <div class="compact-group">
         <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
         <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token">
+      </div>
+      <div class="compact-group">
         <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky Handle">
         <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password">
       </div>
       <div class="compact-group">
-        <button class="small-button">💾 Save</button>
+        <button class="small-button" onclick="saveAPI()">💾 Save</button>
       </div>
     </div>
 
     <!-- System -->
-    <div class="card">
-      <h2>⚙️ System</h2>
-      <div class="field-row">
-        <label class="checkbox-inline">
-          <input type="checkbox" name="TEST_MODE"> Enable test mode
-        </label>
-        <button class="small-button">🔄 Reset to defaults</button>
+    <div class="section">
+      <h3>⚙️ System</h3>
+      <div class="compact-group">
+        <label><input type="checkbox" name="TEST_MODE"> Enable test mode</label>
+        <button class="small-button" onclick="resetDefaults()">🔄 Reset to defaults</button>
       </div>
     </div>
 
+    <!-- Future: Platform selection -->
+    <!--
+    <div class="section">
+      <h3>📤 Platforms</h3>
+      <div class="compact-group">
+        <label><input type="checkbox" name="use_x"> Post to X</label>
+        <label><input type="checkbox" name="use_bluesky"> Post to Bluesky</label>
+        <label><input type="checkbox" name="use_mastodon"> Post to Mastodon</label>
+      </div>
+    </div>
+    -->
+
     <!-- Log -->
-    <div class="card">
-      <h2>📋 Log</h2>
-      <div class="info-text">✅ OpenAI API key saved</div>
-      <div class="info-text">🔄 Twitter login verified</div>
-      <div class="info-text">⚠️ Bluesky prompt missing</div>
-      <div class="info-text">🟢 Mastodon: connected</div>
-      <div class="info-text">🕒 Last updated: 08:12</div>
+    <div class="section">
+      <h3>📋 Status Log</h3>
+      <ul id="status-log" class="log-list">
+        <li>✅ OpenAI API key saved</li>
+        <li>🔄 Twitter login verified</li>
+        <li>⚠️ Bluesky prompt missing</li>
+        <li>🟢 Mastodon: connected</li>
+        <li>🕒 Last updated: 08:12</li>
+      </ul>
     </div>
 
   </div>
