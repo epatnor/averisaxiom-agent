@@ -8,7 +8,6 @@
 </head>
 <body>
 
-
   <div class="container">
 
     <!-- Scrapers -->
@@ -21,9 +20,12 @@
       </div>
       <div class="compact-group">
         <input type="text" name="google_query" placeholder="Search terms or topics">
-        <label><input type="checkbox" name="google_require_date"> Only show news with publish date</label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="google_require_date">
+          Only show news with publish date
+        </label>
       </div>
-      <textarea name="google_description" placeholder="Description..."></textarea>
+      <textarea name="google_description" placeholder="Optional context or summarization prompt..."></textarea>
       <div class="compact-group">
         <button class="small-button" onclick="saveGoogle()">💾 Save</button>
         <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
@@ -35,7 +37,7 @@
       <div class="compact-group">
         <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
       </div>
-      <textarea name="youtube_description" placeholder="Description..."></textarea>
+      <textarea name="youtube_description" placeholder="Optional context or summarization prompt..."></textarea>
       <div class="compact-group">
         <button class="small-button" onclick="saveYouTube()">💾 Save</button>
         <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
@@ -66,7 +68,10 @@
     <div class="section">
       <h3>⚙️ System</h3>
       <div class="compact-group">
-        <label><input type="checkbox" name="TEST_MODE"> Enable test mode</label>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="TEST_MODE">
+          Enable test mode
+        </label>
         <button class="small-button" onclick="resetDefaults()">🔄 Reset to defaults</button>
       </div>
     </div>
@@ -83,7 +88,7 @@
     </div>
     -->
 
-    <!-- Log -->
+    <!-- Status log -->
     <div class="section">
       <h3>📋 Status Log</h3>
       <ul id="status-log" class="log-list">
