@@ -29,12 +29,13 @@ body {
 }
 
 
-/* === Section blocks === */
+/* === Section styling (cards) === */
 .section {
-  background: #1c1c1c;
-  border: 1px solid #2c2c2c;
-  border-radius: 10px;
-  padding: 20px;
+  background-color: #222;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 0 8px #0005;
+  margin-bottom: 32px;  /* More spacing between cards */
 }
 
 /* === Headings === */
@@ -136,20 +137,29 @@ button:hover,
   padding-left: 0;
   color: #ccc;
 }
+.header-actions {
+  position: absolute;
+  right: 16px;
+  top: 12px;
+}
 
-    .header-actions {
-      position: absolute;
-      right: 16px;
-      top: 12px;
-    }
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      padding: 12px;
-      background-color: #202020;
-      text-align: center;
-      font-weight: 600;
-      font-size: 1.4rem;
-      border-bottom: 1px solid #333;
-    }
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px;
+  background-color: #202020;
+  text-align: center;
+  font-weight: 600;
+  font-size: 1.4rem;
+  border-bottom: 1px solid #333;
+}
+
+/* === Pipeline list (compact post list) === */
+#pipeline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;           /* Tight vertical spacing between posts */
+  margin-top: 32px;
+  padding: 0 16px;    /* Horizontal breathing room */
+}
