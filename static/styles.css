@@ -165,7 +165,27 @@ header {
   padding: 0 16px;    /* Horizontal breathing room */
 }
 
-/* === Reinforce heading colors === */
-h3 {
-  color: #f5f5f5 !important;
+/* === Origin tags for post type labels === */
+.origin-tag {
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  display: inline-block;
 }
+
+.origin-tag.manual {
+  color: #fdd835;           /* Gul text */
+  background-color: #3a3a1a;
+}
+
+.origin-tag.ai-assisted {
+  color: #ba68c8;           /* Lila text */
+  background-color: #2d1f35;
+}
+
+.origin-tag.auto {
+  color: #4dd0e1;           /* Cyan text */
+  background-color: #1a2e2e;
+}
+
