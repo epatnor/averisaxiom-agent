@@ -83,3 +83,31 @@ def fetch_youtube_videos():
 
     print(f"✅ Retrieved {len(results)} relevant YouTube titles.")
     return results
+
+
+# === TESTFUNKTIONER FÖR SETTINGS ===
+
+def test_google_news(settings: dict):
+    """
+    Simulerad test av Google News-scraper baserat på settings.
+    """
+    query = settings.get("google_query", "ingen sökterm angiven")
+    max_age = settings.get("google_max_age", "okänd")
+    limit = settings.get("google_limit", "okänd")
+    return [
+        f"Simulerad nyhet 1 om {query} (max {max_age} dagar)",
+        f"Simulerad nyhet 2 om {query}",
+        f"Simulerad nyhet 3 om {query} (begränsning {limit})"
+    ]
+
+
+def test_youtube(settings: dict):
+    """
+    Simulerad test av YouTube-scraper baserat på settings.
+    """
+    url = settings.get("youtube_url", "ingen url angiven")
+    return [
+        f"Testvideo 1 från {url}",
+        f"Testvideo 2 från {url}",
+        f"Testvideo 3 från {url}"
+    ]
