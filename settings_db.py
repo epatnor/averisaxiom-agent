@@ -4,28 +4,49 @@ import sqlite3
 import os
 from dotenv import load_dotenv
 
+# Load environment variables from .env
+load_dotenv()
+
+# Path to SQLite settings database
 SETTINGS_DB = "settings.db"
-load_dotenv()  # Load values from .env at startup
 
+# List of expected keys (used for .env fallback)
+EXPECTED_KEYS = [
+    "OPENAI_API_KEY", "SERPER_API_KEY",
+    "MASTODON_BASE_URL", "MASTODON_ACCESS_TOKEN",
+    "BLUESKY_HANDLE", "BLUESKY_APP_PASSWORD",
+    "YOUTUBE_API_KEY", "TEST_MODE",
+    "GOOGLE_RSS_URL", "GOOGLE_MAX_AGE", "GOOGLE_MAX_ITEMS",
+    "GOOGLE_QUERY", "GOOGLE_REQUIRE_DATE", "GOOGLE_DESCRIPTION",
+    "YOUTUBE_FEED_URL", "YOUTUBE_DESCRIPTION",
+    "USE_X", "USE_BLUESKY", "USE_MASTODON"
+]
 
-# Create the settings.db if it doesn't exist
+# --- Init ---
+
 def init_settings_db():
+    """Creates the settings database and table if it doesn't exist."""
     if not os.path.exists(SETTINGS_DB):
         print("==> Creating settings.db...")
-        conn = sqlite3.connect(SETTINGS_DB)
-        c = conn.cursor()
-        c.execute("""
-            CREATE TABLE IF NOT EXISTS settings (
-                key TEXT PRIMARY KEY,
-                value TEXT
-            )
-        """)
-        conn.commit()
-        conn.close()
+    conn = sqlite3.connect(SETTINGS_DB)
+    c = conn.cursor()
+    c.execute("""
+        CREATE TABLE IF NOT EXISTS settings (
+            key TEXT PRIMARY KEY,
+            value TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
 
 
-# Get one specific setting by key, or fallback to .env if not found or empty
+# --- Get / Set Single ---
+
 def get_setting(key):
+    """
+    Retrieve a single setting from the database.
+    Falls back to .env if not found or empty.
+    """
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
@@ -37,8 +58,10 @@ def get_setting(key):
     return os.getenv(key, "")
 
 
-# Set or update a single setting
 def set_setting(key, value):
+    """
+    Set or update a single setting in the database.
+    """
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("""
@@ -49,26 +72,41 @@ def set_setting(key, value):
     conn.close()
 
 
-# Load all settings as a dictionary, including fallback values from .env
+# --- Get All ---
+
 def get_all_settings():
-    conn = sqlite3.connect(SETTINGS_DB)
-    c = conn.cursor()
-    c.execute("SELECT key, value FROM settings")
-    rows = c.fetchall()
-    conn.close()
+    """
+    Load all settings from the database.
+    Falls back to .env values for any expected keys not found in the DB.
+    """
+    settings = {}
 
-    settings = {key: value for key, value in rows}
+    try:
+        conn = sqlite3.connect(SETTINGS_DB)
+        c = conn.cursor()
+        c.execute("SELECT key, value FROM settings")
+        rows = c.fetchall()
+        conn.close()
 
-    # Add fallback env vars if not already set in db
-    for key, val in os.environ.items():
+        settings = {key: value for key, value in rows if value not in [None, ""]}
+
+    except Exception as e:
+        print(f"⚠️ Failed to load settings from DB: {e}")
+
+    # Add missing expected keys from .env as fallback
+    for key in EXPECTED_KEYS:
         if key not in settings or settings[key] in [None, ""]:
-            settings[key] = val
+            settings[key] = os.getenv(key, "")
 
     return settings
 
 
-# (Optional) Separate fallback method, if you want to force using a specific env key
+# --- Optional Utility ---
+
 def get_setting_with_fallback(key, fallback_env):
+    """
+    Fetch a setting using one key, but fallback to another .env key if missing.
+    """
     value = get_setting(key)
     if value not in [None, ""]:
         return value
