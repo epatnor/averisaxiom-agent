@@ -238,3 +238,25 @@ select:focus {
     color: #f0f0f0;
     margin-bottom: 6px;
 }
+
+/* Gör alla textarea-fält snyggare och mer användbara */
+textarea {
+    width: 100%;
+    min-height: 60px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1e1e1e;
+    color: #ddd;
+    font-size: 0.95rem;
+    resize: vertical;
+    box-sizing: border-box;
+    margin-bottom: 8px;
+}
+
+.compact-textarea {
+    min-height: 40px;
+    font-size: 0.85rem;
+    padding: 6px 8px;
+}
+
