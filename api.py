@@ -43,10 +43,15 @@ app.include_router(settings_router)
 async def serve_frontend():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
-# ⚙️ Serve settings.html at /pipeline
-@app.get("/pipeline")
+# ⚙️ Serve settings.html at /settings
+@app.get("/settings")
 async def serve_settings_page():
     return FileResponse(os.path.join(STATIC_DIR, "settings.html"), media_type="text/html")
+
+# 📰 Get pipeline posts
+@app.get("/pipeline")
+def get_pipeline():
+    return db.get_pipeline()
 
 # ✍️ Manual post entry
 @app.post("/insert_manual_post")
