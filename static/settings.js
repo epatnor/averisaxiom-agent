@@ -35,7 +35,21 @@ function loadSettings() {
             });
 
             inputs.forEach(el => {
-                const key = el.name?.trim().toUpperCase();
+                const rawName = el.name;
+                const key = rawName?.toUpperCase();
+                console.log(`🔍 Inspecting input: raw name = "${rawName}", uppercased = "${key}"`);
+                
+                if (!key) {
+                    console.warn("⚠️ Input element missing 'name' attribute:", el);
+                    return;
+                }
+                
+                if (!(key in data)) {
+                    console.warn(`⚠️ No value returned for key '${key}'`);
+                    console.warn("➡️ All available keys in data:", Object.keys(data));
+                    return;
+                }
+
                 if (!key) {
                     console.warn("⚠️ Input element missing 'name' attribute:", el);
                     return;
