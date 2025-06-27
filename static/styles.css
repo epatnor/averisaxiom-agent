@@ -9,18 +9,7 @@ body {
   line-height: 1.6;
 }
 
-header {
-  background: #1e1e1e;
-  color: #fff;
-  padding: 12px 24px;
-  font-size: 1.4rem;
-  font-weight: bold;
-  border-bottom: 1px solid #333;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
+/* === Container styling === */
 .container {
   padding: 20px;
   max-width: 1000px;
@@ -30,8 +19,7 @@ header {
   gap: 24px;
 }
 
-/* === Cards and Sections === */
-.card,
+/* === Section block styling === */
 .section {
   background: #1c1c1c;
   border: 1px solid #2c2c2c;
@@ -39,56 +27,50 @@ header {
   padding: 20px;
 }
 
+/* === Headings === */
 h2, h3 {
   margin-top: 0;
   color: #f5f5f5;
 }
-
 h2 {
   font-size: 1.2rem;
   border-bottom: 1px solid #333;
   padding-bottom: 6px;
   margin-bottom: 12px;
 }
-
 h3 {
   font-size: 1.1rem;
   margin-bottom: 10px;
 }
 
-/* === Unified Form Fields === */
+/* === Shared input/textarea styles === */
 input[type="text"],
 input[type="password"],
 input[type="number"],
-select,
-textarea {
-  background: #1e1e1e;
+textarea,
+select {
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background-color: #222;
   color: #eee;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 8px 10px;
   font-size: 0.95rem;
   box-sizing: border-box;
-  width: 100%;
-  margin-bottom: 10px;
+  resize: vertical; /* Allow resizing, vertical only */
 }
 
-/* === Textarea Specifics === */
 textarea {
-  all: unset;
-  display: block;
-  background: #1e1e1e;
-  color: #f0f0f0;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 8px 10px;
-  font-size: 0.95rem;
-  width: 100%;
-  box-sizing: border-box;
-  resize: vertical;
-  margin-bottom: 10px;
+  min-height: 60px;
 }
 
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #666;
+  outline: none;
+}
 
 /* === Buttons === */
 button,
@@ -110,7 +92,6 @@ button:hover,
 }
 
 /* === Layout Groups === */
-.field-row,
 .compact-group {
   display: flex;
   gap: 10px;
@@ -131,21 +112,15 @@ button:hover,
   font-size: 0.95rem;
 }
 
-/* === Info Texts === */
+/* === Info Text === */
 .info-text {
   color: #bbb;
   font-size: 0.9rem;
   margin-bottom: 4px;
 }
 
-/* === Status Log === */
 .log-list {
   list-style: none;
   padding-left: 0;
-  margin: 0;
-}
-
-.log-list li {
-  padding: 4px 0;
-  font-size: 0.95rem;
+  color: #ccc;
 }
