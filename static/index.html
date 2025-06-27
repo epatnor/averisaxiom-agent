@@ -15,13 +15,64 @@
     </div>
   </header>
 
-  <!-- Settings panel gets loaded dynamically -->
+  <!-- Settings panel loaded dynamically -->
   <div id="settings-panel" style="display: none;"></div>
 
   <!-- Main content area -->
   <div id="main-content" class="container">
 
-    <!-- Account Stats Section -->
+    <!-- Manual Post -->
+    <div class="section">
+      <h3>Manual Post</h3>
+      <div class="compact-group">
+        <input type="text" id="manual-title" placeholder="Enter manual post title..." style="flex: 2">
+        <input type="text" id="manual-summary" placeholder="Enter manual post summary..." style="flex: 3">
+        <button id="submit-manual-btn" class="small-button">Submit Manual</button>
+      </div>
+    </div>
+
+    <!-- AI-Assisted Post -->
+    <div class="section">
+      <h3>AI-Assisted Post</h3>
+      <div class="compact-group">
+        <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex: 3">
+        <button id="generate-draft-btn" class="small-button">Generate Draft</button>
+        <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+      </div>
+      <div class="toggle-content">
+        <div class="compact-group">
+          <input type="text" id="ai-base-prompt" value="Creative system prompt">
+          <select id="ai-post-style">
+            <option value="creative">Creative</option>
+            <option value="joke">Joke</option>
+            <option value="rant">Rant</option>
+          </select>
+          <input type="number" id="ai-temperature" value="0.7" step="0.1" min="0" max="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Automatic Feed Generation -->
+    <div class="section">
+      <h3>Automatic Feed Generation</h3>
+      <div class="compact-group">
+        <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
+        <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+        <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+      </div>
+      <div class="toggle-content">
+        <div class="compact-group">
+          <input type="text" id="auto-base-prompt" value="Auto system prompt">
+          <select id="auto-post-style">
+            <option value="news">News</option>
+            <option value="thought">Thought</option>
+          </select>
+          <input type="number" id="auto-temperature" value="0.7" step="0.1" min="0" max="1">
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Stats -->
     <div class="section">
       <h3>Account Stats</h3>
       <div class="compact-group">
@@ -64,7 +115,6 @@
     });
   </script>
 
-  <!-- App logic -->
   <script src="/static/app.js"></script>
 </body>
 </html>
