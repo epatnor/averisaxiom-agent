@@ -1,4 +1,3 @@
-<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -8,51 +7,84 @@
   <script defer src="/static/settings.js"></script>
 </head>
 <body>
-<header>Inställningar</header>
+<header>
+  <div class="header-row">
+    <button onclick="window.location.href='/'" class="small-button">🔙 Tillbaka</button>
+    <div class="header-title">Inställningar</div>
+    <div style="flex:1"></div>
+  </div>
+</header>
 
 <div class="container">
 
   <!-- SCRAPER SETTINGS -->
-  <div class="section">
-    <h2>Scrapers</h2>
-    <div class="compact-group">
-
-      <!-- Google News -->
-      <div class="section">
-        <h3>Google News Scraper</h3>
-        <input type="text" id="google_rss_url" placeholder="https://news.google.com/rss">
-        <textarea id="google_description" placeholder="Beskrivning..." style="border:2px solid red;"></textarea>
-
-        <input type="number" id="google_max_age" placeholder="Max ålder (dagar)">
-        <input type="number" id="google_max_items" placeholder="Max nyheter per körning">
-        <input type="text" id="google_query" placeholder="Sökterm eller ämne">
-        <label style="display:flex; gap:8px; align-items:center;">
-          <input type="checkbox" id="google_require_date">
-          Visa endast nyheter med publiceringsdatum
+  <div class="card">
+    <h2>🔎 Scrapers</h2>
+    <div class="field-row">
+      <div class="card subcard">
+        <h3>Google News</h3>
+        <input type="text" name="google_rss_url" placeholder="https://news.google.com/rss">
+        <textarea name="google_description" placeholder="Beskrivning..."></textarea>
+        <div class="field-row">
+          <input type="number" name="google_max_age" placeholder="Max ålder (dagar)">
+          <input type="number" name="google_max_items" placeholder="Max nyheter per körning">
+        </div>
+        <input type="text" name="google_query" placeholder="Sökterm eller ämne">
+        <label class="checkbox-inline">
+          <input type="checkbox" name="google_require_date"> Visa endast nyheter med publiceringsdatum
         </label>
         <div class="compact-group">
-          <button class="small-button" onclick="saveGoogle()">Spara</button>
-          <button class="small-button" onclick="testGoogle()">Testa</button>
+          <button class="small-button" onclick="saveGoogle()">💾 Spara</button>
+          <button class="small-button" onclick="testGoogle()">⚙️ Testa</button>
         </div>
       </div>
 
-      <!-- YouTube -->
-      <div class="section">
-        <h3>YouTube Scraper</h3>
-        <input type="text" id="youtube_url" placeholder="https://www.youtube.com/feed/trending">
-        <textarea id="youtube_description" placeholder="Beskrivning..."></textarea>
+      <div class="card subcard">
+        <h3>YouTube</h3>
+        <input type="text" name="youtube_url" placeholder="https://youtube.com/feed/trending">
+        <textarea name="youtube_description" placeholder="Beskrivning..."></textarea>
         <div class="compact-group">
-          <button class="small-button" onclick="saveYouTube()">Spara</button>
-          <button class="small-button" onclick="testYouTube()">Testa</button>
+          <button class="small-button" onclick="saveYouTube()">💾 Spara</button>
+          <button class="small-button" onclick="testYouTube()">⚙️ Testa</button>
         </div>
       </div>
+    </div>
+  </div>
 
+  <!-- API KEYS -->
+  <div class="card">
+    <h2>🔐 API-nycklar</h2>
+    <div class="field-row">
+      <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API-nyckel">
+      <input type="text" name="SERPER_API_KEY" placeholder="Serper API-nyckel">
+    </div>
+    <div class="field-row">
+      <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
+      <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Token">
+    </div>
+    <div class="field-row">
+      <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky handle">
+      <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password">
+    </div>
+    <div class="compact-group">
+      <button class="small-button">💾 Spara</button>
+    </div>
+  </div>
+
+  <!-- SYSTEM -->
+  <div class="card">
+    <h2>⚙️ System</h2>
+    <div class="field-row">
+      <label class="checkbox-inline">
+        <input type="checkbox" name="TEST_MODE"> Aktivera testläge
+      </label>
+      <button class="small-button">🔄 Återställ till standard</button>
     </div>
   </div>
 
   <!-- LOGG -->
-  <div class="section">
-    <h3>Logg</h3>
+  <div class="card">
+    <h2>📋 Logg</h2>
     <div class="info-text">✅ OpenAI API-nyckel sparad</div>
     <div class="info-text">🔄 Twitter login verifierad</div>
     <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
