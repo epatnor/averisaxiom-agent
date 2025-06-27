@@ -1,133 +1,60 @@
-<!-- # settings.html -->
+<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>AverisAxiom Inställningar</title>
+  <title>Inställningar</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
+<header>Inställningar</header>
 
-  <!-- Sidhuvud -->
-  <header class="section">
-    <h1 style="text-align: center;">Inställningar</h1>
-  </header>
+<div class="container">
 
-  <div class="container">
-
-    <!-- Sektion: Scrapers -->
-    <div class="section">
-      <h2>Scrapers</h2>
-      <div class="compact-group">
-        <div class="section">
-          <h3>Google News Scraper</h3>
-          <input type="text" class="input" value="https://news.google.com/rss" />
-          <textarea class="textarea">RSS används för att samla rubriker från källor du anger.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
+  <!-- SCRAPER SETTINGS -->
+  <div class="section">
+    <h2>Scrapers</h2>
+    <div class="compact-group">
+      <div class="section">
+        <h3>Google News Scraper</h3>
+        <input type="text" placeholder="https://news.google.com/rss" value="https://news.google.com/rss">
+        <textarea placeholder="RSS används för att samla rubriker från källor du anger."></textarea>
+        <input type="number" placeholder="Max ålder (dagar)" value="2">
+        <input type="number" placeholder="Max nyheter per körning" value="10">
+        <input type="text" placeholder="Sökterm eller ämne" value="AI, klimat">
+        <label style="display:flex; gap:8px; align-items:center;">
+          <input type="checkbox" checked>
+          Visa endast nyheter med publiceringsdatum
+        </label>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
         </div>
-        <div class="section">
-          <h3>YouTube Scraper</h3>
-          <input type="text" class="input" value="https://www.youtube.com/feed/trending" />
-          <textarea class="textarea">Använd YouTube Data API v3 med trending-videos endpoint.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
+      </div>
+
+      <div class="section">
+        <h3>YouTube Scraper</h3>
+        <input type="text" placeholder="https://youtube.com/feed/trending" value="https://www.youtube.com/feed/trending">
+        <textarea placeholder="Använd YouTube Data API v3 med trending-videos endpoint."></textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
         </div>
       </div>
     </div>
-
-    <!-- Sektion: Sociala medier -->
-    <div class="section">
-      <h2>Social Media Platforms</h2>
-      <div class="compact-group">
-        <div class="section">
-          <h3>Platform: Twitter</h3>
-          <input type="text" class="input" value="@averis_bot" />
-          <textarea class="textarea">API-token krävs. Se https://developer.twitter.com</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-        <div class="section">
-          <h3>Platform: Bluesky</h3>
-          <input type="text" class="input" value="bsky.social/averis" />
-          <textarea class="textarea">Ange app password + handle.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-        <div class="section">
-          <h3>Platform: Mastodon</h3>
-          <input type="text" class="input" value="mastodon.social/@averis" />
-          <textarea class="textarea">OAuth med read/write scopes.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-        <div class="section">
-          <h3>Login Credentials</h3>
-          <input type="text" class="input" value="user@example.com" />
-          <textarea class="textarea">Inloggning används för verifiering mot API:er.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sektion: AverisAxiom persona -->
-    <div class="section">
-      <h2>AverisAxiom Identity</h2>
-      <div class="compact-group">
-        <div class="section">
-          <h3>Huvudprompt (persona)</h3>
-          <input type="text" class="input" value="Du är AverisAxiom, en ansvarstagande men vass röst online." />
-          <textarea class="textarea">AverisAxiom är en digital persona skapad för att generera och publicera välunderbyggda, känslomässigt intelligenta inlägg.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-        <div class="section">
-          <h3>Subprompts (bias och stil)</h3>
-          <input type="text" class="input" value="Undvik clickbait. Ta ställning, men med fakta." />
-          <textarea class="textarea">Favoriserar decentraliserade lösningar, frihetlig politik och kritisk teknikgranskning.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-        <div class="section">
-          <h3>Mina åsiktsriktningar</h3>
-          <input type="text" class="input" value="Teknikkritisk, frihetlig, skeptisk till centralisering" />
-          <textarea class="textarea">Tänk: Pro AI med integritetsfokus, försiktig klimatrealism, skeptisk till överreglering.</textarea>
-          <div class="compact-group">
-            <button class="small-button">Spara</button>
-            <button class="small-button">Testa</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sektion: Logg -->
-    <div class="section">
-      <h3>Logg</h3>
-      <div class="info-text">✅ OpenAI API-nyckel sparad</div>
-      <div class="info-text">🔄 Twitter login verifierad</div>
-      <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
-      <div class="info-text">🟢 Mastodon: ansluten</div>
-      <div class="info-text">🕒 Senast ändrad: 08:12</div>
-    </div>
-
   </div>
+
+  <!-- LOGG -->
+  <div class="section">
+    <h3>Logg</h3>
+    <div class="info-text">✅ OpenAI API-nyckel sparad</div>
+    <div class="info-text">🔄 Twitter login verifierad</div>
+    <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
+    <div class="info-text">🟢 Mastodon: ansluten</div>
+    <div class="info-text">🕒 Senast ändrad: 08:12</div>
+  </div>
+
+</div>
 
 </body>
 </html>
