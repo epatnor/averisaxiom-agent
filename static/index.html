@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
   <title>AverisAxiom Control Panel - Unified Pipeline View</title>
   <link rel="stylesheet" href="/static/styles.css">
   <style>
-    /* Extra CSS för placering av inställningsknapp */
     .header-actions {
       position: absolute;
       right: 16px;
@@ -16,21 +14,19 @@
 </head>
 <body>
 
-  <!-- App header med inställningsknapp -->
+  <!-- Header -->
   <header style="position: relative;">
     AverisAxiom Control Panel - Unified Pipeline View
     <div class="header-actions">
-      <button id="open-settings-btn" class="small-button">⚙️ Inställningar</button>
+      <button id="settings-toggle-btn" class="small-button">⚙️ Settings</button>
     </div>
   </header>
 
-  <!-- Inställningspanelen (dold från start) -->
+  <!-- Settings panel -->
   <div id="settings-panel" style="display: none;"></div>
 
-  <!-- Huvudinnehåll -->
+  <!-- Main content -->
   <div id="main-content" class="container">
-    <!-- Verktyg (Inställningskort är nu borttaget) -->
-
     <!-- Manual Post -->
     <div class="section">
       <h3>Manual Post</h3>
@@ -97,29 +93,30 @@
     </div>
   </div>
 
+  <!-- Script to toggle Settings -->
   <script>
-    const openSettingsBtn = document.getElementById("open-settings-btn");
+    const toggleBtn = document.getElementById("settings-toggle-btn");
     const mainContent = document.getElementById("main-content");
     const settingsPanel = document.getElementById("settings-panel");
+    let isSettingsOpen = false;
 
-    openSettingsBtn.addEventListener("click", () => {
-      mainContent.style.display = "none";
-      fetch("/static/settings.html")
-        .then(res => res.text())
-        .then(html => {
-          settingsPanel.innerHTML = html;
-          settingsPanel.style.display = "block";
-
-          const backBtn = document.createElement("button");
-          backBtn.textContent = "⬅️ Tillbaka";
-          backBtn.className = "small-button";
-          backBtn.style.marginBottom = "20px";
-          backBtn.onclick = () => {
-            settingsPanel.style.display = "none";
-            mainContent.style.display = "block";
-          };
-          settingsPanel.prepend(backBtn);
-        });
+    toggleBtn.addEventListener("click", () => {
+      if (!isSettingsOpen) {
+        mainContent.style.display = "none";
+        fetch("/static/settings.html")
+          .then(res => res.text())
+          .then(html => {
+            settingsPanel.innerHTML = html;
+            settingsPanel.style.display = "block";
+            toggleBtn.textContent = "⬅ Back";
+            isSettingsOpen = true;
+          });
+      } else {
+        settingsPanel.style.display = "none";
+        mainContent.style.display = "block";
+        toggleBtn.textContent = "⚙️ Settings";
+        isSettingsOpen = false;
+      }
     });
   </script>
 
