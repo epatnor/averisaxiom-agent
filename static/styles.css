@@ -1,265 +1,127 @@
-/* styles.css */
-
+/* === Basic dark theme === */
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #181818;
-    color: #f0f0f0;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: #121212;
+  color: #eee;
+  font-family: system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    padding: 12px;
-    background-color: #202020;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.4rem;
-    border-bottom: 1px solid #333;
+  background: #1e1e1e;
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 1.4rem;
+  font-weight: bold;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .container {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    overflow-y: auto;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.section {
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 16px;
-    background-color: #222;
+/* === Cards and Sections === */
+.card {
+  background: #1c1c1c;
+  border: 1px solid #2c2c2c;
+  border-radius: 10px;
+  padding: 20px;
 }
 
-.compact-group {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+.subcard {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
 }
 
+h2, h3 {
+  margin-top: 0;
+  color: #f5f5f5;
+}
+
+h2 {
+  font-size: 1.2rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+/* === Form Fields === */
 input[type="text"],
+input[type="password"],
 input[type="number"],
+textarea,
 select {
-    padding: 8px 10px;
-    border-radius: 6px;
-    border: 1px solid #444;
-    background-color: #2a2a2a;
-    color: #f0f0f0;
-    font-size: 0.9rem;
-    transition: border-color 0.2s;
-    flex: 1;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-select:focus {
-    border-color: #888;
-    outline: none;
-}
-
-.small-button {
-    padding: 4px 10px;
-    background-color: #444;
-    color: #f0f0f0;
-    border: 1px solid #666;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.2s, border-color 0.2s;
-    height: 30px;
-}
-
-.small-button:hover {
-    background-color: #666;
-    border-color: #888;
-}
-
-.stats-box {
-    padding: 10px 14px;
-    background-color: #2a2a2a;
-    border-radius: 6px;
-    border: 1px solid #444;
-    font-size: 0.9rem;
-}
-
-.toggle-settings {
-    margin-left: 8px;
-    cursor: pointer;
-    font-size: 1.2em;
-}
-
-.toggle-content {
-    display: none;
-}
-
-.expanded + .toggle-content {
-    display: block;
-}
-
-.info-text {
-    font-size: 0.9rem;
-    color: #aaa;
-}
-
-#pipeline-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.list-item {
-    display: grid;
-    grid-template-columns: 100px 1fr 110px 140px 140px;
-    align-items: center;
-    padding: 3px 8px;
-    background: #181818;
-    font-size: 0.85rem;
-    border-bottom: 1px solid #2c2c2c;
-}
-
-.origin-label {
-    padding-left: 8px;
-    font-size: 0.85rem;
-}
-
-.origin-tag {
-    font-weight: 600;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 0.75rem;
-}
-
-.origin-tag.manual {
-    background-color: #333;
-    color: #f39c12;
-}
-
-.origin-tag.ai-assisted {
-    background-color: #6c5ce7;
-    color: white;
-}
-
-.origin-tag.auto {
-    background-color: #333;
-    color: #1abc9c;
-}
-
-.title-snippet {
-    font-weight: 500;
-    cursor: pointer;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    color: #f0f0f0;
-}
-
-.post-metrics {
-    text-align: right;
-    font-size: 0.8rem;
-    white-space: nowrap;
-    color: #ccc;
-}
-
-.post-editor {
-    grid-column: 1 / -1;
-    display: none;
-    padding-top: 4px;
-}
-
-.post-editing {
-    width: calc(100% - 8px);
-    height: 80px;
-    background: #111;
-    color: #fff;
-    border: 1px solid #444;
-    border-radius: 4px;
-    padding: 6px;
-    resize: vertical;
-    font-size: 0.9rem;
-}
-
-.edit-controls {
-    margin-top: 4px;
-    display: flex;
-    gap: 8px;
-}
-
-.status-draft, .status-published, .status-pending, .status-new {
-    font-size: 0.8rem;
-    white-space: nowrap;
-}
-
-.status-new {
-    color: #66ccff;
-}
-
-.status-draft {
-    color: #ffb347;
-}
-
-.status-pending {
-    color: #c084fc;
-}
-
-.status-published {
-    color: #6fcf97;
-}
-
-.type-News,
-.type-Creative,
-.type-Thought,
-.type-Question,
-.type-Satire,
-.type-Raw,
-.type-Rant,
-.type-Joke,
-.type-Unknown {
-    font-size: 0.8rem;
-    white-space: nowrap;
-    padding: 2px 6px;
-    border-radius: 4px;
-    background-color: #2a2a2a;
-    border: 1px solid #444;
-    color: #ddd;
-}
-
-#creative-input {
-    width: 100%;
-    padding: 8px;
-    background: #121212;
-    border: 1px solid #444;
-    border-radius: 4px;
-    color: #f0f0f0;
-    margin-bottom: 6px;
-}
-
-/* Gör alla textarea-fält snyggare och mer användbara */
-textarea {
-  width: 100%;
-  min-height: 70px;
-  padding: 10px;
+  background: #222;
+  color: #eee;
   border: 1px solid #444;
   border-radius: 6px;
-  background-color: #1f1f1f;
-  color: #f0f0f0;
-  font-size: 1rem;
-  line-height: 1.4;
-  resize: vertical;
-  margin-top: 8px;
-  margin-bottom: 12px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
   box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 10px;
 }
 
-
-.compact-textarea {
-    min-height: 40px;
-    font-size: 0.85rem;
-    padding: 6px 8px;
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #666;
+  outline: none;
 }
 
+/* === Buttons === */
+button,
+.small-button {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+button:hover,
+.small-button:hover {
+  background: #444;
+  border-color: #777;
+}
+
+/* === Layout Groups === */
+.field-row,
+.compact-group {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+/* === Info Texts === */
+.info-text {
+  color: #bbb;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
