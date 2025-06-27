@@ -26,30 +26,25 @@ function loadSettings() {
         .then(data => {
             console.log("✅ Settings loaded:", data);
 
-            const normalized = {};
-            for (const key in data) {
-                normalized[key.toLowerCase()] = data[key];
-            }
-
             const inputs = document.querySelectorAll("input, textarea");
             console.log(`🔎 Found ${inputs.length} input/textarea elements.`);
 
             inputs.forEach(el => {
-                const key = el.name?.toLowerCase();
+                const key = el.name;
                 if (!key) {
                     console.warn("⚠️ Input element missing 'name' attribute:", el);
                     return;
                 }
 
-                if (!(key in normalized)) {
+                if (!(key in data)) {
                     console.warn(`⚠️ No value returned for key '${key}'`);
                     return;
                 }
 
                 if (el.type === "checkbox") {
-                    el.checked = (normalized[key] === "true" || normalized[key] === true);
+                    el.checked = (data[key] === "true" || data[key] === true);
                 } else {
-                    el.value = normalized[key] ?? "";
+                    el.value = data[key] ?? "";
                 }
 
                 console.log(`↪️ Set [${key}] to`, el.type === "checkbox" ? el.checked : el.value);
