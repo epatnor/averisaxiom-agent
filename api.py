@@ -28,6 +28,19 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
+@app.post("/test_scraper")
+async def test_scraper(request: Request):
+    data = await request.json()
+    # Kör en testhämtning med angivna settings
+    result = scraper.test_google_news(data)
+    return {"result": result[:3]}  # returnera första 3 nyheter
+
+@app.post("/test_youtube")
+async def test_youtube(request: Request):
+    data = await request.json()
+    result = scraper.test_youtube(data)
+    return {"result": result[:3]}
+
 
 @app.get("/")
 async def serve_frontend():
