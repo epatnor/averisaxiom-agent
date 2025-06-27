@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const label = button.textContent.toLowerCase();
         if (label.includes("save")) button.addEventListener("click", saveSettings);
         if (label.includes("test")) button.addEventListener("click", testSettings);
+        if (label.includes("reset")) button.addEventListener("click", resetDefaults);
     });
 });
 
@@ -82,6 +83,14 @@ function testSettings(event) {
         console.error("❌ Test failed:", err);
         alert("❌ Test failed:\n" + err.message);
     });
+}
+
+
+// == Reset handler (just reloads the page for now) ==
+function resetDefaults() {
+    if (confirm("Reset settings to default values from .env?")) {
+        location.reload();
+    }
 }
 
 
