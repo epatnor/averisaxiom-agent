@@ -1,33 +1,36 @@
 // settings.js
 
 document.addEventListener("DOMContentLoaded", () => {
-    fetchSettings();
+    loadSettings();
 
     document.querySelectorAll("button").forEach(button => {
         const label = button.textContent.toLowerCase();
-        if (label.includes("spara")) button.addEventListener("click", saveSettings);
-        if (label.includes("testa")) button.addEventListener("click", testSettings);
+        if (label.includes("save")) button.addEventListener("click", saveSettings);
+        if (label.includes("test")) button.addEventListener("click", testSettings);
     });
 });
 
-// Hämtar sparade settings från backend
-function fetchSettings() {
+// Load current settings from backend and populate inputs
+function loadSettings() {
     fetch("/settings")
         .then(res => res.json())
         .then(data => {
             document.querySelectorAll("input, textarea").forEach(el => {
                 const key = el.name;
                 if (!key) return;
-                if (el.type === "checkbox") el.checked = Boolean(data[key]);
-                else el.value = data[key] ?? "";
+                if (el.type === "checkbox") {
+                    el.checked = Boolean(data[key]);
+                } else {
+                    el.value = data[key] ?? "";
+                }
             });
         })
-        .catch(err => console.error("Fel vid hämtning av settings:", err));
+        .catch(err => console.error("Failed to load settings:", err));
 }
 
-// Sparar inställningar inom ett kort
+// Save settings within the clicked card
 function saveSettings(event) {
-    const card = event.target.closest(".section");
+    const card = event.target.closest(".card, .subcard");
     const inputs = card.querySelectorAll("input, textarea");
 
     const payload = {};
@@ -43,15 +46,18 @@ function saveSettings(event) {
     })
     .then(res => res.json())
     .then(data => {
-        console.log("Inställningar sparade:", data);
-        alert("Inställningar sparade!");
+        console.log("Settings saved:", data);
+        alert("✅ Settings saved successfully!");
     })
-    .catch(err => console.error("Fel vid sparning:", err));
+    .catch(err => {
+        console.error("Error saving settings:", err);
+        alert("❌ Error saving settings.");
+    });
 }
 
-// Testar inställningar för en sektion
+// Send test request for the clicked card
 function testSettings(event) {
-    const card = event.target.closest(".section");
+    const card = event.target.closest(".card, .subcard");
     const inputs = card.querySelectorAll("input, textarea");
 
     const payload = {};
@@ -60,9 +66,10 @@ function testSettings(event) {
         payload[el.name] = el.type === "checkbox" ? el.checked : el.value;
     });
 
-    // Enkel heuristik för att bestämma vilken test-endpoint vi ska träffa
     let endpoint = "/test_scraper";
-    if (card.innerHTML.includes("YouTube")) endpoint = "/test_youtube";
+    const html = card.innerHTML.toLowerCase();
+    if (html.includes("youtube")) endpoint = "/test_youtube";
+    else if (html.includes("google")) endpoint = "/test_google";
 
     fetch(endpoint, {
         method: "POST",
@@ -71,10 +78,10 @@ function testSettings(event) {
     })
     .then(res => res.json())
     .then(data => {
-        alert(`✅ Test lyckades:\n${JSON.stringify(data, null, 2)}`);
+        alert(`✅ Test successful:\n${JSON.stringify(data, null, 2)}`);
     })
     .catch(err => {
-        console.error("Fel vid testning:", err);
-        alert("❌ Fel vid testning:\n" + err.message);
+        console.error("Error during test:", err);
+        alert("❌ Test failed:\n" + err.message);
     });
 }
