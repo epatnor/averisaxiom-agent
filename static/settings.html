@@ -1,170 +1,155 @@
-import React from "react";
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <title>AverisAxiom Inställningar</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
 
-export default function SettingsPage() {
-  const groups = {
-    "LLM": ["OpenAI API", "Prompt Variants"],
-    "Scrapers": ["Google News Scraper", "YouTube Scraper"],
-    "Social Media Platforms": ["Platform: Twitter", "Platform: Bluesky", "Platform: Mastodon", "Login Credentials"],
-    "AverisAxiom Identity": ["Huvudprompt (persona)", "Subprompts (bias och stil)", "Mina åsiktsriktningar"]
-  };
+<header>Inställningar</header>
 
-  const getDefaultValue = (feature) => {
-    if (feature.includes("OpenAI")) return "sk-abc123xyz...";
-    if (feature.includes("Prompt Variants")) return "Neutral, Informative, Engaging";
-    if (feature.includes("Google News")) return "https://news.google.com/rss";
-    if (feature.includes("YouTube")) return "https://www.youtube.com/feed/trending";
-    if (feature.includes("Twitter")) return "@averis_bot";
-    if (feature.includes("Bluesky")) return "bsky.social/averis";
-    if (feature.includes("Mastodon")) return "mastodon.social/@averis";
-    if (feature.includes("Login")) return "user@example.com";
-    if (feature.includes("Huvudprompt")) return "Du är AverisAxiom, en ansvarstagande men vass röst online.";
-    if (feature.includes("Subprompts")) return "Undvik clickbait. Ta ställning, men med fakta.";
-    if (feature.includes("åsiktsriktningar")) return "Teknikkritisk, frihetlig, skeptisk till centralisering";
-    return "";
-  };
+<div class="container">
 
-  const getDefaultText = (feature) => {
-    if (feature.includes("OpenAI")) return "https://platform.openai.com/account/api-keys";
-    if (feature.includes("Prompt Variants")) return "[Neutral: 'Saklig analys'], [Engaging: 'Öppna med en fråga']";
-    if (feature.includes("Google News")) return "RSS används för att samla rubriker från källor du anger.";
-    if (feature.includes("YouTube")) return "Använd YouTube Data API v3 med trending-videos endpoint.";
-    if (feature.includes("Twitter")) return "API-token krävs. Se https://developer.twitter.com";
-    if (feature.includes("Bluesky")) return "Ange app password + handle.";
-    if (feature.includes("Mastodon")) return "OAuth med read/write scopes.";
-    if (feature.includes("Login")) return "Inloggning används för verifiering mot API:er.";
-    if (feature.includes("Huvudprompt")) return "AverisAxiom är en digital persona skapad för att generera och publicera välunderbyggda, känslomässigt intelligenta inlägg.";
-    if (feature.includes("Subprompts")) return "Favoriserar decentraliserade lösningar, frihetlig politik och kritisk teknikgranskning.";
-    if (feature.includes("åsiktsriktningar")) return "Tänk: Pro AI med integritetsfokus, försiktig klimatrealism, skeptisk till överreglering.";
-    return "";
-  };
-
-  return (
-    <div style={{
-      margin: 0,
-      fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      backgroundColor: "#181818",
-      color: "#f0f0f0",
-      display: "flex",
-      flexDirection: "column",
-      height: "100vh",
-      padding: 20,
-      gap: 20,
-      overflowY: "auto"
-    }}>
-      <header style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-        padding: 12,
-        backgroundColor: "#202020",
-        textAlign: "center",
-        fontWeight: 600,
-        fontSize: "1.4rem",
-        borderBottom: "1px solid #333"
-      }}>
-        Inställningar
-      </header>
-
-      {Object.entries(groups).map(([groupName, features]) => (
-        <div key={groupName} style={{
-          border: "1px solid #333",
-          borderRadius: 12,
-          padding: 16,
-          backgroundColor: "#1a1a1a"
-        }}>
-          <h2 style={{ marginBottom: 12 }}>{groupName}</h2>
-          <div style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-            gap: 20
-          }}>
-            {features.map((feature, idx) => (
-              <div key={idx} style={{
-                border: "1px solid #333",
-                borderRadius: 12,
-                padding: 16,
-                backgroundColor: "#222"
-              }}>
-                <h3>{feature}</h3>
-                <input
-                  type="text"
-                  placeholder="Ange värde eller mall..."
-                  defaultValue={getDefaultValue(feature)}
-                  style={{
-                    padding: "8px 10px",
-                    borderRadius: 6,
-                    border: "1px solid #444",
-                    backgroundColor: "#2a2a2a",
-                    color: "#f0f0f0",
-                    fontSize: "0.9rem",
-                    width: "100%",
-                    marginBottom: 8
-                  }}
-                />
-                <textarea
-                  placeholder="Extra anteckningar eller promptinnehåll..."
-                  defaultValue={getDefaultText(feature)}
-                  style={{
-                    padding: "8px 10px",
-                    borderRadius: 6,
-                    border: "1px solid #444",
-                    backgroundColor: "#2a2a2a",
-                    color: "#f0f0f0",
-                    fontSize: "0.9rem",
-                    width: "100%",
-                    resize: "vertical",
-                    marginBottom: 10
-                  }}
-                ></textarea>
-                <div style={{
-                  display: "flex",
-                  gap: 10,
-                  flexWrap: "wrap",
-                  alignItems: "center"
-                }}>
-                  <button style={{
-                    padding: "4px 10px",
-                    backgroundColor: "#444",
-                    color: "#f0f0f0",
-                    border: "1px solid #666",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    transition: "background-color 0.2s, border-color 0.2s",
-                    height: 30
-                  }}>Spara</button>
-                  <button style={{
-                    padding: "4px 10px",
-                    backgroundColor: "#444",
-                    color: "#f0f0f0",
-                    border: "1px solid #666",
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontSize: "0.85rem",
-                    transition: "background-color 0.2s, border-color 0.2s",
-                    height: 30
-                  }}>Testa</button>
-                </div>
-              </div>
-            ))}
-          </div>
+  <div class="section">
+    <h2>LLM</h2>
+    <div class="compact-group">
+      <div class="section">
+        <h3>OpenAI API</h3>
+        <input type="text" value="sk-abc123xyz..." />
+        <textarea>https://platform.openai.com/account/api-keys</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
         </div>
-      ))}
+      </div>
 
-      <div style={{
-        border: "1px solid #333",
-        borderRadius: 12,
-        padding: 16,
-        backgroundColor: "#1a1a1a",
-        marginTop: 20
-      }}>
-        <h3>Logg</h3>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", marginBottom: 4 }}>✅ OpenAI API-nyckel sparad</div>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", marginBottom: 4 }}>🔄 Twitter login verifierad</div>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", marginBottom: 4 }}>⚠️ Bluesky prompt saknar mall</div>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", marginBottom: 4 }}>🟢 Mastodon: ansluten</div>
-        <div style={{ fontSize: "0.85rem", color: "#ccc", marginBottom: 4 }}>🕒 Senast ändrad: 08:12</div>
+      <div class="section">
+        <h3>Prompt Variants</h3>
+        <input type="text" value="Neutral, Informative, Engaging" />
+        <textarea>[Neutral: 'Saklig analys'], [Engaging: 'Öppna med en fråga']</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
       </div>
     </div>
-  );
-}
+  </div>
+
+  <div class="section">
+    <h2>Scrapers</h2>
+    <div class="compact-group">
+      <div class="section">
+        <h3>Google News Scraper</h3>
+        <input type="text" value="https://news.google.com/rss" />
+        <textarea>RSS används för att samla rubriker från källor du anger.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>YouTube Scraper</h3>
+        <input type="text" value="https://www.youtube.com/feed/trending" />
+        <textarea>Använd YouTube Data API v3 med trending-videos endpoint.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Social Media Platforms</h2>
+    <div class="compact-group">
+      <div class="section">
+        <h3>Platform: Twitter</h3>
+        <input type="text" value="@averis_bot" />
+        <textarea>API-token krävs. Se https://developer.twitter.com</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Platform: Bluesky</h3>
+        <input type="text" value="bsky.social/averis" />
+        <textarea>Ange app password + handle.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Platform: Mastodon</h3>
+        <input type="text" value="mastodon.social/@averis" />
+        <textarea>OAuth med read/write scopes.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Login Credentials</h3>
+        <input type="text" value="user@example.com" />
+        <textarea>Inloggning används för verifiering mot API:er.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>AverisAxiom Identity</h2>
+    <div class="compact-group">
+      <div class="section">
+        <h3>Huvudprompt (persona)</h3>
+        <input type="text" value="Du är AverisAxiom, en ansvarstagande men vass röst online." />
+        <textarea>AverisAxiom är en digital persona skapad för att generera och publicera välunderbyggda, känslomässigt intelligenta inlägg.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Subprompts (bias och stil)</h3>
+        <input type="text" value="Undvik clickbait. Ta ställning, men med fakta." />
+        <textarea>Favoriserar decentraliserade lösningar, frihetlig politik och kritisk teknikgranskning.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Mina åsiktsriktningar</h3>
+        <input type="text" value="Teknikkritisk, frihetlig, skeptisk till centralisering" />
+        <textarea>Tänk: Pro AI med integritetsfokus, försiktig klimatrealism, skeptisk till överreglering.</textarea>
+        <div class="compact-group">
+          <button class="small-button">Spara</button>
+          <button class="small-button">Testa</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>Logg</h3>
+    <div class="info-text">✅ OpenAI API-nyckel sparad</div>
+    <div class="info-text">🔄 Twitter login verifierad</div>
+    <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
+    <div class="info-text">🟢 Mastodon: ansluten</div>
+    <div class="info-text">🕒 Senast ändrad: 08:12</div>
+  </div>
+
+</div>
+</body>
+</html>
