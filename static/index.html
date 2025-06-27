@@ -1,87 +1,128 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>AverisAxiom Control Panel - Unified Pipeline View</title>
-    <link rel="stylesheet" href="/static/styles.css">
-
+  <meta charset="UTF-8">
+  <title>AverisAxiom Control Panel - Unified Pipeline View</title>
+  <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-<header>AverisAxiom Control Panel - Unified Pipeline View</header>
-<div class="container">
+  <!-- App header -->
+  <header>AverisAxiom Control Panel - Unified Pipeline View</header>
+
+  <!-- Inställningspanel (dold från start) -->
+  <div id="settings-panel" style="display: none;"></div>
+
+  <!-- Huvudinnehåll -->
+  <div id="main-content" class="container">
+
+    <!-- Inställningsknapp -->
     <div class="section">
       <h3>Verktyg</h3>
       <div class="compact-group">
-        <a href="/static/settings.html" target="_blank" class="small-button">⚙️ Öppna inställningar</a>
+        <button id="open-settings-btn" class="small-button">⚙️ Inställningar</button>
       </div>
     </div>
 
     <!-- Manual Post -->
     <div class="section">
-        <h3>Manual Post</h3>
-        <div class="compact-group">
-            <input type="text" id="manual-title" placeholder="Enter manual post title..." style="flex: 2">
-            <input type="text" id="manual-summary" placeholder="Enter manual post summary..." style="flex: 3">
-            <button id="submit-manual-btn" class="small-button">Submit Manual</button>
-        </div>
+      <h3>Manual Post</h3>
+      <div class="compact-group">
+        <input type="text" id="manual-title" placeholder="Enter manual post title..." style="flex: 2">
+        <input type="text" id="manual-summary" placeholder="Enter manual post summary..." style="flex: 3">
+        <button id="submit-manual-btn" class="small-button">Submit Manual</button>
+      </div>
     </div>
 
     <!-- AI-Assisted Post -->
     <div class="section">
-        <h3>AI-Assisted Post</h3>
+      <h3>AI-Assisted Post</h3>
+      <div class="compact-group">
+        <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex:3">
+        <button id="generate-draft-btn" class="small-button">Generate Draft</button>
+        <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+      </div>
+      <div class="toggle-content">
         <div class="compact-group">
-            <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex:3">
-            <button id="generate-draft-btn" class="small-button">Generate Draft</button>
-            <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+          <input type="text" id="ai-base-prompt" value="Creative system prompt">
+          <select id="ai-post-style">
+            <option value="creative">Creative</option>
+            <option value="joke">Joke</option>
+            <option value="rant">Rant</option>
+          </select>
+          <input type="number" id="ai-temperature" value="0.7" step="0.1" min="0" max="1">
         </div>
-        <div class="toggle-content">
-            <div class="compact-group">
-                <input type="text" id="ai-base-prompt" value="Creative system prompt">
-                <select id="ai-post-style">
-                    <option value="creative">Creative</option>
-                    <option value="joke">Joke</option>
-                    <option value="rant">Rant</option>
-                </select>
-                <input type="number" id="ai-temperature" value="0.7" step="0.1" min="0" max="1">
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Automatic Feed Generation -->
     <div class="section">
-        <h3>Automatic Feed Generation</h3>
+      <h3>Automatic Feed Generation</h3>
+      <div class="compact-group">
+        <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
+        <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
+        <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+      </div>
+      <div class="toggle-content">
         <div class="compact-group">
-            <button id="run-pipeline-btn" class="small-button">Run Automatic Pipeline</button>
-            <span class="info-text">(Fetches latest news & generates Auto + Semi drafts)</span>
-            <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
+          <input type="text" id="auto-base-prompt" value="Auto system prompt">
+          <select id="auto-post-style">
+            <option value="news">News</option>
+            <option value="thought">Thought</option>
+          </select>
+          <input type="number" id="auto-temperature" value="0.7" step="0.1" min="0" max="1">
         </div>
-        <div class="toggle-content">
-            <div class="compact-group">
-                <input type="text" id="auto-base-prompt" value="Auto system prompt">
-                <select id="auto-post-style">
-                    <option value="news">News</option>
-                    <option value="thought">Thought</option>
-                </select>
-                <input type="number" id="auto-temperature" value="0.7" step="0.1" min="0" max="1">
-            </div>
-        </div>
+      </div>
     </div>
 
     <!-- Account Stats -->
     <div class="section">
-        <h3>Account Stats</h3>
-        <div class="compact-group">
-            <div class="stats-box">X (Twitter): 15.2K Followers / 314 Posts</div>
-            <div class="stats-box">Bluesky: 3.8K Followers / 95 Posts</div>
-            <div class="stats-box">Mastodon: --</div>
-        </div>
+      <h3>Account Stats</h3>
+      <div class="compact-group">
+        <div class="stats-box">X (Twitter): 15.2K Followers / 314 Posts</div>
+        <div class="stats-box">Bluesky: 3.8K Followers / 95 Posts</div>
+        <div class="stats-box">Mastodon: --</div>
+      </div>
     </div>
 
+    <!-- Feed preview -->
     <div id="pipeline-list">
-        <!-- Posts injected here -->
+      <!-- Posts injected here -->
     </div>
+  </div>
 
-</div>
-<script src="/static/app.js"></script>
+  <!-- JS för att växla mellan huvudvyn och inställningspanelen -->
+  <script>
+    const openSettingsBtn = document.getElementById("open-settings-btn");
+    const mainContent = document.getElementById("main-content");
+    const settingsPanel = document.getElementById("settings-panel");
+
+    openSettingsBtn.addEventListener("click", () => {
+      // Dölj huvudvyn
+      mainContent.style.display = "none";
+
+      // Hämta och visa inställningspanelen
+      fetch("/static/settings.html")
+        .then(res => res.text())
+        .then(html => {
+          settingsPanel.innerHTML = html;
+          settingsPanel.style.display = "block";
+
+          // Lägg till en "Tillbaka"-knapp
+          const backBtn = document.createElement("button");
+          backBtn.textContent = "⬅️ Tillbaka";
+          backBtn.className = "small-button";
+          backBtn.style.marginBottom = "20px";
+          backBtn.onclick = () => {
+            settingsPanel.style.display = "none";
+            mainContent.style.display = "block";
+          };
+          settingsPanel.prepend(backBtn);
+        });
+    });
+  </script>
+
+  <!-- App-specifik logik -->
+  <script src="/static/app.js"></script>
 </body>
 </html>
