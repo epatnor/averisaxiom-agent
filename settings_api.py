@@ -1,20 +1,28 @@
-from fastapi import APIRouter, HTTPException, Request
-from settings_db import get_all_settings, get_setting, set_setting
+# settings_api.py
 
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+import settings_db
+
+# Init the router for settings endpoints
 router = APIRouter()
 
-@router.get("/api/settings")
-def read_settings():
-    """Return all settings as a dictionary."""
-    return get_all_settings()
+# Ensure settings DB is initialized at import
+settings_db.init_settings_db()
 
-@router.post("/api/settings")
+@router.get("/settings")
+def get_settings():
+    """
+    Load all settings from the settings database.
+    """
+    return settings_db.get_all_settings()
+
+@router.post("/settings")
 async def save_settings(request: Request):
-    """Update multiple settings based on posted JSON."""
+    """
+    Save incoming settings (as key-value pairs) to the settings database.
+    """
     data = await request.json()
-    if not isinstance(data, dict):
-        raise HTTPException(status_code=400, detail="Invalid JSON")
-
     for key, value in data.items():
-        set_setting(key, value)
-    return {"status": "success", "updated": list(data.keys())}
+        settings_db.set_setting(key, value)
+    return {"status": "saved"}
