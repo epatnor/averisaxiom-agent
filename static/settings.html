@@ -1,3 +1,4 @@
+<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,7 +26,8 @@
           Only show news with publish date
         </label>
       </div>
-      <textarea name="google_description" placeholder="Optional context or summarization prompt..."></textarea>
+      <!-- textarea ersatt med input -->
+      <input type="text" name="google_description" placeholder="Optional context or summarization prompt...">
       <div class="compact-group">
         <button class="small-button" onclick="saveGoogle()">💾 Save</button>
         <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
@@ -37,7 +39,8 @@
       <div class="compact-group">
         <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
       </div>
-      <textarea name="youtube_description" placeholder="Optional context or summarization prompt..."></textarea>
+      <!-- textarea ersatt med input -->
+      <input type="text" name="youtube_description" placeholder="Optional context or summarization prompt...">
       <div class="compact-group">
         <button class="small-button" onclick="saveYouTube()">💾 Save</button>
         <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
@@ -76,8 +79,7 @@
       </div>
     </div>
 
-    <!-- Future: Platform selection -->
-    <!--
+    <!-- Platform selection (nu synlig, ej aktiv) -->
     <div class="section">
       <h3>📤 Platforms</h3>
       <div class="compact-group">
@@ -86,7 +88,6 @@
         <label><input type="checkbox" name="use_mastodon"> Post to Mastodon</label>
       </div>
     </div>
-    -->
 
     <!-- Status log -->
     <div class="section">
