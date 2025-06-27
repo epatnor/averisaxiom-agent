@@ -1,8 +1,10 @@
 // settings.js
 
+// On DOM ready, load settings and bind button events
 document.addEventListener("DOMContentLoaded", () => {
     loadSettings();
 
+    // Attach save/test handlers based on button label
     document.querySelectorAll("button").forEach(button => {
         const label = button.textContent.toLowerCase();
         if (label.includes("save")) button.addEventListener("click", saveSettings);
@@ -10,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Load current settings from backend and populate inputs
+// Load settings from backend and populate matching input fields
 function loadSettings() {
     fetch("/settings")
         .then(res => res.json())
@@ -25,19 +27,15 @@ function loadSettings() {
                 }
             });
         })
-        .catch(err => console.error("Failed to load settings:", err));
+        .catch(err => console.error("❌ Failed to load settings:", err));
 }
 
-// Save settings within the clicked card
+// Save settings for a specific section (card or subcard)
 function saveSettings(event) {
     const card = event.target.closest(".card, .subcard");
-    const inputs = card.querySelectorAll("input, textarea");
+    if (!card) return;
 
-    const payload = {};
-    inputs.forEach(el => {
-        if (!el.name) return;
-        payload[el.name] = el.type === "checkbox" ? el.checked : el.value;
-    });
+    const payload = collectInputValues(card);
 
     fetch("/settings", {
         method: "POST",
@@ -46,26 +44,23 @@ function saveSettings(event) {
     })
     .then(res => res.json())
     .then(data => {
-        console.log("Settings saved:", data);
+        console.log("✅ Settings saved:", data);
         alert("✅ Settings saved successfully!");
     })
     .catch(err => {
-        console.error("Error saving settings:", err);
+        console.error("❌ Error saving settings:", err);
         alert("❌ Error saving settings.");
     });
 }
 
-// Send test request for the clicked card
+// Send test request based on card type
 function testSettings(event) {
     const card = event.target.closest(".card, .subcard");
-    const inputs = card.querySelectorAll("input, textarea");
+    if (!card) return;
 
-    const payload = {};
-    inputs.forEach(el => {
-        if (!el.name) return;
-        payload[el.name] = el.type === "checkbox" ? el.checked : el.value;
-    });
+    const payload = collectInputValues(card);
 
+    // Pick endpoint based on inner content
     let endpoint = "/test_scraper";
     const html = card.innerHTML.toLowerCase();
     if (html.includes("youtube")) endpoint = "/test_youtube";
@@ -81,7 +76,18 @@ function testSettings(event) {
         alert(`✅ Test successful:\n${JSON.stringify(data, null, 2)}`);
     })
     .catch(err => {
-        console.error("Error during test:", err);
+        console.error("❌ Test failed:", err);
         alert("❌ Test failed:\n" + err.message);
     });
+}
+
+// Utility: Collect input values from a card into an object
+function collectInputValues(card) {
+    const payload = {};
+    const inputs = card.querySelectorAll("input, textarea");
+    inputs.forEach(el => {
+        if (!el.name) return;
+        payload[el.name] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    return payload;
 }
