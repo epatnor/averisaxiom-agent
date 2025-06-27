@@ -1,11 +1,13 @@
 // settings.js
 
+console.log("🧠 settings.js loaded...");
+
 // == DOM READY ==
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🚀 DOM ready, initializing settings.js...");
+    console.log("🚀 DOM ready, initializing...");
     loadSettings();
 
-    // 🧷 Bind Save / Test / Reset buttons to handlers
+    // 🧷 Bind Save / Test / Reset buttons
     document.querySelectorAll("button").forEach(button => {
         const label = button.textContent.toLowerCase();
         if (label.includes("save")) button.addEventListener("click", saveSettings);
