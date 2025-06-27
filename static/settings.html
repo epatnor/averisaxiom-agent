@@ -1,3 +1,4 @@
+<!-- # settings.html -->
 <!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -7,149 +8,126 @@
 </head>
 <body>
 
-<header>Inställningar</header>
+  <!-- Sidhuvud -->
+  <header class="section">
+    <h1 style="text-align: center;">Inställningar</h1>
+  </header>
 
-<div class="container">
+  <div class="container">
 
-  <div class="section">
-    <h2>LLM</h2>
-    <div class="compact-group">
-      <div class="section">
-        <h3>OpenAI API</h3>
-        <input type="text" value="sk-abc123xyz..." />
-        <textarea>https://platform.openai.com/account/api-keys</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+    <!-- Sektion: Scrapers -->
+    <div class="section">
+      <h2>Scrapers</h2>
+      <div class="compact-group">
+        <div class="section">
+          <h3>Google News Scraper</h3>
+          <input type="text" class="input" value="https://news.google.com/rss" />
+          <textarea class="textarea">RSS används för att samla rubriker från källor du anger.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
-      </div>
-
-      <div class="section">
-        <h3>Prompt Variants</h3>
-        <input type="text" value="Neutral, Informative, Engaging" />
-        <textarea>[Neutral: 'Saklig analys'], [Engaging: 'Öppna med en fråga']</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>Scrapers</h2>
-    <div class="compact-group">
-      <div class="section">
-        <h3>Google News Scraper</h3>
-        <input type="text" value="https://news.google.com/rss" />
-        <textarea>RSS används för att samla rubriker från källor du anger.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <h3>YouTube Scraper</h3>
-        <input type="text" value="https://www.youtube.com/feed/trending" />
-        <textarea>Använd YouTube Data API v3 med trending-videos endpoint.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+        <div class="section">
+          <h3>YouTube Scraper</h3>
+          <input type="text" class="input" value="https://www.youtube.com/feed/trending" />
+          <textarea class="textarea">Använd YouTube Data API v3 med trending-videos endpoint.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="section">
-    <h2>Social Media Platforms</h2>
-    <div class="compact-group">
-      <div class="section">
-        <h3>Platform: Twitter</h3>
-        <input type="text" value="@averis_bot" />
-        <textarea>API-token krävs. Se https://developer.twitter.com</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+    <!-- Sektion: Sociala medier -->
+    <div class="section">
+      <h2>Social Media Platforms</h2>
+      <div class="compact-group">
+        <div class="section">
+          <h3>Platform: Twitter</h3>
+          <input type="text" class="input" value="@averis_bot" />
+          <textarea class="textarea">API-token krävs. Se https://developer.twitter.com</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
-      </div>
-
-      <div class="section">
-        <h3>Platform: Bluesky</h3>
-        <input type="text" value="bsky.social/averis" />
-        <textarea>Ange app password + handle.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+        <div class="section">
+          <h3>Platform: Bluesky</h3>
+          <input type="text" class="input" value="bsky.social/averis" />
+          <textarea class="textarea">Ange app password + handle.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
-      </div>
-
-      <div class="section">
-        <h3>Platform: Mastodon</h3>
-        <input type="text" value="mastodon.social/@averis" />
-        <textarea>OAuth med read/write scopes.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+        <div class="section">
+          <h3>Platform: Mastodon</h3>
+          <input type="text" class="input" value="mastodon.social/@averis" />
+          <textarea class="textarea">OAuth med read/write scopes.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
-      </div>
-
-      <div class="section">
-        <h3>Login Credentials</h3>
-        <input type="text" value="user@example.com" />
-        <textarea>Inloggning används för verifiering mot API:er.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <h2>AverisAxiom Identity</h2>
-    <div class="compact-group">
-      <div class="section">
-        <h3>Huvudprompt (persona)</h3>
-        <input type="text" value="Du är AverisAxiom, en ansvarstagande men vass röst online." />
-        <textarea>AverisAxiom är en digital persona skapad för att generera och publicera välunderbyggda, känslomässigt intelligenta inlägg.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <h3>Subprompts (bias och stil)</h3>
-        <input type="text" value="Undvik clickbait. Ta ställning, men med fakta." />
-        <textarea>Favoriserar decentraliserade lösningar, frihetlig politik och kritisk teknikgranskning.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
-        </div>
-      </div>
-
-      <div class="section">
-        <h3>Mina åsiktsriktningar</h3>
-        <input type="text" value="Teknikkritisk, frihetlig, skeptisk till centralisering" />
-        <textarea>Tänk: Pro AI med integritetsfokus, försiktig klimatrealism, skeptisk till överreglering.</textarea>
-        <div class="compact-group">
-          <button class="small-button">Spara</button>
-          <button class="small-button">Testa</button>
+        <div class="section">
+          <h3>Login Credentials</h3>
+          <input type="text" class="input" value="user@example.com" />
+          <textarea class="textarea">Inloggning används för verifiering mot API:er.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
         </div>
       </div>
     </div>
+
+    <!-- Sektion: AverisAxiom persona -->
+    <div class="section">
+      <h2>AverisAxiom Identity</h2>
+      <div class="compact-group">
+        <div class="section">
+          <h3>Huvudprompt (persona)</h3>
+          <input type="text" class="input" value="Du är AverisAxiom, en ansvarstagande men vass röst online." />
+          <textarea class="textarea">AverisAxiom är en digital persona skapad för att generera och publicera välunderbyggda, känslomässigt intelligenta inlägg.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
+        </div>
+        <div class="section">
+          <h3>Subprompts (bias och stil)</h3>
+          <input type="text" class="input" value="Undvik clickbait. Ta ställning, men med fakta." />
+          <textarea class="textarea">Favoriserar decentraliserade lösningar, frihetlig politik och kritisk teknikgranskning.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
+        </div>
+        <div class="section">
+          <h3>Mina åsiktsriktningar</h3>
+          <input type="text" class="input" value="Teknikkritisk, frihetlig, skeptisk till centralisering" />
+          <textarea class="textarea">Tänk: Pro AI med integritetsfokus, försiktig klimatrealism, skeptisk till överreglering.</textarea>
+          <div class="compact-group">
+            <button class="small-button">Spara</button>
+            <button class="small-button">Testa</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sektion: Logg -->
+    <div class="section">
+      <h3>Logg</h3>
+      <div class="info-text">✅ OpenAI API-nyckel sparad</div>
+      <div class="info-text">🔄 Twitter login verifierad</div>
+      <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
+      <div class="info-text">🟢 Mastodon: ansluten</div>
+      <div class="info-text">🕒 Senast ändrad: 08:12</div>
+    </div>
+
   </div>
 
-  <div class="section">
-    <h3>Logg</h3>
-    <div class="info-text">✅ OpenAI API-nyckel sparad</div>
-    <div class="info-text">🔄 Twitter login verifierad</div>
-    <div class="info-text">⚠️ Bluesky prompt saknar mall</div>
-    <div class="info-text">🟢 Mastodon: ansluten</div>
-    <div class="info-text">🕒 Senast ändrad: 08:12</div>
-  </div>
-
-</div>
 </body>
 </html>
