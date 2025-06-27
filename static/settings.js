@@ -26,8 +26,8 @@ function loadSettings() {
         .then(data => {
             console.log("✅ Settings loaded:", data);
 
-            const inputs = document.querySelectorAll("input, textarea");
-            console.log(`🔎 Found ${inputs.length} input/textarea elements.`);
+            const inputs = [...document.querySelectorAll("input[name], textarea[name]")];
+            console.log(`🔎 Found ${inputs.length} named input/textarea elements.`);
 
             const normalizedData = {};
             Object.entries(data).forEach(([k, v]) => {
@@ -37,11 +37,6 @@ function loadSettings() {
             inputs.forEach(el => {
                 const rawName = el.name;
                 const key = rawName?.toUpperCase();
-
-                if (!key) {
-                    console.warn("⚠️ Input element missing 'name' attribute:", el);
-                    return;
-                }
 
                 if (!(key in normalizedData)) {
                     console.warn(`⚠️ No value returned for key '${key}'`);
@@ -127,8 +122,7 @@ function resetDefaults() {
 // == Collect all inputs from a section/card ==
 function collectInputValues(container) {
     const payload = {};
-    container.querySelectorAll("input, textarea").forEach(el => {
-        if (!el.name) return;
+    container.querySelectorAll("input[name], textarea[name]").forEach(el => {
         payload[el.name.trim().toUpperCase()] = (el.type === "checkbox") ? String(el.checked) : el.value;
     });
     return payload;
