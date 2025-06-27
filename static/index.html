@@ -1,33 +1,28 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>AverisAxiom Control Panel - Unified Pipeline View</title>
   <link rel="stylesheet" href="/static/styles.css">
-  <style>
-    .header-actions {
-      position: absolute;
-      right: 16px;
-      top: 12px;
-    }
-  </style>
 </head>
 <body>
 
   <!-- Header -->
-  <header style="position: relative;">
+  <header>
     AverisAxiom Control Panel - Unified Pipeline View
     <div class="header-actions">
       <button id="settings-toggle-btn" class="small-button">⚙️ Settings</button>
     </div>
   </header>
 
-  <!-- Settings panel -->
+  <!-- Settings panel (loaded dynamically) -->
   <div id="settings-panel" style="display: none;"></div>
 
-  <!-- Main content -->
+  <!-- Main content area -->
   <div id="main-content" class="container">
-    <!-- Manual Post -->
+
+    <!-- Manual Post Section -->
     <div class="section">
       <h3>Manual Post</h3>
       <div class="compact-group">
@@ -37,7 +32,7 @@
       </div>
     </div>
 
-    <!-- AI-Assisted Post -->
+    <!-- AI-Assisted Post Section -->
     <div class="section">
       <h3>AI-Assisted Post</h3>
       <div class="compact-group">
@@ -58,7 +53,7 @@
       </div>
     </div>
 
-    <!-- Automatic Feed Generation -->
+    <!-- Automatic Feed Generation Section -->
     <div class="section">
       <h3>Automatic Feed Generation</h3>
       <div class="compact-group">
@@ -78,7 +73,7 @@
       </div>
     </div>
 
-    <!-- Account Stats -->
+    <!-- Account Stats Section -->
     <div class="section">
       <h3>Account Stats</h3>
       <div class="compact-group">
@@ -88,12 +83,13 @@
       </div>
     </div>
 
+    <!-- List of generated posts -->
     <div id="pipeline-list">
       <!-- Posts injected here -->
     </div>
   </div>
 
-  <!-- Script to toggle Settings -->
+  <!-- Toggle Settings Panel Logic -->
   <script>
     const toggleBtn = document.getElementById("settings-toggle-btn");
     const mainContent = document.getElementById("main-content");
@@ -120,6 +116,7 @@
     });
   </script>
 
+  <!-- App logic -->
   <script src="/static/app.js"></script>
 </body>
 </html>
