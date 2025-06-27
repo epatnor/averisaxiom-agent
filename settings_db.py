@@ -61,7 +61,7 @@ def get_all_settings():
 
     # Add fallback env vars if not already set in db
     for key, val in os.environ.items():
-        if key not in settings:
+        if key not in settings or settings[key] in [None, ""]:
             settings[key] = val
 
     return settings
@@ -70,6 +70,6 @@ def get_all_settings():
 # (Optional) Separate fallback method, if you want to force using a specific env key
 def get_setting_with_fallback(key, fallback_env):
     value = get_setting(key)
-    if value is not None and value != "":
+    if value not in [None, ""]:
         return value
     return os.getenv(fallback_env, "")
