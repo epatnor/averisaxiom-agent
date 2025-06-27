@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +8,7 @@
 </head>
 <body>
 
-  <!-- Header with settings toggle -->
+  <!-- Header -->
   <header>
     AverisAxiom Control Panel - Unified Pipeline View
     <div class="header-actions">
@@ -15,13 +16,13 @@
     </div>
   </header>
 
-  <!-- Settings panel loaded dynamically -->
+  <!-- Settings panel (loaded dynamically) -->
   <div id="settings-panel" style="display: none;"></div>
 
   <!-- Main content area -->
   <div id="main-content" class="container">
 
-    <!-- Manual Post -->
+    <!-- Manual Post Section -->
     <div class="section">
       <h3>Manual Post</h3>
       <div class="compact-group">
@@ -31,11 +32,11 @@
       </div>
     </div>
 
-    <!-- AI-Assisted Post -->
+    <!-- AI-Assisted Post Section -->
     <div class="section">
       <h3>AI-Assisted Post</h3>
       <div class="compact-group">
-        <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex: 3">
+        <input type="text" id="creative-topic" placeholder="Enter assisted post topic..." style="flex:3">
         <button id="generate-draft-btn" class="small-button">Generate Draft</button>
         <span class="toggle-settings" onclick="this.classList.toggle('expanded'); this.nextElementSibling.classList.toggle('toggle-content');">⚙️</span>
       </div>
@@ -52,7 +53,7 @@
       </div>
     </div>
 
-    <!-- Automatic Feed Generation -->
+    <!-- Automatic Feed Generation Section -->
     <div class="section">
       <h3>Automatic Feed Generation</h3>
       <div class="compact-group">
@@ -72,7 +73,7 @@
       </div>
     </div>
 
-    <!-- Account Stats -->
+    <!-- Account Stats Section -->
     <div class="section">
       <h3>Account Stats</h3>
       <div class="compact-group">
@@ -115,6 +116,7 @@
     });
   </script>
 
+  <!-- App logic -->
   <script src="/static/app.js"></script>
 </body>
 </html>
