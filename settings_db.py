@@ -1,10 +1,12 @@
+# settings_db.py
+
 import sqlite3
 import os
 
 SETTINGS_DB = "settings.db"
 
+# Create the settings.db if it doesn't exist
 def init_settings_db():
-    """Create the settings.db with a settings table if it doesn't exist."""
     if not os.path.exists(SETTINGS_DB):
         print("==> Creating settings.db...")
         conn = sqlite3.connect(SETTINGS_DB)
@@ -18,9 +20,8 @@ def init_settings_db():
         conn.commit()
         conn.close()
 
-
+# Get one specific setting by key
 def get_setting(key):
-    """Retrieve a setting value by key."""
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
@@ -28,9 +29,8 @@ def get_setting(key):
     conn.close()
     return row[0] if row else None
 
-
+# Set or update a single setting
 def set_setting(key, value):
-    """Insert or update a setting key/value pair."""
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("""
@@ -40,12 +40,18 @@ def set_setting(key, value):
     conn.commit()
     conn.close()
 
-
+# Load all settings as a dictionary
 def get_all_settings():
-    """Return a dictionary of all settings."""
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("SELECT key, value FROM settings")
     rows = c.fetchall()
     conn.close()
     return {key: value for key, value in rows}
+
+# Return a setting from db, or fallback to .env
+def get_setting_with_fallback(key, fallback_env):
+    value = get_setting(key)
+    if value is not None:
+        return value
+    return os.getenv(fallback_env, "")
