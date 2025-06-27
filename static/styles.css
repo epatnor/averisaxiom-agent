@@ -75,10 +75,20 @@ textarea {
 
 /* === Textarea Specifics === */
 textarea {
+  all: unset;
+  display: block;
+  background: #1e1e1e;
+  color: #f0f0f0;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px 10px;
+  font-size: 0.95rem;
+  width: 100%;
+  box-sizing: border-box;
   resize: vertical;
-  min-height: 70px;
-  line-height: 1.5;
+  margin-bottom: 10px;
 }
+
 
 /* === Buttons === */
 button,
