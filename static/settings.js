@@ -1,13 +1,11 @@
 // settings.js
 
-console.log("🧠 settings.js loaded...");
-
 // == DOM READY ==
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🚀 DOM ready, initializing...");
+    console.log("🚀 DOM ready, initializing settings.js...");
     loadSettings();
 
-    // 🧷 Bind Save / Test / Reset buttons
+    // 🧷 Bind Save / Test / Reset buttons to handlers
     document.querySelectorAll("button").forEach(button => {
         const label = button.textContent.toLowerCase();
         if (label.includes("save")) button.addEventListener("click", saveSettings);
@@ -28,25 +26,30 @@ function loadSettings() {
         .then(data => {
             console.log("✅ Settings loaded:", data);
 
+            const normalized = {};
+            for (const key in data) {
+                normalized[key.toLowerCase()] = data[key];
+            }
+
             const inputs = document.querySelectorAll("input, textarea");
             console.log(`🔎 Found ${inputs.length} input/textarea elements.`);
 
             inputs.forEach(el => {
-                const key = el.name;
+                const key = el.name?.toLowerCase();
                 if (!key) {
                     console.warn("⚠️ Input element missing 'name' attribute:", el);
                     return;
                 }
 
-                if (!(key in data)) {
+                if (!(key in normalized)) {
                     console.warn(`⚠️ No value returned for key '${key}'`);
                     return;
                 }
 
                 if (el.type === "checkbox") {
-                    el.checked = (data[key] === "true" || data[key] === true);
+                    el.checked = (normalized[key] === "true" || normalized[key] === true);
                 } else {
-                    el.value = data[key] ?? "";
+                    el.value = normalized[key] ?? "";
                 }
 
                 console.log(`↪️ Set [${key}] to`, el.type === "checkbox" ? el.checked : el.value);
