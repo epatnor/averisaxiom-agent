@@ -11,13 +11,23 @@ body {
 
 /* === Container === */
 .container {
-  padding: 20px;
-  max-width: 1000px;
+  max-width: 100%;              /* Full width by default */
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding: 0 16px;              /* Lite luft i kanterna */
 }
+
+/* På större skärmar: begränsa bredden för bättre läsbarhet */
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1400px;
+    padding: 0;                 /* Ta bort sidopadding när vi har max-width */
+  }
+}
+
 
 /* === Section blocks === */
 .section {
