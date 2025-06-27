@@ -17,13 +17,13 @@
     <div class="compact-group">
       <div class="section">
         <h3>Google News Scraper</h3>
-        <input type="text" placeholder="https://news.google.com/rss" value="https://news.google.com/rss">
-        <textarea placeholder="RSS används för att samla rubriker från källor du anger."></textarea>
-        <input type="number" placeholder="Max ålder (dagar)" value="2">
-        <input type="number" placeholder="Max nyheter per körning" value="10">
-        <input type="text" placeholder="Sökterm eller ämne" value="AI, klimat">
+        <input type="text" name="scraper.google.rss_url" placeholder="https://news.google.com/rss" value="https://news.google.com/rss">
+        <textarea name="scraper.google.notes" placeholder="RSS används för att samla rubriker från källor du anger."></textarea>
+        <input type="number" name="scraper.google.max_age" placeholder="Max ålder (dagar)" value="2">
+        <input type="number" name="scraper.google.max_items" placeholder="Max nyheter per körning" value="10">
+        <input type="text" name="scraper.google.search_terms" placeholder="Sökterm eller ämne" value="AI, klimat">
         <label style="display:flex; gap:8px; align-items:center;">
-          <input type="checkbox" checked>
+          <input type="checkbox" name="scraper.google.require_date" checked>
           Visa endast nyheter med publiceringsdatum
         </label>
         <div class="compact-group">
@@ -34,8 +34,8 @@
 
       <div class="section">
         <h3>YouTube Scraper</h3>
-        <input type="text" placeholder="https://youtube.com/feed/trending" value="https://www.youtube.com/feed/trending">
-        <textarea placeholder="Använd YouTube Data API v3 med trending-videos endpoint."></textarea>
+        <input type="text" name="scraper.youtube.feed_url" placeholder="https://youtube.com/feed/trending" value="https://www.youtube.com/feed/trending">
+        <textarea name="scraper.youtube.notes" placeholder="Använd YouTube Data API v3 med trending-videos endpoint."></textarea>
         <div class="compact-group">
           <button class="small-button">Spara</button>
           <button class="small-button">Testa</button>
@@ -56,5 +56,6 @@
 
 </div>
 
+<script src="/static/settings.js"></script>
 </body>
 </html>
