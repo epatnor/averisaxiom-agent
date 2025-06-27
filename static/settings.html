@@ -9,14 +9,7 @@
 </head>
 <body>
 
-
   <div class="container">
-
-    <div class="section">
-      <div class="compact-group">
-        <textarea name="google_description" placeholder="Optional context or summarization prompt..."></textarea>
-      </div>
-    </div>
 
     <!-- Scrapers -->
     <div class="section">
@@ -33,8 +26,10 @@
           Only show news with publish date
         </label>
       </div>
-      <!-- textarea ersatt med input -->
-      <input type="text" name="google_description" placeholder="Optional context or summarization prompt...">
+      <!-- textarea inlindad i compact-group för korrekt styling -->
+      <div class="compact-group">
+        <textarea name="google_description" placeholder="Optional context or summarization prompt..."></textarea>
+      </div>
       <div class="compact-group">
         <button class="small-button" onclick="saveGoogle()">💾 Save</button>
         <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
@@ -46,8 +41,9 @@
       <div class="compact-group">
         <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
       </div>
-      <!-- textarea ersatt med input -->
-      <input type="text" name="youtube_description" placeholder="Optional context or summarization prompt...">
+      <div class="compact-group">
+        <textarea name="youtube_description" placeholder="Optional context or summarization prompt..."></textarea>
+      </div>
       <div class="compact-group">
         <button class="small-button" onclick="saveYouTube()">💾 Save</button>
         <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
@@ -86,7 +82,7 @@
       </div>
     </div>
 
-    <!-- Platform selection (nu synlig, ej aktiv) -->
+    <!-- Platform selection (nu aktiv i UI) -->
     <div class="section">
       <h3>📤 Platforms</h3>
       <div class="compact-group">
