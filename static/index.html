@@ -5,24 +5,31 @@
   <meta charset="UTF-8">
   <title>AverisAxiom Control Panel - Unified Pipeline View</title>
   <link rel="stylesheet" href="/static/styles.css">
+  <style>
+    /* Extra CSS för placering av inställningsknapp */
+    .header-actions {
+      position: absolute;
+      right: 16px;
+      top: 12px;
+    }
+  </style>
 </head>
 <body>
-  <!-- App header -->
-  <header>AverisAxiom Control Panel - Unified Pipeline View</header>
 
-  <!-- Inställningspanel (dold från start) -->
+  <!-- App header med inställningsknapp -->
+  <header style="position: relative;">
+    AverisAxiom Control Panel - Unified Pipeline View
+    <div class="header-actions">
+      <button id="open-settings-btn" class="small-button">⚙️ Inställningar</button>
+    </div>
+  </header>
+
+  <!-- Inställningspanelen (dold från start) -->
   <div id="settings-panel" style="display: none;"></div>
 
   <!-- Huvudinnehåll -->
   <div id="main-content" class="container">
-
-    <!-- Inställningsknapp -->
-    <div class="section">
-      <h3>Verktyg</h3>
-      <div class="compact-group">
-        <button id="open-settings-btn" class="small-button">⚙️ Inställningar</button>
-      </div>
-    </div>
+    <!-- Verktyg (Inställningskort är nu borttaget) -->
 
     <!-- Manual Post -->
     <div class="section">
@@ -85,30 +92,24 @@
       </div>
     </div>
 
-    <!-- Feed preview -->
     <div id="pipeline-list">
       <!-- Posts injected here -->
     </div>
   </div>
 
-  <!-- JS för att växla mellan huvudvyn och inställningspanelen -->
   <script>
     const openSettingsBtn = document.getElementById("open-settings-btn");
     const mainContent = document.getElementById("main-content");
     const settingsPanel = document.getElementById("settings-panel");
 
     openSettingsBtn.addEventListener("click", () => {
-      // Dölj huvudvyn
       mainContent.style.display = "none";
-
-      // Hämta och visa inställningspanelen
       fetch("/static/settings.html")
         .then(res => res.text())
         .then(html => {
           settingsPanel.innerHTML = html;
           settingsPanel.style.display = "block";
 
-          // Lägg till en "Tillbaka"-knapp
           const backBtn = document.createElement("button");
           backBtn.textContent = "⬅️ Tillbaka";
           backBtn.className = "small-button";
@@ -122,7 +123,6 @@
     });
   </script>
 
-  <!-- App-specifik logik -->
   <script src="/static/app.js"></script>
 </body>
 </html>
