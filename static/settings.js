@@ -36,15 +36,17 @@ function loadSettings() {
                     return;
                 }
 
-                if (!(key in data)) {
+                // Match keys case-insensitively
+                const matchedKey = Object.keys(data).find(k => k.toLowerCase() === key.toLowerCase());
+                if (!matchedKey) {
                     console.warn(`⚠️ No value returned for key '${key}'`);
                     return;
                 }
 
                 if (el.type === "checkbox") {
-                    el.checked = (data[key] === "true" || data[key] === true);
+                    el.checked = (data[matchedKey] === "true" || data[matchedKey] === true);
                 } else {
-                    el.value = data[key] ?? "";
+                    el.value = data[matchedKey] ?? "";
                 }
 
                 console.log(`↪️ Set [${key}] to`, el.type === "checkbox" ? el.checked : el.value);
