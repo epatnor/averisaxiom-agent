@@ -32,7 +32,7 @@ body {
 /* === Section styling (cards) === */
 .section {
   background-color: #222;
-  padding: 16px;
+  padding: 8px 12px;
   border-radius: 12px;
   box-shadow: 0 0 8px #0005;
   margin-bottom: 32px;  /* More spacing between cards */
@@ -47,11 +47,11 @@ h2 {
   font-size: 1.2rem;
   border-bottom: 1px solid #333;
   padding-bottom: 6px;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 h3 {
   font-size: 1.1rem;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 /* === Inputs & Textareas === */
@@ -159,7 +159,7 @@ header {
 #pipeline-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;           /* Tight vertical spacing between posts */
-  margin-top: 32px;
+  gap: 3px;           /* Tight vertical spacing between posts */
+  margin-top: 16px;
   padding: 0 16px;    /* Horizontal breathing room */
 }
