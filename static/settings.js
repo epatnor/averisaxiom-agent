@@ -2,10 +2,10 @@
 
 // == DOM READY ==
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("🔄 DOMContentLoaded: Loading settings...");
+    console.log("🚀 DOM ready, initializing settings.js...");
     loadSettings();
 
-    // 🧷 Bind Save / Test / Reset buttons
+    // 🧷 Bind Save / Test / Reset buttons to handlers
     document.querySelectorAll("button").forEach(button => {
         const label = button.textContent.toLowerCase();
         if (label.includes("save")) button.addEventListener("click", saveSettings);
@@ -17,15 +17,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // == Load settings from backend and populate inputs ==
 function loadSettings() {
+    console.log("📡 Attempting to fetch /settings...");
     fetch("/settings")
         .then(res => {
-            console.log("📡 Fetching /settings...");
+            console.log("🌐 Response status:", res.status);
             return res.json();
         })
         .then(data => {
             console.log("✅ Settings loaded:", data);
 
             const inputs = document.querySelectorAll("input, textarea");
+            console.log(`🔎 Found ${inputs.length} input/textarea elements.`);
 
             inputs.forEach(el => {
                 const key = el.name;
@@ -55,13 +57,10 @@ function loadSettings() {
 // == Save settings from current section ==
 function saveSettings(event) {
     const card = event.target.closest(".section, .card, .subcard");
-    if (!card) {
-        console.warn("⚠️ No container found for Save button");
-        return;
-    }
+    if (!card) return;
 
     const payload = collectInputValues(card);
-    console.log("📤 Saving settings:", payload);
+    console.log("💾 Saving settings:", payload);
 
     fetch("/settings", {
         method: "POST",
@@ -83,15 +82,12 @@ function saveSettings(event) {
 // == Test feature for current section ==
 function testSettings(event) {
     const card = event.target.closest(".section, .card, .subcard");
-    if (!card) {
-        console.warn("⚠️ No container found for Test button");
-        return;
-    }
+    if (!card) return;
 
     const payload = collectInputValues(card);
-    console.log("🧪 Testing with payload:", payload);
+    console.log("🧪 Testing settings:", payload);
 
-    let endpoint = "/test_scraper"; // default
+    let endpoint = "/test_scraper"; // fallback default
     const html = card.innerHTML.toLowerCase();
     if (html.includes("youtube")) endpoint = "/test_youtube";
     else if (html.includes("google")) endpoint = "/test_scraper";
@@ -103,7 +99,6 @@ function testSettings(event) {
     })
     .then(res => res.json())
     .then(data => {
-        console.log("✅ Test response:", data);
         alert(`✅ Test successful:\n${JSON.stringify(data, null, 2)}`);
     })
     .catch(err => {
@@ -113,7 +108,7 @@ function testSettings(event) {
 }
 
 
-// == Reset handler (just reloads page for now) ==
+// == Reset handler (just reloads the page for now) ==
 function resetDefaults() {
     if (confirm("Reset settings to default values from .env?")) {
         location.reload();
@@ -125,11 +120,7 @@ function resetDefaults() {
 function collectInputValues(container) {
     const payload = {};
     container.querySelectorAll("input, textarea").forEach(el => {
-        if (!el.name) {
-            console.warn("⚠️ Skipping unnamed input:", el);
-            return;
-        }
-
+        if (!el.name) return;
         payload[el.name] = (el.type === "checkbox") ? String(el.checked) : el.value;
     });
     return payload;
