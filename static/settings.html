@@ -11,8 +11,8 @@
 
   <div class="container">
 
-    <!-- Scrapers -->
-    <div class="section">
+    <!-- 🔍 Google News Settings -->
+    <div class="section card">
       <h3>🔍 Google News</h3>
       <div class="compact-group">
         <input type="text" name="google_rss_url" placeholder="RSS Feed URL">
@@ -26,17 +26,17 @@
           Only show news with publish date
         </label>
       </div>
-      <!-- textarea inlindad i compact-group för korrekt styling -->
       <div class="compact-group">
         <textarea name="google_description" placeholder="Optional context or summarization prompt..."></textarea>
       </div>
       <div class="compact-group">
-        <button class="small-button" onclick="saveGoogle()">💾 Save</button>
-        <button class="small-button" onclick="testGoogle()">⚙️ Test</button>
+        <button class="small-button">💾 Save</button>
+        <button class="small-button">⚙️ Test</button>
       </div>
     </div>
 
-    <div class="section">
+    <!-- 📺 YouTube Settings -->
+    <div class="section card">
       <h3>📺 YouTube</h3>
       <div class="compact-group">
         <input type="text" name="youtube_url" placeholder="YouTube Feed URL">
@@ -45,13 +45,13 @@
         <textarea name="youtube_description" placeholder="Optional context or summarization prompt..."></textarea>
       </div>
       <div class="compact-group">
-        <button class="small-button" onclick="saveYouTube()">💾 Save</button>
-        <button class="small-button" onclick="testYouTube()">⚙️ Test</button>
+        <button class="small-button">💾 Save</button>
+        <button class="small-button">⚙️ Test</button>
       </div>
     </div>
 
-    <!-- API Keys -->
-    <div class="section">
+    <!-- 🔐 API Keys -->
+    <div class="section card">
       <h3>🔐 API Keys</h3>
       <div class="compact-group">
         <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key">
@@ -66,24 +66,24 @@
         <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password">
       </div>
       <div class="compact-group">
-        <button class="small-button" onclick="saveAPI()">💾 Save</button>
+        <button class="small-button">💾 Save</button>
       </div>
     </div>
 
-    <!-- System -->
-    <div class="section">
+    <!-- ⚙️ System Settings -->
+    <div class="section card">
       <h3>⚙️ System</h3>
       <div class="compact-group">
         <label class="checkbox-inline">
           <input type="checkbox" name="TEST_MODE">
           Enable test mode
         </label>
-        <button class="small-button" onclick="resetDefaults()">🔄 Reset to defaults</button>
+        <button class="small-button">🔄 Reset to defaults</button>
       </div>
     </div>
 
-    <!-- Platform selection (nu aktiv i UI) -->
-    <div class="section">
+    <!-- 📤 Platform Selection -->
+    <div class="section card">
       <h3>📤 Platforms</h3>
       <div class="compact-group">
         <label><input type="checkbox" name="use_x"> Post to X</label>
@@ -92,8 +92,8 @@
       </div>
     </div>
 
-    <!-- Status log -->
-    <div class="section">
+    <!-- 📋 Status Log (just visual/logging, not tied to backend yet) -->
+    <div class="section card">
       <h3>📋 Status Log</h3>
       <ul id="status-log" class="log-list">
         <li>✅ OpenAI API key saved</li>
