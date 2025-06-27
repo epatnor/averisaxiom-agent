@@ -153,7 +153,9 @@ header {
   font-weight: 600;
   font-size: 1.4rem;
   border-bottom: 1px solid #333;
+  margin-bottom: 16px; /* 👈 This is the fix! */
 }
+
 
 /* === Pipeline list (compact post list) === */
 #pipeline-list {
