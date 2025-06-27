@@ -29,24 +29,27 @@ function loadSettings() {
             const inputs = document.querySelectorAll("input, textarea");
             console.log(`🔎 Found ${inputs.length} input/textarea elements.`);
 
+            const normalizedData = {};
+            Object.entries(data).forEach(([k, v]) => {
+                normalizedData[k.trim().toUpperCase()] = v;
+            });
+
             inputs.forEach(el => {
-                const key = el.name;
+                const key = el.name?.trim().toUpperCase();
                 if (!key) {
                     console.warn("⚠️ Input element missing 'name' attribute:", el);
                     return;
                 }
 
-                // Match keys case-insensitively
-                const matchedKey = Object.keys(data).find(k => k.toLowerCase() === key.toLowerCase());
-                if (!matchedKey) {
+                if (!(key in normalizedData)) {
                     console.warn(`⚠️ No value returned for key '${key}'`);
                     return;
                 }
 
                 if (el.type === "checkbox") {
-                    el.checked = (data[matchedKey] === "true" || data[matchedKey] === true);
+                    el.checked = (normalizedData[key] === "true" || normalizedData[key] === true);
                 } else {
-                    el.value = data[matchedKey] ?? "";
+                    el.value = normalizedData[key] ?? "";
                 }
 
                 console.log(`↪️ Set [${key}] to`, el.type === "checkbox" ? el.checked : el.value);
@@ -123,7 +126,7 @@ function collectInputValues(container) {
     const payload = {};
     container.querySelectorAll("input, textarea").forEach(el => {
         if (!el.name) return;
-        payload[el.name] = (el.type === "checkbox") ? String(el.checked) : el.value;
+        payload[el.name.trim().toUpperCase()] = (el.type === "checkbox") ? String(el.checked) : el.value;
     });
     return payload;
 }
