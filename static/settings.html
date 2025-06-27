@@ -4,8 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Settings</title>
-  <link rel="stylesheet" href="styles.css">
-  <script defer src="settings.js"></script>
+  <link rel="stylesheet" href="/static/styles.css">
+  <script defer src="/static/settings.js"></script>
 </head>
 <body>
 
@@ -14,21 +14,21 @@
     <!-- 🔍 Google News Settings -->
     <div class="section card">
       <h3>🔍 Google News</h3>
-      <div class="compact-group">
+      <form class="compact-group">
         <input type="text" name="GOOGLE_RSS_URL" placeholder="RSS Feed URL">
         <input type="number" name="GOOGLE_MAX_AGE" placeholder="Max age (days)">
         <input type="number" name="GOOGLE_MAX_ITEMS" placeholder="Max items per run">
-      </div>
-      <div class="compact-group">
+      </form>
+      <form class="compact-group">
         <input type="text" name="GOOGLE_QUERY" placeholder="Search terms or topics">
         <label class="checkbox-inline">
           <input type="checkbox" name="GOOGLE_REQUIRE_DATE">
           Only show news with publish date
         </label>
-      </div>
-      <div class="compact-group">
+      </form>
+      <form class="compact-group">
         <textarea name="GOOGLE_DESCRIPTION" placeholder="Optional context or summarization prompt..."></textarea>
-      </div>
+      </form>
       <div class="compact-group">
         <button class="small-button">💾 Save</button>
         <button class="small-button">⚙️ Test</button>
@@ -38,12 +38,12 @@
     <!-- 📺 YouTube Settings -->
     <div class="section card">
       <h3>📺 YouTube</h3>
-      <div class="compact-group">
+      <form class="compact-group">
         <input type="text" name="YOUTUBE_FEED_URL" placeholder="YouTube Feed URL">
-      </div>
-      <div class="compact-group">
+      </form>
+      <form class="compact-group">
         <textarea name="YOUTUBE_DESCRIPTION" placeholder="Optional context or summarization prompt..."></textarea>
-      </div>
+      </form>
       <div class="compact-group">
         <button class="small-button">💾 Save</button>
         <button class="small-button">⚙️ Test</button>
@@ -53,18 +53,18 @@
     <!-- 🔐 API Keys -->
     <div class="section card">
       <h3>🔐 API Keys</h3>
-      <div class="compact-group">
-        <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key">
+      <form class="compact-group">
+        <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key" autocomplete="off">
         <input type="text" name="SERPER_API_KEY" placeholder="Serper API Key">
-      </div>
-      <div class="compact-group">
+      </form>
+      <form class="compact-group">
         <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
-        <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token">
-      </div>
-      <div class="compact-group">
+        <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token" autocomplete="off">
+      </form>
+      <form class="compact-group">
         <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky Handle">
-        <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password">
-      </div>
+        <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password" autocomplete="off">
+      </form>
       <div class="compact-group">
         <button class="small-button">💾 Save</button>
       </div>
@@ -73,23 +73,23 @@
     <!-- ⚙️ System Settings -->
     <div class="section card">
       <h3>⚙️ System</h3>
-      <div class="compact-group">
+      <form class="compact-group">
         <label class="checkbox-inline">
           <input type="checkbox" name="TEST_MODE">
           Enable test mode
         </label>
         <button class="small-button">🔄 Reset to defaults</button>
-      </div>
+      </form>
     </div>
 
     <!-- 📤 Platform Selection -->
     <div class="section card">
       <h3>📤 Platforms</h3>
-      <div class="compact-group">
+      <form class="compact-group">
         <label><input type="checkbox" name="USE_X"> Post to X</label>
         <label><input type="checkbox" name="USE_BLUESKY"> Post to Bluesky</label>
         <label><input type="checkbox" name="USE_MASTODON"> Post to Mastodon</label>
-      </div>
+      </form>
     </div>
 
     <!-- 📋 Status Log -->
