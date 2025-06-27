@@ -1,5 +1,3 @@
-# settings_api.py
-
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 import settings_db
@@ -15,7 +13,11 @@ def get_settings():
     """
     Load all settings from the settings database.
     """
-    return settings_db.get_all_settings()
+    settings = settings_db.get_all_settings()
+    print("==> [API] Fetched settings:")
+    for k, v in settings.items():
+        print(f"    {k} = {v}")
+    return settings
 
 @router.post("/settings")
 async def save_settings(request: Request):
@@ -23,6 +25,8 @@ async def save_settings(request: Request):
     Save incoming settings (as key-value pairs) to the settings database.
     """
     data = await request.json()
-    for key, value in data.items():
-        settings_db.set_setting(key, value)
+    print("==> [API] Saving incoming settings:")
+    for k, v in data.items():
+        print(f"    {k} = {v}")
+        settings_db.set_setting(k, v)
     return {"status": "saved"}
