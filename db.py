@@ -3,6 +3,7 @@
 import sqlite3
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 DB_PATH = "posts.db"
 
@@ -134,7 +135,6 @@ def get_pipeline():
         } for row in rows
     ]
 
-
 def insert_scraped_item(item):
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -166,3 +166,33 @@ def update_post_origin(post_id, new_origin):
     """, (new_origin, post_id))
     conn.commit()
     conn.close()
+
+
+# === SETTINGS ===
+
+def get_settings():
+    load_dotenv()
+    return {
+        "MAX_NEWS_AGE_DAYS": os.getenv("MAX_NEWS_AGE_DAYS", "3"),
+        "MAX_NEWS_ITEMS": os.getenv("MAX_NEWS_ITEMS", "25"),
+        "NEWS_TOPICS": os.getenv("NEWS_TOPICS", "technology, ai, politics"),
+        "ONLY_WITH_PUBDATE": os.getenv("ONLY_WITH_PUBDATE", "true")
+    }
+
+def save_settings(settings: dict):
+    env_path = ".env"
+    existing = {}
+
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                if "=" in line:
+                    key, val = line.strip().split("=", 1)
+                    existing[key] = val
+
+    for key, val in settings.items():
+        existing[key] = str(val)
+
+    with open(env_path, "w") as f:
+        for key, val in existing.items():
+            f.write(f"{key}={val}\n")
