@@ -66,32 +66,58 @@
     </div>
   </div>
 
-  <!-- Toggle Settings Panel Logic -->
-  <script>
-    const toggleBtn = document.getElementById("settings-toggle-btn");
-    const mainContent = document.getElementById("main-content");
-    const settingsPanel = document.getElementById("settings-panel");
-    let isSettingsOpen = false;
+<!-- Toggle Settings Panel Logic -->
+<script>
+  const toggleBtn = document.getElementById("settings-toggle-btn");
+  const mainContent = document.getElementById("main-content");
+  const settingsPanel = document.getElementById("settings-panel");
+  let isSettingsOpen = false;
 
-    toggleBtn.addEventListener("click", () => {
-      if (!isSettingsOpen) {
-        mainContent.style.display = "none";
-        fetch("/static/settings.html")
-          .then(res => res.text())
-          .then(html => {
-            settingsPanel.innerHTML = html;
-            settingsPanel.style.display = "block";
-            toggleBtn.textContent = "⬅ Back";
-            isSettingsOpen = true;
-          });
-      } else {
-        settingsPanel.style.display = "none";
-        mainContent.style.display = "block";
-        toggleBtn.textContent = "⚙️ Settings";
-        isSettingsOpen = false;
-      }
-    });
-  </script>
+  toggleBtn.addEventListener("click", () => {
+    if (!isSettingsOpen) {
+      mainContent.style.display = "none";
+      fetch("/static/settings.html")
+        .then(res => res.text())
+        .then(html => {
+          settingsPanel.innerHTML = html;
+          settingsPanel.style.display = "block";
+          toggleBtn.textContent = "⬅ Back";
+          isSettingsOpen = true;
+
+          // 🔁 Dynamically load settings.js if not already loaded
+          const existingScript = document.querySelector('script[src="/static/settings.js"]');
+          if (!existingScript) {
+            const script = document.createElement('script');
+            script.src = "/static/settings.js";
+            script.defer = true;
+            script.onload = () => {
+              if (typeof loadSettings === "function") {
+                console.log("✅ settings.js loaded, triggering loadSettings()");
+                loadSettings();
+              } else {
+                console.warn("⚠️ settings.js loaded but loadSettings() not found");
+              }
+            };
+            document.body.appendChild(script);
+          } else {
+            // If already loaded, just call it
+            if (typeof loadSettings === "function") {
+              console.log("🔁 settings.js already loaded, triggering loadSettings()");
+              loadSettings();
+            } else {
+              console.warn("⚠️ loadSettings() not found in existing script context");
+            }
+          }
+        });
+    } else {
+      settingsPanel.style.display = "none";
+      mainContent.style.display = "block";
+      toggleBtn.textContent = "⚙️ Settings";
+      isSettingsOpen = false;
+    }
+  });
+</script>
+
 
   <!-- App logic -->
   <script src="/static/app.js"></script>
