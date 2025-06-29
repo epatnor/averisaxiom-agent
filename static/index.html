@@ -84,30 +84,18 @@
           toggleBtn.textContent = "⬅ Back";
           isSettingsOpen = true;
 
-          // 🔁 Dynamically load settings.js if not already loaded
-          const existingScript = document.querySelector('script[src="/static/settings.js"]');
-          if (!existingScript) {
-            const script = document.createElement('script');
-            script.src = "/static/settings.js";
-            script.defer = true;
-            script.onload = () => {
-              if (typeof loadSettings === "function") {
-                console.log("✅ settings.js loaded, triggering loadSettings()");
-                loadSettings();
-              } else {
-                console.warn("⚠️ settings.js loaded but loadSettings() not found");
-              }
-            };
-            document.body.appendChild(script);
-          } else {
-            // If already loaded, just call it
+          // 🔧 Dynamically load settings.js after HTML injection
+          const script = document.createElement('script');
+          script.src = "/static/settings.js";
+          script.onload = () => {
             if (typeof loadSettings === "function") {
-              console.log("🔁 settings.js already loaded, triggering loadSettings()");
+              console.log("✅ settings.js loaded, running loadSettings()");
               loadSettings();
             } else {
-              console.warn("⚠️ loadSettings() not found in existing script context");
+              console.warn("⚠️ settings.js loaded but loadSettings() not found");
             }
-          }
+          };
+          document.body.appendChild(script);
         });
     } else {
       settingsPanel.style.display = "none";
@@ -117,6 +105,7 @@
     }
   });
 </script>
+
 
 
   <!-- App logic -->
