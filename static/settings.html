@@ -1,4 +1,3 @@
-<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,16 +7,15 @@
   <script src="/static/settings.js"></script>
 </head>
 <body>
-
   <div class="container">
 
-    <!-- 💼 General Settings -->
+    <!-- 💼 Overview -->
     <div class="section card">
       <h3>💼 Settings Overview</h3>
-      <p>Configure all services and system options for AverisAxiom below.</p>
+      <p>Configure all AI, feeds, and platform integrations below.</p>
     </div>
 
-    <!-- 🔍 Google News Settings -->
+    <!-- 🔍 Google News -->
     <div class="section card">
       <h3>🔍 Google News</h3>
       <form class="compact-group">
@@ -41,7 +39,7 @@
       </div>
     </div>
 
-    <!-- 📺 YouTube Settings -->
+    <!-- 📺 YouTube -->
     <div class="section card">
       <h3>📺 YouTube</h3>
       <form class="compact-group">
@@ -56,27 +54,52 @@
       </div>
     </div>
 
-    <!-- 🔐 API Keys -->
+    <!-- 🧪 API Keys -->
     <div class="section card">
-      <h3>🔐 API Keys</h3>
+      <h3>🧪 API Keys</h3>
+
+      <h4>🔑 OpenAI</h4>
       <form class="compact-group">
         <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key" autocomplete="off">
+      </form>
+
+      <h4>🔎 Serper</h4>
+      <form class="compact-group">
         <input type="text" name="SERPER_API_KEY" placeholder="Serper API Key">
       </form>
+
+      <h4>📺 YouTube API</h4>
       <form class="compact-group">
-        <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
-        <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token" autocomplete="off">
+        <input type="text" name="YOUTUBE_API_KEY" placeholder="YouTube API Key">
       </form>
-      <form class="compact-group">
-        <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky Handle">
-        <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password" autocomplete="off">
-      </form>
+
       <div class="compact-group">
         <button class="small-button">💾 Save</button>
       </div>
     </div>
 
-    <!-- ⚙️ System Settings -->
+    <!-- 🗣️ Social Media Accounts -->
+    <div class="section card">
+      <h3>🗣️ Social Media Accounts</h3>
+
+      <h4>🐘 Mastodon</h4>
+      <form class="compact-group">
+        <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
+        <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token" autocomplete="off">
+      </form>
+
+      <h4>🔵 Bluesky</h4>
+      <form class="compact-group">
+        <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky Handle">
+        <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password" autocomplete="off">
+      </form>
+
+      <div class="compact-group">
+        <button class="small-button">💾 Save</button>
+      </div>
+    </div>
+
+    <!-- ⚙️ System -->
     <div class="section card">
       <h3>⚙️ System</h3>
       <form class="compact-group">
@@ -88,7 +111,7 @@
       </form>
     </div>
 
-    <!-- 📤 Platform Selection -->
+    <!-- 📤 Platforms -->
     <div class="section card">
       <h3>📤 Platforms</h3>
       <form class="compact-group">
