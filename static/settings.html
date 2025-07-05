@@ -6,6 +6,43 @@
   <title>Settings</title>
   <link rel="stylesheet" href="/static/styles.css" />
   <script src="/static/settings.js" defer></script>
+  <style>
+    /* Inline override to fix borders and collapsible styles */
+    details.section.card {
+      border: none;
+      background-color: #222;
+      margin-bottom: 1em;
+      border-radius: 8px;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    details summary {
+      padding: 12px 16px;
+      background-color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      list-style: none;
+    }
+
+    details[open] summary {
+      border-bottom: 1px solid #444;
+    }
+
+    details summary::-webkit-details-marker {
+      display: none;
+    }
+
+    details > fieldset {
+      border: none;
+      padding: 16px;
+      margin: 0;
+    }
+
+    legend {
+      display: none;
+    }
+  </style>
 </head>
 <body>
   <div class="container settings-container">
@@ -24,9 +61,9 @@
       <div class="settings-column">
 
         <!-- Google News card -->
-        <div class="section card">
+        <details class="section card" open>
+          <summary>🔍 Google News Feed</summary>
           <fieldset>
-            <legend>🔍 Google News Feed</legend>
             <label for="google-rss-url">RSS Feed URL</label>
             <input type="text" id="google-rss-url" name="GOOGLE_RSS_URL" placeholder="https://news.google.com/rss?..."/>
 
@@ -56,12 +93,12 @@
               <button class="small-button test-google-btn">⚙️ Test</button>
             </div>
           </fieldset>
-        </div>
+        </details>
 
         <!-- YouTube card -->
-        <div class="section card">
+        <details class="section card" open>
+          <summary>📺 YouTube Feed</summary>
           <fieldset>
-            <legend>📺 YouTube Feed</legend>
             <label for="youtube-feed-url">YouTube Feed URL</label>
             <input type="text" id="youtube-feed-url" name="YOUTUBE_FEED_URL" placeholder="URL to a channel or playlist feed"/>
 
@@ -75,7 +112,7 @@
               <button class="small-button test-youtube-btn">⚙️ Test</button>
             </div>
           </fieldset>
-        </div>
+        </details>
 
       </div>
 
@@ -83,21 +120,21 @@
       <div class="settings-column">
 
         <!-- General API keys -->
-        <div class="section card">
+        <details class="section card" open>
+          <summary>🔑 General API Keys</summary>
           <fieldset>
-            <legend>🔑 General API Keys</legend>
             <label for="openai-api-key">OpenAI API Key</label>
             <input type="text" id="openai-api-key" name="OPENAI_API_KEY" placeholder="sk-abc...xyz" class="masked-input"/>
 
             <label for="serper-api-key">Serper API Key</label>
             <input type="text" id="serper-api-key" name="SERPER_API_KEY" placeholder="serp...xyz" class="masked-input"/>
           </fieldset>
-        </div>
+        </details>
 
         <!-- Publishing platforms -->
-        <div class="section card">
+        <details class="section card" open>
+          <summary>📤 Publishing Platforms</summary>
           <fieldset>
-            <legend>📤 Publishing Platforms</legend>
 
             <div class="platform-toggles">
               <label class="checkbox-inline"><input type="checkbox" name="USE_X" /> Post to X</label>
@@ -117,12 +154,12 @@
             <label for="mastodon-token">Access Token</label>
             <input type="text" id="mastodon-token" name="MASTODON_ACCESS_TOKEN" placeholder="abc...xyz" class="masked-input"/>
           </fieldset>
-        </div>
+        </details>
 
         <!-- System settings -->
-        <div class="section card">
+        <details class="section card" open>
+          <summary>⚙️ System Settings</summary>
           <fieldset>
-            <legend>⚙️ System</legend>
             <div class="compact-group">
               <label class="checkbox-inline">
                 <input type="checkbox" name="TEST_MODE" />
@@ -131,7 +168,7 @@
               <button class="small-button reset-defaults-btn">🔄 Reset to defaults</button>
             </div>
           </fieldset>
-        </div>
+        </details>
 
       </div>
     </div>
