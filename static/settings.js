@@ -173,3 +173,43 @@ function collectInputValues(container) {
     });
     return payload;
 }
+
+updateStatusDots();
+
+function updateStatusDots() {
+  // === Google ===
+  const googleFields = ["GOOGLE_RSS_URL", "GOOGLE_MAX_AGE", "GOOGLE_MAX_ITEMS"];
+  updateDot("dot-google", googleFields);
+
+  // === YouTube ===
+  const ytFields = ["YOUTUBE_FEED_URL", "YOUTUBE_API_KEY"];
+  updateDot("dot-youtube", ytFields);
+
+  // === API Keys ===
+  const apiFields = ["OPENAI_API_KEY", "SERPER_API_KEY"];
+  updateDot("dot-api", apiFields);
+
+  // === Platforms ===
+  const platforms = ["USE_X", "USE_BLUESKY", "USE_MASTODON"];
+  const anySelected = platforms.some(name => document.querySelector(`[name="${name}"]`)?.checked);
+  const dot = document.getElementById("dot-platforms");
+  dot.className = "status-dot " + (anySelected ? "ok" : "warn");
+
+  // === System ===
+  document.getElementById("dot-system").className = "status-dot ok"; // always green for now
+}
+
+function updateDot(dotId, fieldNames) {
+  const dot = document.getElementById(dotId);
+  const all = fieldNames.map(name => document.querySelector(`[name="${name}"]`));
+  const anyEmpty = all.some(el => !el || !el.value.trim());
+  const anyMissing = all.some(el => el === null);
+
+  if (anyMissing) {
+    dot.className = "status-dot error";
+  } else if (anyEmpty) {
+    dot.className = "status-dot warn";
+  } else {
+    dot.className = "status-dot ok";
+  }
+}
