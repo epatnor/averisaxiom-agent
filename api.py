@@ -44,7 +44,7 @@ async def serve_frontend():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
 # ⚙️ Serve settings.html at /settings
-@app.get("/settings")
+@app.get("/settings-page")
 async def serve_settings_page():
     return FileResponse(os.path.join(STATIC_DIR, "settings.html"), media_type="text/html")
 
