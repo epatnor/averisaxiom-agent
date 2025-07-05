@@ -24,8 +24,12 @@
       <div class="settings-column">
 
         <!-- Google News -->
-        <details class="section card" open>
-          <summary><span>🔍 Google News Feed</span><span class="chevron">▼</span></summary>
+        <details class="section card">
+          <summary>
+            <span>🔍 Google News Feed</span>
+            <span class="status-dot" id="dot-google"></span>
+            <span class="chevron">▼</span>
+          </summary>
           <fieldset>
             <label for="google-rss-url">RSS Feed URL</label>
             <input type="text" id="google-rss-url" name="GOOGLE_RSS_URL" placeholder="https://news.google.com/rss?..." />
@@ -59,8 +63,12 @@
         </details>
 
         <!-- YouTube -->
-        <details class="section card" open>
-          <summary><span>📺 YouTube Feed</span><span class="chevron">▼</span></summary>
+        <details class="section card">
+          <summary>
+            <span>📺 YouTube Feed</span>
+            <span class="status-dot" id="dot-youtube"></span>
+            <span class="chevron">▼</span>
+          </summary>
           <fieldset>
             <label for="youtube-feed-url">YouTube Feed URL</label>
             <input type="text" id="youtube-feed-url" name="YOUTUBE_FEED_URL" placeholder="URL to a channel or playlist feed" />
@@ -83,8 +91,12 @@
       <div class="settings-column">
 
         <!-- API Keys -->
-        <details class="section card" open>
-          <summary><span>🔑 General API Keys</span><span class="chevron">▼</span></summary>
+        <details class="section card">
+          <summary>
+            <span>🔑 General API Keys</span>
+            <span class="status-dot" id="dot-api"></span>
+            <span class="chevron">▼</span>
+          </summary>
           <fieldset>
             <label for="openai-api-key">OpenAI API Key</label>
             <input type="text" id="openai-api-key" name="OPENAI_API_KEY" placeholder="sk-abc...xyz" class="masked-input" />
@@ -95,8 +107,12 @@
         </details>
 
         <!-- Publishing -->
-        <details class="section card" open>
-          <summary><span>📤 Publishing Platforms</span><span class="chevron">▼</span></summary>
+        <details class="section card">
+          <summary>
+            <span>📤 Publishing Platforms</span>
+            <span class="status-dot" id="dot-platforms"></span>
+            <span class="chevron">▼</span>
+          </summary>
           <fieldset>
 
             <div class="platform-toggles">
@@ -120,8 +136,12 @@
         </details>
 
         <!-- System -->
-        <details class="section card" open>
-          <summary><span>⚙️ System Settings</span><span class="chevron">▼</span></summary>
+        <details class="section card">
+          <summary>
+            <span>⚙️ System Settings</span>
+            <span class="status-dot" id="dot-system"></span>
+            <span class="chevron">▼</span>
+          </summary>
           <fieldset>
             <div class="compact-group">
               <label class="checkbox-inline">
