@@ -50,6 +50,14 @@ def is_dummy(value: str) -> bool:
         return True
     return any(marker in value for marker in DUMMY_MARKERS)
 
+# Redact sensitive values in logs (e.g. API keys)
+def redact_sensitive(key: str, value: str) -> str:
+    if any(s in key.upper() for s in ["KEY", "TOKEN", "PASSWORD"]):
+        if value and len(value) > 10:
+            return value[:4] + "..." + value[-4:]
+        return "****"
+    return value
+
 # Retrieve a single setting from the database or fall back to .env
 def get_setting(key: str) -> str:
     conn = sqlite3.connect(SETTINGS_DB)
@@ -87,15 +95,15 @@ def get_all_settings() -> dict:
     except Exception as e:
         print(f"⚠️ Failed to load settings from DB: {e}")
 
-    # Fill in any missing expected keys using .env
     for key in EXPECTED_KEYS:
         if key not in settings or settings[key] in [None, ""]:
             settings[key] = os.getenv(key, "")
 
-    # Log any dummy values found in the settings
     for key, val in settings.items():
         if is_dummy(val):
             print(f"⚠️ Dummy value detected for '{key}'")
+        else:
+            print(f"    {key} = {redact_sensitive(key, val)}")
 
     return settings
 
