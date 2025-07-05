@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 # Load environment variables from .env
 load_dotenv()
 
-# Path to SQLite settings database
+# Path to the SQLite settings database
 SETTINGS_DB = "settings.db"
 
-# List of expected keys (used for .env fallback)
+# List of expected keys (used for .env fallback and UI population)
 EXPECTED_KEYS = [
     "OPENAI_API_KEY", "SERPER_API_KEY",
     "MASTODON_BASE_URL", "MASTODON_ACCESS_TOKEN",
@@ -22,10 +22,15 @@ EXPECTED_KEYS = [
     "USE_X", "USE_BLUESKY", "USE_MASTODON"
 ]
 
-# --- Init ---
+# Substrings that indicate a value is a dummy placeholder
+DUMMY_MARKERS = [
+    "your-openai-key-here", "example.com", "proxy.example",
+    "bluesky-app-password-here", "mastodon-access-token-here",
+    "youtube-api-key-here", "serper-api-key-here", "bsky.social"
+]
 
+# Create the settings table if it doesn't exist
 def init_settings_db():
-    """Creates the settings database and table if it doesn't exist."""
     if not os.path.exists(SETTINGS_DB):
         print("==> Creating settings.db...")
     conn = sqlite3.connect(SETTINGS_DB)
@@ -39,14 +44,14 @@ def init_settings_db():
     conn.commit()
     conn.close()
 
+# Detect if a setting value is empty or clearly a placeholder
+def is_dummy(value: str) -> bool:
+    if not value or value.strip() == "":
+        return True
+    return any(marker in value for marker in DUMMY_MARKERS)
 
-# --- Get / Set Single ---
-
-def get_setting(key):
-    """
-    Retrieve a single setting from the database.
-    Falls back to .env if not found or empty.
-    """
+# Retrieve a single setting from the database or fall back to .env
+def get_setting(key: str) -> str:
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
@@ -57,11 +62,8 @@ def get_setting(key):
         return row[0]
     return os.getenv(key, "")
 
-
-def set_setting(key, value):
-    """
-    Set or update a single setting in the database.
-    """
+# Insert or update a single setting in the database
+def set_setting(key: str, value: str) -> None:
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("""
@@ -71,14 +73,8 @@ def set_setting(key, value):
     conn.commit()
     conn.close()
 
-
-# --- Get All ---
-
-def get_all_settings():
-    """
-    Load all settings from the database.
-    Falls back to .env values for any expected keys not found in the DB.
-    """
+# Load all settings from the database with .env fallback
+def get_all_settings() -> dict:
     settings = {}
 
     try:
@@ -87,26 +83,24 @@ def get_all_settings():
         c.execute("SELECT key, value FROM settings")
         rows = c.fetchall()
         conn.close()
-
         settings = {key: value for key, value in rows if value not in [None, ""]}
-
     except Exception as e:
         print(f"⚠️ Failed to load settings from DB: {e}")
 
-    # Add missing expected keys from .env as fallback
+    # Fill in any missing expected keys using .env
     for key in EXPECTED_KEYS:
         if key not in settings or settings[key] in [None, ""]:
             settings[key] = os.getenv(key, "")
 
+    # Log any dummy values found in the settings
+    for key, val in settings.items():
+        if is_dummy(val):
+            print(f"⚠️ Dummy value detected for '{key}'")
+
     return settings
 
-
-# --- Optional Utility ---
-
-def get_setting_with_fallback(key, fallback_env):
-    """
-    Fetch a setting using one key, but fallback to another .env key if missing.
-    """
+# Fetch a setting using one key, or fallback to another .env key
+def get_setting_with_fallback(key: str, fallback_env: str) -> str:
     value = get_setting(key)
     if value not in [None, ""]:
         return value
