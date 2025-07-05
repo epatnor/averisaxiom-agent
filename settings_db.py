@@ -22,7 +22,7 @@ EXPECTED_KEYS = [
     "USE_X", "USE_BLUESKY", "USE_MASTODON"
 ]
 
-# Substrings that indicate a value is a dummy placeholder
+# Substrings used to identify dummy placeholder values
 DUMMY_MARKERS = [
     "your-openai-key-here", "example.com", "proxy.example",
     "bluesky-app-password-here", "mastodon-access-token-here",
@@ -44,13 +44,13 @@ def init_settings_db():
     conn.commit()
     conn.close()
 
-# Detect if a setting value is empty or clearly a placeholder
+# Return True if a value appears to be a dummy/placeholder
 def is_dummy(value: str) -> bool:
     if not value or value.strip() == "":
         return True
     return any(marker in value for marker in DUMMY_MARKERS)
 
-# Redact sensitive values in logs (e.g. API keys)
+# Return a masked version of sensitive keys like API keys and tokens
 def redact_sensitive(key: str, value: str) -> str:
     if any(s in key.upper() for s in ["KEY", "TOKEN", "PASSWORD"]):
         if value and len(value) > 10:
@@ -58,19 +58,18 @@ def redact_sensitive(key: str, value: str) -> str:
         return "****"
     return value
 
-# Retrieve a single setting from the database or fall back to .env
+# Retrieve a single setting from the database, or fall back to .env
 def get_setting(key: str) -> str:
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
     c.execute("SELECT value FROM settings WHERE key = ?", (key,))
     row = c.fetchone()
     conn.close()
-
     if row and row[0] not in [None, ""]:
         return row[0]
     return os.getenv(key, "")
 
-# Insert or update a single setting in the database
+# Insert or update a setting in the database
 def set_setting(key: str, value: str) -> None:
     conn = sqlite3.connect(SETTINGS_DB)
     c = conn.cursor()
@@ -81,9 +80,11 @@ def set_setting(key: str, value: str) -> None:
     conn.commit()
     conn.close()
 
-# Load all settings from the database with .env fallback
-def get_all_settings() -> dict:
+# Load all settings from the database and supplement with .env if needed
+# If include_metadata=True, also return a metadata dict with dummy/masked info
+def get_all_settings(include_metadata=False) -> dict:
     settings = {}
+    metadata = {}
 
     try:
         conn = sqlite3.connect(SETTINGS_DB)
@@ -99,15 +100,17 @@ def get_all_settings() -> dict:
         if key not in settings or settings[key] in [None, ""]:
             settings[key] = os.getenv(key, "")
 
-    for key, val in settings.items():
-        if is_dummy(val):
-            print(f"⚠️ Dummy value detected for '{key}'")
-        else:
-            print(f"    {key} = {redact_sensitive(key, val)}")
+    if include_metadata:
+        for key, val in settings.items():
+            metadata[key] = {
+                "is_dummy": is_dummy(val),
+                "masked": redact_sensitive(key, val)
+            }
+        return settings, metadata
 
     return settings
 
-# Fetch a setting using one key, or fallback to another .env key
+# Retrieve a setting, falling back to an alternate env var if needed
 def get_setting_with_fallback(key: str, fallback_env: str) -> str:
     value = get_setting(key)
     if value not in [None, ""]:
