@@ -1,135 +1,146 @@
+<!-- settings.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Settings</title>
-  <link rel="stylesheet" href="/static/styles.css">
-  <script src="/static/settings.js"></script>
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="/static/settings.js" defer></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container settings-container">
 
-    <!-- 💼 Overview -->
-    <div class="section card">
-      <h3>💼 Settings Overview</h3>
-      <p>Configure all AI, feeds, and platform integrations below.</p>
+    <!-- Header section -->
+    <div class="settings-header">
+      <h3>⚙️ Application Settings</h3>
+      <p>Configure data sources, APIs, and publishing settings.</p>
+      <button id="save-all-settings-btn" class="primary-button">💾 Save All Settings</button>
     </div>
 
-    <!-- 🔍 Google News -->
-    <div class="section card">
-      <h3>🔍 Google News</h3>
-      <form class="compact-group">
-        <input type="text" name="GOOGLE_RSS_URL" placeholder="RSS Feed URL">
-        <input type="number" name="GOOGLE_MAX_AGE" placeholder="Max age (days)">
-        <input type="number" name="GOOGLE_MAX_ITEMS" placeholder="Max items per run">
-      </form>
-      <form class="compact-group">
-        <input type="text" name="GOOGLE_QUERY" placeholder="Search terms or topics">
-        <label class="checkbox-inline">
-          <input type="checkbox" name="GOOGLE_REQUIRE_DATE">
-          Only show news with publish date
-        </label>
-      </form>
-      <form class="compact-group">
-        <textarea name="GOOGLE_DESCRIPTION" placeholder="Optional context or summarization prompt..."></textarea>
-      </form>
-      <div class="compact-group">
-        <button class="small-button">💾 Save</button>
-        <button class="small-button">⚙️ Test</button>
+    <!-- Settings grid: two columns -->
+    <div class="settings-grid">
+
+      <!-- Column 1 – Data Sources -->
+      <div class="settings-column">
+
+        <!-- Google News card -->
+        <div class="section card">
+          <fieldset>
+            <legend>🔍 Google News Feed</legend>
+            <label for="google-rss-url">RSS Feed URL</label>
+            <input type="text" id="google-rss-url" name="GOOGLE_RSS_URL" placeholder="https://news.google.com/rss?..."/>
+
+            <div class="compact-group">
+              <div>
+                <label for="google-max-age">Max age (days)</label>
+                <input type="number" id="google-max-age" name="GOOGLE_MAX_AGE" placeholder="7" min="1"/>
+              </div>
+              <div>
+                <label for="google-max-items">Max items/run</label>
+                <input type="number" id="google-max-items" name="GOOGLE_MAX_ITEMS" placeholder="20" min="1"/>
+              </div>
+            </div>
+
+            <label for="google-query">Search terms/topics</label>
+            <input type="text" id="google-query" name="GOOGLE_QUERY" placeholder="e.g., AI, politics"/>
+
+            <label class="checkbox-inline">
+              <input type="checkbox" name="GOOGLE_REQUIRE_DATE" />
+              Only show dated news
+            </label>
+
+            <label for="google-description">Summarization prompt (optional)</label>
+            <textarea id="google-description" name="GOOGLE_DESCRIPTION" placeholder="Context for the AI..."></textarea>
+
+            <div class="compact-group">
+              <button class="small-button test-google-btn">⚙️ Test</button>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- YouTube card -->
+        <div class="section card">
+          <fieldset>
+            <legend>📺 YouTube Feed</legend>
+            <label for="youtube-feed-url">YouTube Feed URL</label>
+            <input type="text" id="youtube-feed-url" name="YOUTUBE_FEED_URL" placeholder="URL to a channel or playlist feed"/>
+
+            <label for="youtube-api-key">YouTube API Key</label>
+            <input type="text" id="youtube-api-key" name="YOUTUBE_API_KEY" placeholder="AIza...xyz" class="masked-input"/>
+
+            <label for="youtube-description">Summarization prompt (optional)</label>
+            <textarea id="youtube-description" name="YOUTUBE_DESCRIPTION" placeholder="Context for the AI..."></textarea>
+
+            <div class="compact-group">
+              <button class="small-button test-youtube-btn">⚙️ Test</button>
+            </div>
+          </fieldset>
+        </div>
+
+      </div>
+
+      <!-- Column 2 – API + Publishing -->
+      <div class="settings-column">
+
+        <!-- General API keys -->
+        <div class="section card">
+          <fieldset>
+            <legend>🔑 General API Keys</legend>
+            <label for="openai-api-key">OpenAI API Key</label>
+            <input type="text" id="openai-api-key" name="OPENAI_API_KEY" placeholder="sk-abc...xyz" class="masked-input"/>
+
+            <label for="serper-api-key">Serper API Key</label>
+            <input type="text" id="serper-api-key" name="SERPER_API_KEY" placeholder="serp...xyz" class="masked-input"/>
+          </fieldset>
+        </div>
+
+        <!-- Publishing platforms -->
+        <div class="section card">
+          <fieldset>
+            <legend>📤 Publishing Platforms</legend>
+
+            <div class="platform-toggles">
+              <label class="checkbox-inline"><input type="checkbox" name="USE_X" /> Post to X</label>
+              <label class="checkbox-inline"><input type="checkbox" name="USE_BLUESKY" /> Post to Bluesky</label>
+              <label class="checkbox-inline"><input type="checkbox" name="USE_MASTODON" /> Post to Mastodon</label>
+            </div>
+
+            <h4>🔵 Bluesky</h4>
+            <label for="bluesky-handle">Handle</label>
+            <input type="text" id="bluesky-handle" name="BLUESKY_HANDLE" placeholder="user.bsky.social"/>
+            <label for="bluesky-password">App Password</label>
+            <input type="text" id="bluesky-password" name="BLUESKY_APP_PASSWORD" placeholder="xxxx-xxxx-xxxx" class="masked-input"/>
+
+            <h4>🐘 Mastodon</h4>
+            <label for="mastodon-url">Instance URL</label>
+            <input type="text" id="mastodon-url" name="MASTODON_BASE_URL" placeholder="https://mastodon.social"/>
+            <label for="mastodon-token">Access Token</label>
+            <input type="text" id="mastodon-token" name="MASTODON_ACCESS_TOKEN" placeholder="abc...xyz" class="masked-input"/>
+          </fieldset>
+        </div>
+
+        <!-- System settings -->
+        <div class="section card">
+          <fieldset>
+            <legend>⚙️ System</legend>
+            <div class="compact-group">
+              <label class="checkbox-inline">
+                <input type="checkbox" name="TEST_MODE" />
+                Enable Test Mode
+              </label>
+              <button class="small-button reset-defaults-btn">🔄 Reset to defaults</button>
+            </div>
+          </fieldset>
+        </div>
+
       </div>
     </div>
 
-    <!-- 📺 YouTube -->
-    <div class="section card">
-      <h3>📺 YouTube</h3>
-      <form class="compact-group">
-        <input type="text" name="YOUTUBE_FEED_URL" placeholder="YouTube Feed URL">
-      </form>
-      <form class="compact-group">
-        <textarea name="YOUTUBE_DESCRIPTION" placeholder="Optional context or summarization prompt..."></textarea>
-      </form>
-      <div class="compact-group">
-        <button class="small-button">💾 Save</button>
-        <button class="small-button">⚙️ Test</button>
-      </div>
-    </div>
-
-    <!-- 🧪 API Keys -->
-    <div class="section card">
-      <h3>🧪 API Keys</h3>
-
-      <h4>🔑 OpenAI</h4>
-      <form class="compact-group">
-        <input type="password" name="OPENAI_API_KEY" placeholder="OpenAI API Key" autocomplete="off">
-      </form>
-
-      <h4>🔎 Serper</h4>
-      <form class="compact-group">
-        <input type="text" name="SERPER_API_KEY" placeholder="Serper API Key">
-      </form>
-
-      <h4>📺 YouTube API</h4>
-      <form class="compact-group">
-        <input type="text" name="YOUTUBE_API_KEY" placeholder="YouTube API Key">
-      </form>
-
-      <div class="compact-group">
-        <button class="small-button">💾 Save</button>
-      </div>
-    </div>
-
-    <!-- 🗣️ Social Media Accounts -->
-    <div class="section card">
-      <h3>🗣️ Social Media Accounts</h3>
-
-      <h4>🐘 Mastodon</h4>
-      <form class="compact-group">
-        <input type="text" name="MASTODON_BASE_URL" placeholder="Mastodon Base URL">
-        <input type="password" name="MASTODON_ACCESS_TOKEN" placeholder="Mastodon Access Token" autocomplete="off">
-      </form>
-
-      <h4>🔵 Bluesky</h4>
-      <form class="compact-group">
-        <input type="text" name="BLUESKY_HANDLE" placeholder="Bluesky Handle">
-        <input type="password" name="BLUESKY_APP_PASSWORD" placeholder="Bluesky App Password" autocomplete="off">
-      </form>
-
-      <div class="compact-group">
-        <button class="small-button">💾 Save</button>
-      </div>
-    </div>
-
-    <!-- ⚙️ System -->
-    <div class="section card">
-      <h3>⚙️ System</h3>
-      <form class="compact-group">
-        <label class="checkbox-inline">
-          <input type="checkbox" name="TEST_MODE">
-          Enable test mode
-        </label>
-        <button class="small-button">🔄 Reset to defaults</button>
-      </form>
-    </div>
-
-    <!-- 📤 Platforms -->
-    <div class="section card">
-      <h3>📤 Platforms</h3>
-      <form class="compact-group">
-        <label><input type="checkbox" name="USE_X" /> Post to X</label>
-        <label><input type="checkbox" name="USE_BLUESKY" /> Post to Bluesky</label>
-        <label><input type="checkbox" name="USE_MASTODON" /> Post to Mastodon</label>
-      </form>
-    </div>
-
-    <!-- 📋 Status Log -->
-    <div class="section card">
+    <!-- Status Log -->
+    <div class="section card status-log-card">
       <h3>📋 Status Log</h3>
       <ul id="status-log" class="log-list">
-        <li>✅ OpenAI API key saved</li>
-        <li>🔄 Twitter login verified</li>
-        <li>⚠️ Bluesky prompt missing</li>
-        <li>🟢 Mastodon: connected</li>
-        <li>🕒 Last updated: 08:12</li>
+        <li>🕒 Awaiting user action...</li>
       </ul>
     </div>
 
