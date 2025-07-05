@@ -232,3 +232,24 @@ header {
   color: #4dd0e1;
   background-color: #1a2e2e;
 }
+
+.status-dot {
+  float: right;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  background-color: #666; /* default grey */
+}
+
+.status-dot.ok {
+  background-color: #4caf50; /* green */
+}
+
+.status-dot.warn {
+  background-color: #ffc107; /* yellow */
+}
+
+.status-dot.error {
+  background-color: #f44336; /* red */
+}
