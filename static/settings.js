@@ -33,6 +33,7 @@ function loadSettings() {
                 normalizedData[k.trim().toUpperCase()] = v;
             });
 
+            // Update all inputs with their corresponding values
             inputs.forEach(el => {
                 const rawName = el.name;
                 const key = rawName?.toUpperCase();
@@ -42,13 +43,21 @@ function loadSettings() {
                 }
 
                 const val = normalizedData[key];
+
                 if (el.type === "checkbox") {
                     el.checked = (val === true || val === "true");
                 } else {
-                    el.value = val ?? "";
+                    // Show masked value for sensitive fields
+                    if (shouldMask(key, val)) {
+                        el.value = maskValue(val);
+                        el.setAttribute("data-masked", "true");
+                    } else {
+                        el.value = val ?? "";
+                        el.removeAttribute("data-masked");
+                    }
                 }
 
-                // Check if value looks like a dummy
+                // Style and tooltip if it's a dummy value
                 if (isDummyValue(val)) {
                     el.classList.add("dummy");
                     el.title = "This appears to be a placeholder value. Please update.";
@@ -72,6 +81,22 @@ function isDummyValue(val) {
         "youtube-api-key-here", "serper-api-key-here", "bsky.social"
     ];
     return dummyPatterns.some(pattern => val.includes(pattern));
+}
+
+// Determine if a setting key should be masked in the UI
+function shouldMask(key, val) {
+    if (!val || typeof val !== "string") return false;
+    const sensitiveKeys = [
+        "OPENAI_API_KEY", "SERPER_API_KEY", "YOUTUBE_API_KEY",
+        "MASTODON_ACCESS_TOKEN", "BLUESKY_APP_PASSWORD"
+    ];
+    return sensitiveKeys.includes(key) && val.length > 8;
+}
+
+// Return a masked representation of a value like: abc...xyz
+function maskValue(val) {
+    if (val.length <= 8) return "••••••••";
+    return `${val.slice(0, 4)}...${val.slice(-4)}`;
 }
 
 // Save settings from a specific section/card
@@ -137,7 +162,14 @@ function resetDefaults() {
 function collectInputValues(container) {
     const payload = {};
     container.querySelectorAll("input[name], textarea[name]").forEach(el => {
-        payload[el.name.trim().toUpperCase()] = (el.type === "checkbox") ? String(el.checked) : el.value;
+        const key = el.name.trim().toUpperCase();
+        if (el.type === "checkbox") {
+            payload[key] = String(el.checked);
+        } else {
+            const raw = el.value.trim();
+            const wasMasked = el.getAttribute("data-masked") === "true";
+            payload[key] = (wasMasked && raw.includes("...")) ? "" : raw;
+        }
     });
     return payload;
 }
