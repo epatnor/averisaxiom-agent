@@ -10,39 +10,39 @@
 <body>
   <div class="container settings-container">
 
-    <!-- Header section -->
+    <!-- Header -->
     <div class="settings-header">
       <h3>⚙️ Application Settings</h3>
       <p>Configure data sources, APIs, and publishing settings.</p>
       <button id="save-all-settings-btn" class="primary-button">💾 Save All Settings</button>
     </div>
 
-    <!-- Settings grid: two columns -->
+    <!-- Two-column layout for settings -->
     <div class="settings-grid">
 
-      <!-- Column 1 – Data Sources -->
+      <!-- Left column -->
       <div class="settings-column">
 
-        <!-- Google News card -->
+        <!-- Google News -->
         <details class="section card" open>
-          <summary>🔍 Google News Feed</summary>
+          <summary><span>🔍 Google News Feed</span><span class="chevron">▼</span></summary>
           <fieldset>
             <label for="google-rss-url">RSS Feed URL</label>
-            <input type="text" id="google-rss-url" name="GOOGLE_RSS_URL" placeholder="https://news.google.com/rss?..."/>
+            <input type="text" id="google-rss-url" name="GOOGLE_RSS_URL" placeholder="https://news.google.com/rss?..." />
 
             <div class="compact-group">
               <div>
                 <label for="google-max-age">Max age (days)</label>
-                <input type="number" id="google-max-age" name="GOOGLE_MAX_AGE" placeholder="7" min="1"/>
+                <input type="number" id="google-max-age" name="GOOGLE_MAX_AGE" placeholder="7" min="1" />
               </div>
               <div>
                 <label for="google-max-items">Max items/run</label>
-                <input type="number" id="google-max-items" name="GOOGLE_MAX_ITEMS" placeholder="20" min="1"/>
+                <input type="number" id="google-max-items" name="GOOGLE_MAX_ITEMS" placeholder="20" min="1" />
               </div>
             </div>
 
             <label for="google-query">Search terms/topics</label>
-            <input type="text" id="google-query" name="GOOGLE_QUERY" placeholder="e.g., AI, politics"/>
+            <input type="text" id="google-query" name="GOOGLE_QUERY" placeholder="e.g., AI, politics" />
 
             <label class="checkbox-inline">
               <input type="checkbox" name="GOOGLE_REQUIRE_DATE" />
@@ -58,15 +58,15 @@
           </fieldset>
         </details>
 
-        <!-- YouTube card -->
+        <!-- YouTube -->
         <details class="section card" open>
-          <summary>📺 YouTube Feed</summary>
+          <summary><span>📺 YouTube Feed</span><span class="chevron">▼</span></summary>
           <fieldset>
             <label for="youtube-feed-url">YouTube Feed URL</label>
-            <input type="text" id="youtube-feed-url" name="YOUTUBE_FEED_URL" placeholder="URL to a channel or playlist feed"/>
+            <input type="text" id="youtube-feed-url" name="YOUTUBE_FEED_URL" placeholder="URL to a channel or playlist feed" />
 
             <label for="youtube-api-key">YouTube API Key</label>
-            <input type="text" id="youtube-api-key" name="YOUTUBE_API_KEY" placeholder="AIza...xyz" class="masked-input"/>
+            <input type="text" id="youtube-api-key" name="YOUTUBE_API_KEY" placeholder="AIza...xyz" class="masked-input" />
 
             <label for="youtube-description">Summarization prompt (optional)</label>
             <textarea id="youtube-description" name="YOUTUBE_DESCRIPTION" placeholder="Context for the AI..."></textarea>
@@ -79,24 +79,24 @@
 
       </div>
 
-      <!-- Column 2 – API + Publishing -->
+      <!-- Right column -->
       <div class="settings-column">
 
-        <!-- General API keys -->
+        <!-- API Keys -->
         <details class="section card" open>
-          <summary>🔑 General API Keys</summary>
+          <summary><span>🔑 General API Keys</span><span class="chevron">▼</span></summary>
           <fieldset>
             <label for="openai-api-key">OpenAI API Key</label>
-            <input type="text" id="openai-api-key" name="OPENAI_API_KEY" placeholder="sk-abc...xyz" class="masked-input"/>
+            <input type="text" id="openai-api-key" name="OPENAI_API_KEY" placeholder="sk-abc...xyz" class="masked-input" />
 
             <label for="serper-api-key">Serper API Key</label>
-            <input type="text" id="serper-api-key" name="SERPER_API_KEY" placeholder="serp...xyz" class="masked-input"/>
+            <input type="text" id="serper-api-key" name="SERPER_API_KEY" placeholder="serp...xyz" class="masked-input" />
           </fieldset>
         </details>
 
-        <!-- Publishing platforms -->
+        <!-- Publishing -->
         <details class="section card" open>
-          <summary>📤 Publishing Platforms</summary>
+          <summary><span>📤 Publishing Platforms</span><span class="chevron">▼</span></summary>
           <fieldset>
 
             <div class="platform-toggles">
@@ -107,21 +107,21 @@
 
             <h4>🔵 Bluesky</h4>
             <label for="bluesky-handle">Handle</label>
-            <input type="text" id="bluesky-handle" name="BLUESKY_HANDLE" placeholder="user.bsky.social"/>
+            <input type="text" id="bluesky-handle" name="BLUESKY_HANDLE" placeholder="user.bsky.social" />
             <label for="bluesky-password">App Password</label>
-            <input type="text" id="bluesky-password" name="BLUESKY_APP_PASSWORD" placeholder="xxxx-xxxx-xxxx" class="masked-input"/>
+            <input type="text" id="bluesky-password" name="BLUESKY_APP_PASSWORD" placeholder="xxxx-xxxx-xxxx" class="masked-input" />
 
             <h4>🐘 Mastodon</h4>
             <label for="mastodon-url">Instance URL</label>
-            <input type="text" id="mastodon-url" name="MASTODON_BASE_URL" placeholder="https://mastodon.social"/>
+            <input type="text" id="mastodon-url" name="MASTODON_BASE_URL" placeholder="https://mastodon.social" />
             <label for="mastodon-token">Access Token</label>
-            <input type="text" id="mastodon-token" name="MASTODON_ACCESS_TOKEN" placeholder="abc...xyz" class="masked-input"/>
+            <input type="text" id="mastodon-token" name="MASTODON_ACCESS_TOKEN" placeholder="abc...xyz" class="masked-input" />
           </fieldset>
         </details>
 
-        <!-- System settings -->
+        <!-- System -->
         <details class="section card" open>
-          <summary>⚙️ System Settings</summary>
+          <summary><span>⚙️ System Settings</span><span class="chevron">▼</span></summary>
           <fieldset>
             <div class="compact-group">
               <label class="checkbox-inline">
@@ -136,7 +136,7 @@
       </div>
     </div>
 
-    <!-- Status Log -->
+    <!-- Log -->
     <div class="section card status-log-card">
       <h3>📋 Status Log</h3>
       <ul id="status-log" class="log-list">
