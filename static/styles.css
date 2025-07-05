@@ -1,3 +1,5 @@
+/* settings.css */
+
 /* === Basic dark theme === */
 body {
   margin: 0;
@@ -34,7 +36,6 @@ details.section {
   background-color: #222;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: none;
   border: none;
 }
 
@@ -49,6 +50,13 @@ details > summary {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
+}
+
+details > summary > span {
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 details[open] > summary {
@@ -110,7 +118,8 @@ select {
   box-sizing: border-box;
 }
 
-input.dummy, textarea.dummy {
+input.dummy,
+textarea.dummy {
   border-color: #aa0;
   background-color: #221f11;
 }
@@ -233,12 +242,13 @@ header {
   background-color: #1a2e2e;
 }
 
+/* === Status indicators (pluppar) === */
 .status-dot {
-  float: right;
+  display: inline-block;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  margin-left: 10px;
+  margin-left: 8px;
   background-color: #666; /* default grey */
 }
 
