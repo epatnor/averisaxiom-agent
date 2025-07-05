@@ -16,25 +16,48 @@ body {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 16px;              /* Reduced vertical spacing between sections */
-  padding: 0 24px;        /* More padding on sides for breathing room */
+  gap: 16px;
+  padding: 0 24px;
 }
 
-/* Larger screens: match list width */
 @media (min-width: 1200px) {
   .container {
-    max-width: 95%;       /* Close to full width like the list */
+    max-width: 95%;
     padding: 0 32px;
   }
 }
 
-/* === Section cards === */
-.section {
+/* === Collapsible Section Cards === */
+details.section {
+  padding: 0;
+  margin-bottom: 16px;
   background-color: #222;
-  padding: 12px 20px;     /* Slightly tighter padding */
   border-radius: 12px;
-  box-shadow: 0 0 8px #0005;
-  margin-bottom: 12px;    /* Much tighter spacing between cards */
+  overflow: hidden;
+  box-shadow: none;
+}
+
+details > summary {
+  padding: 12px 20px;
+  background-color: #2a2a2a;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #f0f0f0;
+  user-select: none;
+}
+
+details[open] > summary {
+  border-bottom: 1px solid #444;
+}
+
+details > fieldset {
+  padding: 16px 20px;
+  border: none;
+}
+
+details > summary::-webkit-details-marker {
+  display: none;
 }
 
 /* === Headings === */
@@ -42,14 +65,15 @@ h2, h3 {
   margin-top: 0;
   color: #f5f5f5;
 }
+
 h2 {
   font-size: 1.2rem;
   border-bottom: 1px solid #333;
   padding-bottom: 6px;
   margin-bottom: 6px;
 }
+
 h3 {
-  color: #f5f5f5 !important;
   font-size: 1.1rem;
   margin-bottom: 6px;
 }
@@ -68,14 +92,19 @@ select {
   background-color: #222;
   color: #eee;
   font-size: 0.95rem;
-  font-family: inherit;          /* 🛠️ fixar font mismatch för textarea */
+  font-family: inherit;
   box-sizing: border-box;
+}
+
+input.dummy, textarea.dummy {
+  border-color: #aa0;
+  background-color: #221f11;
 }
 
 textarea {
   resize: vertical;
   min-height: 60px;
-  line-height: 1.5;              /* 🛠️ säkrar liknande radavstånd som inputs */
+  line-height: 1.5;
 }
 
 input:focus,
@@ -137,6 +166,7 @@ button:hover,
   padding-left: 0;
   color: #ccc;
 }
+
 .header-actions {
   position: absolute;
   right: 16px;
@@ -153,17 +183,16 @@ header {
   font-weight: 600;
   font-size: 1.4rem;
   border-bottom: 1px solid #333;
-  margin-bottom: 16px; /* 👈 This is the fix! */
+  margin-bottom: 16px;
 }
-
 
 /* === Pipeline list (compact post list) === */
 #pipeline-list {
   display: flex;
   flex-direction: column;
-  gap: 3px;           /* Tight vertical spacing between posts */
+  gap: 3px;
   margin-top: 16px;
-  padding: 0 16px;    /* Horizontal breathing room */
+  padding: 0 16px;
 }
 
 /* === Origin tags for post type labels === */
@@ -176,17 +205,16 @@ header {
 }
 
 .origin-tag.manual {
-  color: #fdd835;           /* Gul text */
+  color: #fdd835;
   background-color: #3a3a1a;
 }
 
 .origin-tag.ai-assisted {
-  color: #ba68c8;           /* Lila text */
+  color: #ba68c8;
   background-color: #2d1f35;
 }
 
 .origin-tag.auto {
-  color: #4dd0e1;           /* Cyan text */
+  color: #4dd0e1;
   background-color: #1a2e2e;
 }
-
